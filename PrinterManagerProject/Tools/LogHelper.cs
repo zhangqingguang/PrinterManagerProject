@@ -1,7 +1,9 @@
-﻿using System;
+﻿using log4net;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -25,6 +27,7 @@ namespace PrinterManagerProject.Tools
             }
             catch (Exception ex)
             {
+                myEventLog.Log.Error(ex.Message, ex);
                 ErrorLog(ex.Message);
             }
         }
@@ -43,6 +46,7 @@ namespace PrinterManagerProject.Tools
             catch (Exception ex)
             {
                 ErrorLog(ex.Message);
+                myEventLog.Log.Error(ex.Message, ex);
             }
         }
 
@@ -80,6 +84,7 @@ namespace PrinterManagerProject.Tools
             catch (Exception ex)
             {
                 ErrorLog(ex.Message);
+                myEventLog.Log.Error(ex.Message, ex);
             }
         }
     }

@@ -25,7 +25,7 @@ namespace PrinterManagerProject.Tools
         public Model.ListAllModel Drug { get; set; }
 
         /// <summary>
-        /// 二维码扫描到的数据
+        /// 打印标签时生成的二维码
         /// </summary>
         public string QRData { get; set; }
 
@@ -35,7 +35,7 @@ namespace PrinterManagerProject.Tools
         public string ScanData { get; set; }
 
         /// <summary>
-        /// 去扫描扫码
+        /// 去扫描扫码：过打印光幕时设置为true，
         /// </summary>
         public bool GoToScan { get; set; }
 

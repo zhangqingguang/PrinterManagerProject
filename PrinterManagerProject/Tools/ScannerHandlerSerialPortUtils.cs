@@ -1,9 +1,11 @@
-﻿using PrinterManagerProject.Tools;
+﻿using log4net;
+using PrinterManagerProject.Tools;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
 using System.IO.Ports;
 using System.Linq;
+using System.Reflection;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
@@ -72,7 +74,7 @@ namespace PrinterManagerProject
             sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
             string result = Encoding.UTF8.GetString(ReDatas);
             
-            new LogHelper().SerialPortLog(string.Format("手持扫码枪接收:{0}", result));
+            new LogHelper().SerialPortLog($"接收到手持扫码枪：{result}");
 
             mSerialPortInterface.OnScannerHandlerDataReceived(result);
         }
@@ -91,14 +93,17 @@ namespace PrinterManagerProject
                 try
                 {
                     sp.Write(instructions);//发送数据
-                    
+
                     new LogHelper().SerialPortLog(string.Format("手持扫码枪发送:{0}", instructions));
+
+                    myEventLog.Log.Info($"手持扫码枪发送:{instructions}");
 
                     return true;
                 }
                 catch (Exception ex)
                 {
-                    new LogHelper().ErrorLog(ex.Message);
+                    new LogHelper().ErrorLog( ex.Message);
+                    myEventLog.Log.Error("向手持扫码枪发送数据出错。" +ex.Message,ex);
                 }
                 finally
                 {
@@ -121,6 +126,9 @@ namespace PrinterManagerProject
                 {
                     mSerialPortInterface.OnScannerHandlerComplated();
                 }
+
+                myEventLog.Log.Info($"成功打开手持扫码枪串口，{sp.PortName}。");
+
                 return true;
             }
             catch (Exception ex)
@@ -130,6 +138,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnScannerHandlerError(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
+                myEventLog.Log.Error($"打开手持扫码枪串口出错{sp.PortName}。" + ex.Message, ex);
                 return false;
             }
         }
@@ -147,6 +156,7 @@ namespace PrinterManagerProject
                 {
                     mSerialPortInterface.OnScannerHandlerComplated();
                 }
+                myEventLog.Log.Info($"成功关闭手持扫码枪串口，{sp.PortName}。");
                 return true;
             }
             catch (Exception ex)
@@ -156,6 +166,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnScannerHandlerError(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
+                myEventLog.Log.Error($"关闭手持扫码枪串口出错，{sp.PortName}。" + ex.Message, ex);
                 return false;
             }
         }
