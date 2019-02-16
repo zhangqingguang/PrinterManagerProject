@@ -66,4 +66,54 @@ namespace PrinterManagerProject.Tools
             }
         }
     }
+    /// <summary>
+    /// 监听CCD2超时计时器
+    /// </summary>
+    public class CCD2Timer : ICCDTimer
+    {
+        int currentCount = 0;
+        System.Timers.Timer timer;
+        public delegate void FallEventHandler();
+        public event FallEventHandler CCDExpire;
+
+        /// <summary>
+        /// 停止等待拍照结果
+        /// </summary>
+        public void StopWait()
+        {
+            timer.Stop();
+        }
+
+        /// <summary>
+        /// 开始等待
+        /// </summary>
+        public void Start()
+        {
+            //设置定时间隔(毫秒为单位)
+            int interval = 100;
+            timer = new System.Timers.Timer(interval);
+            //设置执行一次（false）还是一直执行(true)
+            timer.AutoReset = true;
+            //设置是否执行System.Timers.Timer.Elapsed事件
+            timer.Enabled = true;
+            //绑定Elapsed事件
+            timer.Elapsed += Timer_Elapsed;
+        }
+
+        /// <summary>
+        /// 每隔100毫秒执行一次
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        public void Timer_Elapsed(object sender, ElapsedEventArgs e)
+        {
+            currentCount++;
+            if (currentCount > 5)
+            {
+                timer.Stop();
+
+                CCDExpire.Invoke();
+            }
+        }
+    }
 }

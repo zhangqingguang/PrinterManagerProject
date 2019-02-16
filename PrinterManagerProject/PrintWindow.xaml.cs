@@ -650,12 +650,11 @@ namespace PrinterManagerProject
 
         #endregion
 
-        #region 接收串口信息
-        CCD1Timer ccd1Timer;
 
+        #region CCD1超时处理
+        CCD1Timer ccd1Timer;
         int ccd1ErrorCount = 0;
         Object ccd1LockHelper = new Object();
-        int ccd2ErrorCount = 0;
 
         /// <summary>
         /// CCD1命令过期
@@ -694,6 +693,55 @@ namespace PrinterManagerProject
                 }
             }
         }
+        #endregion
+
+        #region CCD2超时处理
+        CCD2Timer ccd2Timer;
+        int ccd2ErrorCount = 0;
+        Object ccd2LockHelper = new Object();
+
+        /// <summary>
+        /// CCD2命令过期
+        /// </summary>
+        private void Ccd2Timer_CCD2Expire()
+        {
+            ccd2ErrorCount = -1;
+            myEventLog.LogInfo($"CCD2超时");
+            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+        }
+        /// <summary>
+        /// 发送CCD2拍照命令，并开始CCD2超时计时
+        /// </summary>
+        private void CCD2TakePicture()
+        {
+            CCD2StopWait();
+
+            ccd2Timer = new CCD2Timer();
+            ccd2Timer.CCDExpire += Ccd2Timer_CCD2Expire;
+            ccd2Timer.Start();
+            myEventLog.LogInfo($"CCD2开始计时");
+            CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
+        }
+        /// <summary>
+        /// 停止CCD2计时
+        /// </summary>
+        private void CCD2StopWait()
+        {
+            if (ccd2Timer != null)
+            {
+                lock (ccd2LockHelper)
+                {
+                    ccd2Timer.StopWait();
+                    myEventLog.LogInfo($"CCD2停止计时");
+                    ccd2Timer = null;
+                }
+            }
+        }
+        #endregion
+
+        #region 接收串口信息
+
+
 
         /// <summary>
         /// CCD 接收串口信息并处理
@@ -754,59 +802,67 @@ namespace PrinterManagerProject
 #warning 取消CCD2判断出错
                 else if (data == CCDSerialPortData.CCD2_ERROR+"123")
                 {
-                    // 这里设置显示串口正常
-                    Dispatcher.Invoke(() =>
+                    lock (ccd2LockHelper)
                     {
-                        Ellipse ellipse = spcViewPanel.FindName("elCCD2") as Ellipse;
-                        ellipse.Fill = complate;
-                        Label label = spcViewPanel.FindName("lblCCD2") as Label;
-                        label.Content = "CCD2通讯正常";
-                    });
 
-                    // CCD2处理的是最先入队的
-                    DrugsQueueModel model = queue.FirstOrDefault();
-                    if(model != null)
-                    {
-                        if (string.IsNullOrEmpty(model.ScanData)==false)
+                        CCD2StopWait();
+                        if (ccd2ErrorCount == -1)
                         {
-                            if (ccd2ErrorCount < model.CCD1TakePhotoCount - 1)
+                            // CCD2已超时，不再处理
+                            myEventLog.LogInfo($"接收CCD：{data}，CCD2已超时，不再处理");
+                            return;
+                        }
+
+                        // 这里设置显示串口正常
+                        Dispatcher.Invoke(() =>
+                        {
+                            Ellipse ellipse = spcViewPanel.FindName("elCCD2") as Ellipse;
+                            ellipse.Fill = complate;
+                            Label label = spcViewPanel.FindName("lblCCD2") as Label;
+                            label.Content = "CCD2通讯正常";
+                        });
+
+                        // CCD2处理的是最先入队的
+                        DrugsQueueModel model = queue.FirstOrDefault();
+                        if (model != null)
+                        {
+                            if (string.IsNullOrEmpty(model.ScanData) == false)
                             {
-                                ccd2ErrorCount++;
-                                //2#拍照
-                                Thread.Sleep(10);
-                                CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
-                                myEventLog.LogInfo($"CCD2第{ccd2ErrorCount}次识别失败，重新拍照");
+                                if (ccd2ErrorCount < model.CCD1TakePhotoCount - 1)
+                                {
+                                    ccd2ErrorCount++;
+                                    //2#拍照
+                                    Thread.Sleep(10);
+                                    CCD2TakePicture();
+                                    myEventLog.LogInfo($"CCD2第{ccd2ErrorCount}次识别失败，重新拍照");
 
-                                return;
+                                    return;
 
+                                }
+                                else
+                                {
+                                    myEventLog.LogInfo($"CCD2拍照次数{ccd2ErrorCount}超过CCD1拍照次数{model.CCD1TakePhotoCount}，从CCD2剔除");
+                                }
                             }
                             else
                             {
-                                myEventLog.LogInfo($"CCD2拍照次数{ccd2ErrorCount}超过CCD1拍照次数{model.CCD1TakePhotoCount}，从CCD2剔除");
+                                myEventLog.LogInfo($"扫码枪未识别到二维码[{model.QRData}]，从CCD2剔除");
                             }
                         }
                         else
                         {
-                            myEventLog.LogInfo($"扫码枪未识别到二维码[{model.QRData}]，从CCD2剔除");
+                            myEventLog.LogInfo($"队列中没有液体，CCD2不拍照，从CCD2剔除");
                         }
-                    }
-                    else
-                    {
-                        myEventLog.LogInfo($"队列中没有液体，CCD2不拍照，从CCD2剔除");
-                    }
 
-                    // 从2#位剔除药袋
-                    PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
-                    // 删除队列
-                    RemoveCCD2Error();
+                        // 从2#位剔除药袋
+                        PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+                        // 删除队列
+                        RemoveCCD2Error();
+                    }
                 }
                 // CCD1识别结果处理，且不是错误信息
                 else if (data.Length == CCDSerialPortData.CCD1_ERROR.Length)
                 {
-                    // CCD1拍照次数
-                    int ccd1Count = ccd1ErrorCount;
-                    // CCD1识别成功，停止CCD1计时
-                    CCD1StopWait();
 
                     // 这里设置显示串口正常
                     Dispatcher.Invoke(() =>
@@ -827,6 +883,21 @@ namespace PrinterManagerProject
                     b.AppendLine(string.Format("{0}：开始处理", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
                     string[] datas = data.Split(' ');
+
+                    int ccd1Count = 0;
+                    if (datas[1] == "A1")
+                    {
+                        // CCD1拍照次数
+                        ccd1Count = ccd1ErrorCount;
+                        // CCD1识别成功，停止CCD1计时
+                        CCD1StopWait();
+                    }
+                    else
+                    {
+                        // CCD1识别成功，停止CCD1计时
+                        CCD2StopWait();
+                    }
+
                     b.AppendLine(string.Format("{0}：分割完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
                     // 数据正确
                     if (datas[0] == "FE" && datas[datas.Length - 1] == "EF")
@@ -868,27 +939,36 @@ namespace PrinterManagerProject
 
                                     string mlCmd = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
 
-                                    myEventLog.LogInfo($"向PLC发送液体大小命令：{mlCmd}");
-                                    // 发送指令，调整PLC药袋大小以及打印机高度
-                                    if (PLCSerialPortUtils.GetInstance(this).SendData(mlCmd))
+                                    // 
+                                    if (connection.Connected == false)
                                     {
-                                        // 向打印机推送打印内容
-                                        Print(drugs, ref currentDrug, ref b);
+                                        myEventLog.LogInfo($"向PLC发送液体大小命令：{mlCmd}");
+                                        // 发送指令，调整PLC药袋大小以及打印机高度
+                                        if (PLCSerialPortUtils.GetInstance(this).SendData(mlCmd))
+                                        {
+                                            // 向打印机推送打印内容
+                                            Print(drugs, ref currentDrug, ref b);
 
 
-                                        //插入到队列中
-                                        AddQueue(currentDrug, data, spec[0], spec[1], ccd1Count);
+                                            //插入到队列中
+                                            AddQueue(currentDrug, data, spec[0], spec[1], ccd1Count);
 
-                                        b.AppendLine(string.Format("{0}：打印过程完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                            b.AppendLine(string.Format("{0}：打印过程完成",
+                                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
+                                        }
+                                        else
+                                        {
+                                            new LogHelper().PrinterLog($"向PLC发送打印尺寸命令失败");
+                                            myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
+
+                                            // 入队空信息，占位
+                                            AddQueue(null, null, null, null, ccd1Count);
+                                        }
                                     }
                                     else
                                     {
-                                        new LogHelper().PrinterLog($"向PLC发送打印尺寸命令失败");
-                                        myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
-
-                                        // 入队空信息，占位
-                                        AddQueue(null, null, null, null, ccd1Count);
+                                        myEventLog.LogInfo($"CCD1失败， 打印机未准备完毕");
                                     }
                                 }
                                 else
@@ -1149,7 +1229,12 @@ namespace PrinterManagerProject
                 {
                     // 停50毫秒稳定液体
                     Thread.Sleep(50);
-                    CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
+                    // 开始拍照
+                    lock (ccd2LockHelper)
+                    {
+                        ccd2ErrorCount = 0;
+                    }
+                    CCD2TakePicture();
                 }
                 // 过光幕
                 else if (data == PLCSerialPortData.LIGHT_PASS)
