@@ -1,0 +1,52 @@
+﻿<local:BaseWindow x:Class="PrinterManagerProject.SettingsWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:PrinterManagerProject"
+        Style="{StaticResource MetroWindowStyle}"
+        mc:Ignorable="d"
+        Title="深圳壹达物联科技综合查询系统" Height="748.777" Width="1125.429" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
+    <Window.Resources>
+        <Style x:Key="GridLabelSytle" TargetType="{x:Type Label}">
+            <Setter Property="Margin" Value="0" />
+            <Setter Property="Padding" Value="10" />
+            <Setter Property="FontSize" Value="16" />
+            <Setter Property="Foreground" Value="{StaticResource HeaderTextForeground}" />
+        </Style>
+    </Window.Resources>
+    <Border BorderBrush="Black" BorderThickness="1" Margin="5">
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="180"/>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*"/>
+            </Grid.ColumnDefinitions>
+
+            <Grid Grid.Column="0" Background="{StaticResource ItemsContentBackground}">
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
+                </Grid.RowDefinitions>
+
+                <Border Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
+                    <Label Name="lblTimeSetting" Tag="Pages/TimeSettingPage.xaml"  Style="{StaticResource GridLabelSytle}" Content="批次时间设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove" Background="White"></Label>
+                </Border>
+                <Border Grid.Row="1" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
+                    <Label Name="lblParamSetting" Tag="Pages/ParamSettingPage.xaml" Style="{StaticResource GridLabelSytle}" Content="运行参数设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
+                </Border>
+                <Border Grid.Row="2" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
+                    <Label Name="lblSizeSetting" Tag="Pages/SizeSettingPage.xaml" Style="{StaticResource GridLabelSytle}" Content="溶媒尺寸设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
+                </Border>
+                <Border Grid.Row="3" BorderThickness="0">
+                    <Label Name="lblPrintTemplate" Tag="Pages/PrintTemplatePage.xaml" Style="{StaticResource GridLabelSytle}" Content="打印模板设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
+                </Border>
+            </Grid>
+            <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
+            <Frame x:Name="PageContext" Grid.Column="2" BorderBrush="Blue" BorderThickness="1" NavigationUIVisibility="Hidden"/>
+        </Grid>
+    </Border>
+</local:BaseWindow>
