@@ -72,12 +72,12 @@ namespace PrinterManagerProject
         #region 接收-拍照指令
 
         /// <summary>
-        /// CCD1开始拍照
+        /// CCD1光幕扫描，要通知CCD1拍照
         /// </summary>
         public const string CCD1_TACK_PICTURE = "81\r";
 
         /// <summary>
-        /// CCD2开始拍照
+        /// CCD2光幕扫描，要通知CCD2拍照
         /// </summary>
         public const string CCD2_TACK_PICTURE = "84\r";
 
@@ -85,10 +85,10 @@ namespace PrinterManagerProject
 
         #region 接收-打印指令
 
-        /// <summary>
-        /// 打印机开始打印
-        /// </summary>
-        public const string PRINT = "82\r";
+        ///// <summary>
+        ///// 打印机开始打印
+        ///// </summary>
+        //public const string PRINT = "82\r";
 
         #endregion
 
@@ -305,14 +305,14 @@ namespace PrinterManagerProject
                     
                     new LogHelper().SerialPortLog($"发送给PLC:{instructions}");
 
-                    myEventLog.Log.Info($"发送给PLC:{instructions}");
+                    myEventLog.LogInfo($"发送给PLC:{instructions}");
 
                     return true;
                 }
                 catch (Exception ex)
                 {
                     new LogHelper().ErrorLog(ex.Message);
-                    myEventLog.Log.Error("向PLC串口发送数据出错，"+sp.PortName+"。"+ex.Message,ex);
+                    myEventLog.LogError("向PLC串口发送数据出错，"+sp.PortName+"。"+ex.Message,ex);
                 }
                 finally
                 {
@@ -334,7 +334,7 @@ namespace PrinterManagerProject
                 if (mSerialPortInterface != null)
                 {
                     mSerialPortInterface.OnPLCComplated();
-                    myEventLog.Log.Info($"成功打开PLC串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功打开PLC串口，{sp.PortName}。");
                 }
                 return true;
             }
@@ -345,7 +345,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnPLCError(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error($"PLC串口打开失败，{sp.PortName}。"+ex.Message, ex);
+                myEventLog.LogError($"PLC串口打开失败，{sp.PortName}。"+ex.Message, ex);
                 return false;
             }
         }
@@ -370,10 +370,10 @@ namespace PrinterManagerProject
                 if (mSerialPortInterface != null)
                 {
                     mSerialPortInterface.OnPLCError(ex.Message);
-                    myEventLog.Log.Info($"成功关闭PLC串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功关闭PLC串口，{sp.PortName}。");
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error($"PLC串口关闭出错，{sp.PortName}。" +ex.Message, ex);
+                myEventLog.LogError($"PLC串口关闭出错，{sp.PortName}。" +ex.Message, ex);
                 return false;
             }
         }

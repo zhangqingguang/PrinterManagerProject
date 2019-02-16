@@ -200,14 +200,14 @@ namespace PrinterManagerProject
                     sp.Write(instructions);//发送数据
                     
                     new LogHelper().SerialPortLog($"CCD发送:{instructions}");
-                    myEventLog.Log.Info($"发送到CCD：{instructions}");
+                    myEventLog.LogInfo($"发送到CCD：{instructions}");
 
                     return true;
                 }
                 catch (Exception ex)
                 {
                     new LogHelper().ErrorLog(ex.Message);
-                    myEventLog.Log.Error("向CCD发送数据出错，"+sp.PortName+"。"+ex.Message, ex);
+                    myEventLog.LogError("向CCD发送数据出错，"+sp.PortName+"。"+ex.Message, ex);
                 }
                 finally
                 {
@@ -229,7 +229,7 @@ namespace PrinterManagerProject
                 {
                     mSerialPortInterface.OnCCD1Complated();
                     mSerialPortInterface.OnCCD2Complated();
-                    myEventLog.Log.Info($"成功打开CCD1和CCD2串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功打开CCD1和CCD2串口，{sp.PortName}。");
 
                 }
                 return true;
@@ -242,7 +242,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnCCD2Error(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error("CCD串口打开出错，"+sp.PortName+"。"+ex.Message, ex);
+                myEventLog.LogError("CCD串口打开出错，"+sp.PortName+"。"+ex.Message, ex);
                 return false;
             }
         }
@@ -259,7 +259,7 @@ namespace PrinterManagerProject
                 {
                     mSerialPortInterface.OnCCD1Complated();
                     mSerialPortInterface.OnCCD2Complated();
-                    myEventLog.Log.Info($"成功关闭CCD1和CCD2串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功关闭CCD1和CCD2串口，{sp.PortName}。");
                 }
                 return true;
             }
@@ -271,7 +271,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnCCD2Error(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error($"CCD串口关闭出错，{sp.PortName}。"+ex.Message, ex);
+                myEventLog.LogError($"CCD串口关闭出错，{sp.PortName}。"+ex.Message, ex);
                 return false;
             }
         }

@@ -13,8 +13,17 @@ namespace PrinterManagerProject.Tools
     public class DrugsQueueModel
     {
         #region 识别出的溶媒基本信息
+        /// <summary>
+        /// CCD1命令内容
+        /// </summary>
         public string CMD { get; set; }
+        /// <summary>
+        /// 液体规格
+        /// </summary>
         public string Spec { get; set; }
+        /// <summary>
+        /// 液体毫升数
+        /// </summary>
         public string ML { get; set; }
 
         #endregion
@@ -40,8 +49,8 @@ namespace PrinterManagerProject.Tools
         public bool GoToScan { get; set; }
 
         /// <summary>
-        /// 重复扫描次数
+        /// CCD1拍照次数，CCD2的拍照次数不能超过CCD1的拍照次数
         /// </summary>
-        public int Count { get; set; }
+        public int CCD1TakePhotoCount { get; set; }
     }
 }

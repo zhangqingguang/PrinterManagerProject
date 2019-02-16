@@ -162,6 +162,7 @@
     <Compile Include="TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\CCDTimer.cs" />
     <Compile Include="Tools\HistoryHelper.cs" />
     <Compile Include="Tools\LogHelper.cs" />
     <Compile Include="Tools\LogManager.cs" />
@@ -269,9 +270,7 @@
     <None Include="log4net.config">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
-    <None Include="packages.config">
-      <SubType>Designer</SubType>
-    </None>
+    <None Include="packages.config" />
     <None Include="Properties\Settings.settings">
       <Generator>SettingsSingleFileGenerator</Generator>
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>

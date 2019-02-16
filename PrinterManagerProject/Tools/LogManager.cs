@@ -24,5 +24,15 @@ namespace PrinterManagerProject
                 return log;
             }
         }
+        public static void LogInfo(object message)
+        {
+            Log.Info(message);
+            System.Console.WriteLine("---> "+message);
+        }
+        public static void LogError(object message,Exception exception)
+        {
+            Log.Error(message,exception);
+            System.Console.WriteLine("---> 【Error】 " + message);
+        }
     }
 }

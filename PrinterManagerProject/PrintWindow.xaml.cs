@@ -108,6 +108,10 @@ namespace PrinterManagerProject
                 for (int i = 0; i < dg.Items.Count; i++)
                 {
                     var row = dg.ItemContainerGenerator.ContainerFromItem(dg.Items[i]) as DataGridRow;
+                    if(row == null)
+                    {
+                        continue;
+                    }
 
                     Model.ListAllModel model = dg.Items[i] as Model.ListAllModel;
                     if (model != null)
@@ -182,6 +186,9 @@ namespace PrinterManagerProject
             //});
             //Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupDetailList);
             //return;
+
+            // 清空队列
+            queue = new List<DrugsQueueModel>();
 
             if (tabMain.SelectedIndex == 0)
             {
@@ -344,7 +351,7 @@ namespace PrinterManagerProject
                 if (printerStatus.isReadyToPrint)
                 {
                     Console.WriteLine("Ready To Print");
-                    myEventLog.LogWarn("打印机准备完毕！");
+                    myEventLog.LogInfo("打印机准备完毕！");
                     System.Console.WriteLine("打印机准备完毕！");
                 }
                 else if (printerStatus.isHeadOpen)
@@ -468,7 +475,11 @@ namespace PrinterManagerProject
                     g.PageUnit = GraphicsUnit.Pixel;
                     //清空图片背景颜色
                     g.Clear(System.Drawing.Color.White);
-                    
+
+                    // 生成条形码数据
+                    drug.QRcode = Guid.NewGuid().ToString();
+                    myEventLog.LogInfo($"生成条形码：{drug.QRcode}");
+
                     #region PDF417
                     PDF417EncodingOptions pdf_options = new PDF417EncodingOptions
                     {
@@ -484,7 +495,7 @@ namespace PrinterManagerProject
                     pdf417Writer.Options = pdf_options;
                     #endregion
 
-                    myEventLog.Log.Info($"打印标签二维码内容：{drug.QRcode}");
+                    myEventLog.LogInfo($"打印标签二维码内容：{drug.QRcode}");
                     Bitmap bmp = pdf417Writer.Write(drug.QRcode);
                     g.DrawImage(bmp, ConvertInt(model.BarCodeX), ConvertInt(model.BarCodeY), ConvertInt(model.BarCodeWidth), ConvertInt(model.BarCodeHeight));
 
@@ -563,7 +574,7 @@ namespace PrinterManagerProject
                 }
                 catch (Exception e)
                 {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                     new LogHelper().PrinterLog(e.Message);
                 }
                 finally
@@ -574,19 +585,19 @@ namespace PrinterManagerProject
             }
             catch (ConnectionException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (ZebraPrinterLanguageUnknownException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (IOException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
@@ -613,19 +624,19 @@ namespace PrinterManagerProject
             }
             catch (ConnectionException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (ZebraPrinterLanguageUnknownException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (IOException e)
             {
-                    myEventLog.Log.Error(e.Message, e);
+                    myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
@@ -640,6 +651,49 @@ namespace PrinterManagerProject
         #endregion
 
         #region 接收串口信息
+        CCD1Timer ccd1Timer;
+
+        int ccd1ErrorCount = 0;
+        Object ccd1LockHelper = new Object();
+        int ccd2ErrorCount = 0;
+
+        /// <summary>
+        /// CCD1命令过期
+        /// </summary>
+        private void Ccd1Timer_CCD1Expire()
+        {
+            ccd1ErrorCount = -1;
+            myEventLog.LogInfo($"CCD1超时");
+            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+        }
+        /// <summary>
+        /// 发送CCD1拍照命令，并开始CCD1超时计时
+        /// </summary>
+        private void CCD1TakePicture()
+        {
+            CCD1StopWait();
+
+            ccd1Timer = new CCD1Timer();
+            ccd1Timer.CCD1Expire += Ccd1Timer_CCD1Expire;
+            ccd1Timer.Start();
+            myEventLog.LogInfo($"CCD1开始计时");
+            CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
+        }
+        /// <summary>
+        /// 停止CCD1计时
+        /// </summary>
+        private void CCD1StopWait()
+        {
+            if (ccd1Timer != null)
+            {
+                lock (ccd1LockHelper)
+                {
+                    ccd1Timer.StopWait();
+                    myEventLog.LogInfo($"CCD1停止计时");
+                    ccd1Timer = null;
+                }
+            }
+        }
 
         /// <summary>
         /// CCD 接收串口信息并处理
@@ -649,38 +703,56 @@ namespace PrinterManagerProject
         {
             try
             {
-                myEventLog.Log.Info($"接收CCD：{data}");
+                myEventLog.LogInfo($"接收CCD：{data}");
                 // CCD1识别失败
-                if (data == CCDSerialPortData.CCD1_ERROR)
+
+#warning 取消CCD1判断出错
+                if (data == CCDSerialPortData.CCD1_ERROR + "123")
                 {
-                    // 这里设置显示串口正常
-                    Dispatcher.Invoke(() =>
+                    lock (ccd1LockHelper)
                     {
-                        Ellipse ellipse = spcViewPanel.FindName("elCCD1") as Ellipse;
-                        ellipse.Fill = complate;
-                        Label label = spcViewPanel.FindName("lblCCD1") as Label;
-                        label.Content = "CCD1通讯正常";
-                    });
+                        CCD1StopWait();
+                        if (ccd1ErrorCount == -1)
+                        {
+                            // CCD1已超时，不再处理
+                            myEventLog.LogInfo($"接收CCD：{data}，CCD1已超时，不再处理");
+                            return;
+                        }
 
-                    DrugsQueueModel model = queue.Find(m => m.Drug == null);
-                    if (model != null && model.Count < MaxTryPhotographTimes-1)
-                    {
-                        //1#拍照
-                        Thread.Sleep(10);
-                        CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
-                        model.Count++;
-                    }
-                    else
-                    {
-                        // 从1#位剔除药袋
-                        PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+                        // 这里设置显示串口正常
+                        Dispatcher.Invoke(() =>
+                        {
+                            Ellipse ellipse = spcViewPanel.FindName("elCCD1") as Ellipse;
+                            ellipse.Fill = complate;
+                            Label label = spcViewPanel.FindName("lblCCD1") as Label;
+                            label.Content = "CCD1通讯正常";
+                        });
 
-                        // 删除队列
-                        RemoveCCD1Error();
+                        //DrugsQueueModel model = queue.Find(m => m.Drug == null);
+                        //if (model != null && model.Count < MaxTryPhotographTimes-1)
+                        if (ccd1ErrorCount < MaxTryPhotographTimes - 1)
+                        {
+                            ccd1ErrorCount++;
+                            //1#拍照
+                            Thread.Sleep(10);
+
+                            // 重新拍照
+                            CCD1TakePicture();
+                            myEventLog.LogInfo($"CCD1第{ccd1ErrorCount}次识别失败，重新拍照");
+                            //model.Count++;
+                        }
+                        else
+                        {
+                            ccd1ErrorCount++;
+                            myEventLog.LogInfo($"CCD1第{ccd1ErrorCount}次识别失败，从CCD1剔除");
+                            // 从1#位剔除药袋
+                            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+                        }
                     }
                 }
                 // CCD2识别失败
-                else if (data == CCDSerialPortData.CCD2_ERROR)
+#warning 取消CCD2判断出错
+                else if (data == CCDSerialPortData.CCD2_ERROR+"123")
                 {
                     // 这里设置显示串口正常
                     Dispatcher.Invoke(() =>
@@ -691,26 +763,51 @@ namespace PrinterManagerProject
                         label.Content = "CCD2通讯正常";
                     });
 
-                    DrugsQueueModel model = queue.FindLast(m => m.Drug != null);
-                    if (model != null && model.Count < MaxTryPhotographTimes-1)
+                    // CCD2处理的是最先入队的
+                    DrugsQueueModel model = queue.FirstOrDefault();
+                    if(model != null)
                     {
-                        //2#拍照
-                        Thread.Sleep(10);
-                        CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
-                        model.Count++;
+                        if (string.IsNullOrEmpty(model.ScanData)==false)
+                        {
+                            if (ccd2ErrorCount < model.CCD1TakePhotoCount - 1)
+                            {
+                                ccd2ErrorCount++;
+                                //2#拍照
+                                Thread.Sleep(10);
+                                CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
+                                myEventLog.LogInfo($"CCD2第{ccd2ErrorCount}次识别失败，重新拍照");
+
+                                return;
+
+                            }
+                            else
+                            {
+                                myEventLog.LogInfo($"CCD2拍照次数{ccd2ErrorCount}超过CCD1拍照次数{model.CCD1TakePhotoCount}，从CCD2剔除");
+                            }
+                        }
+                        else
+                        {
+                            myEventLog.LogInfo($"扫码枪未识别到二维码[{model.QRData}]，从CCD2剔除");
+                        }
                     }
                     else
                     {
-                        // 从2#位剔除药袋
-                        PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
-
-                        // 删除队列
-                        RemoveCCD2Error();
+                        myEventLog.LogInfo($"队列中没有液体，CCD2不拍照，从CCD2剔除");
                     }
+
+                    // 从2#位剔除药袋
+                    PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+                    // 删除队列
+                    RemoveCCD2Error();
                 }
                 // CCD1识别结果处理，且不是错误信息
                 else if (data.Length == CCDSerialPortData.CCD1_ERROR.Length)
                 {
+                    // CCD1拍照次数
+                    int ccd1Count = ccd1ErrorCount;
+                    // CCD1识别成功，停止CCD1计时
+                    CCD1StopWait();
+
                     // 这里设置显示串口正常
                     Dispatcher.Invoke(() =>
                     {
@@ -738,93 +835,121 @@ namespace PrinterManagerProject
                         // CCD1的反馈
                         if (datas[1] == "A1")
                         {
-                            b.AppendLine(string.Format("{0}：对比位置信息完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                            //string mlCmd1 = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
+
+                            //myEventLog.LogInfo($"向PLC发送液体大小命令：{mlCmd1}");
+                            //// 发送指令，调整PLC药袋大小以及打印机高度
+                            //PLCSerialPortUtils.GetInstance(this).SendData(mlCmd1);
+                            //return;
+#warning 取消品规和批号
+                            datas[2] = "B9";
+                            datas[3] = "C0";
+
+                            myEventLog.LogInfo("收到CCD1识别成功命令");
 
                             string[] spec = CCDSerialPortData.GetNameAndML(datas[2]); // 规格和毫升数
                             string type = CCDSerialPortData.GetTypeValue(datas[3]); // 药袋种类
 
-                            b.AppendLine(string.Format("{0}：规格和药带信息获取完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                            myEventLog.LogInfo($"CCD1品规:{spec[0]}-{spec[1]}");
 
                             // 通过扫描出来的信息对比数据源，查找匹配的数据，如果查询到则发指令调整机器大小，否则1#位剔除
                             Model.ListAllModel currentDrug = autoPrintCurrentList.Find(m => m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
-                            b.AppendLine(string.Format("{0}：获取药品信息：{1}-{2}", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff"), spec[0], spec[1]));
 
                             if (currentDrug != null)
                             {
-                                string mlCmd = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
-                                b.AppendLine(string.Format("{0}：获取指令完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                // 发送指令，调整PLC药袋大小以及打印机高度
-                                PLCSerialPortUtils.GetInstance(this).SendData(mlCmd);
-                                b.AppendLine(string.Format("{0}：发送指令完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+                                myEventLog.LogInfo($"CCD1医嘱:{currentDrug.Id}");
 
                                 // 获取水和药品信息
                                 AotuDataListBll bll = new AotuDataListBll();
                                 List<Model.Print_ymodel> drugs = bll.getPrint_y(currentDrug.Id);
                                 if (drugs != null && drugs.Count > 0)
                                 {
-                                    b.AppendLine(string.Format("{0}：获取药品列表完成", drugs.Count));
+                                    myEventLog.LogInfo($"药品数量:{drugs.Count}");
 
-                                    // 生成条形码数据
-                                    currentDrug.QRcode = Guid.NewGuid().ToString();
+                                    string mlCmd = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
 
-                                    myEventLog.Log.Info($"生成条形码：{currentDrug.QRcode}");
+                                    myEventLog.LogInfo($"向PLC发送液体大小命令：{mlCmd}");
+                                    // 发送指令，调整PLC药袋大小以及打印机高度
+                                    if (PLCSerialPortUtils.GetInstance(this).SendData(mlCmd))
+                                    {
+                                        // 向打印机推送打印内容
+                                        Print(drugs, ref currentDrug, ref b);
 
-                                    // 向打印机推送打印内容
-                                    Print(drugs, ref currentDrug, ref b);
-                                    b.AppendLine(string.Format("{0}：打印过程完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
-                                    WriteQueueDrug(currentDrug, data, spec[0], spec[1]);
+                                        //插入到队列中
+                                        AddQueue(currentDrug, data, spec[0], spec[1], ccd1Count);
+
+                                        b.AppendLine(string.Format("{0}：打印过程完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
+
+                                    }
+                                    else
+                                    {
+                                        new LogHelper().PrinterLog($"向PLC发送打印尺寸命令失败");
+                                        myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
+
+                                        // 入队空信息，占位
+                                        AddQueue(null, null, null, null, ccd1Count);
+                                    }
                                 }
                                 else
                                 {
                                     // 从1#位剔除（不是本组）的药袋
-                                    myEventLog.Log.Info("CCD1失败， 没有药品信息");
+                                    myEventLog.LogInfo($"CCD1失败， 没有药品信息");
+                                    AddQueue(null, data, spec[0], spec[1], ccd1Count);
                                     PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
-
                                 }
                             }
                             else
                             {
                                 // 从1#位剔除（不是本组）的药袋
-                                    myEventLog.Log.Info("CCD1失败， 没有未提前液体信息");
+                                    myEventLog.LogInfo($"CCD1失败， 未找到当前品规（{spec[0]}-{spec[1]}）的带贴签液体");
                                 PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
                             }
 
                             new LogHelper().PrinterLog(b.ToString());
-                            myEventLog.Log.Info(b.ToString());
                         }
                         // CCD2的反馈
                         else if (datas[1] == "A3")
                         {
+                            //myEventLog.LogInfo("收到CCD2识别成功命令");
+                            //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_PASS);
+                            //Success();
+                            //return;
+
+#warning 取消品规
+                            datas[2] = "B9";
                             string[] spec = CCDSerialPortData.GetNameAndML(datas[2]); // 规格和毫升数
                             string batchNumber = datas[4] + datas[5] + datas[6]; //批号
+                            myEventLog.LogInfo($"CCD2识别到液体规格：{spec[0]}-{spec[1]}");
+                            myEventLog.LogInfo($"CCD2识别到批号：{batchNumber}");
+
+
 
                             // 对比数据源信息和扫描出来的信息是否正确，如果正确则发送指令调整机器，否则1#位剔除
                             // 同时要对比摄像头反馈的 医嘱编号 信息，确认正确性
-                            DrugsQueueModel model = queue.FindLast(m => m.Drug != null);
+                            DrugsQueueModel model = queue.FirstOrDefault();
                             if (model != null)
                             {
                                 // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
-                                if (string.IsNullOrEmpty(model.ScanData)==false || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
+                                if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
                                 {
                                     if (string.IsNullOrEmpty(model.ScanData))
                                     {
-                                        myEventLog.Log.Info($"CCD2失败，未扫描到二维码{model.ScanData}");
+                                        myEventLog.LogInfo($"CCD2失败，未扫描到二维码{model.ScanData}");
                                     }
                                     else
                                     if (model.ScanData!=model.QRData)
                                     {
-                                        myEventLog.Log.Info($"CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
+                                        myEventLog.LogInfo($"CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
                                     }
 
                                     if (!model.Drug.drug_name.Contains(spec[0]))
                                     {
-                                        myEventLog.Log.Info($"CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}");
+                                        myEventLog.LogInfo($"CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}-{spec[1]}");
                                     }
-
                                     if (!model.Drug.drug_spec.Contains(spec[1]))
                                     {
-                                        myEventLog.Log.Info($"CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
+                                        myEventLog.LogInfo($"CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
                                     }
 
                                     // 从2#位剔除信息对比失败的药袋
@@ -887,8 +1012,8 @@ namespace PrinterManagerProject
                                     // --- 设置为CCD2识别通过的状态 ---
                                     Success();
 
-                                    myEventLog.Log.Info($"数据回写成功：Id={autoPrintCurrentModel.Id},QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
-                                    myEventLog.Log.Info($"CCD2成功");
+                                    myEventLog.LogInfo($"数据回写成功：Id={autoPrintCurrentModel.Id},QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
+                                    myEventLog.LogInfo($"CCD2成功");
                                 }
                                 else // 数据库操作失败
                                 {
@@ -907,8 +1032,8 @@ namespace PrinterManagerProject
 
                                     // --- 删除对比失败的信息 ---
                                     RemoveCCD2Valid();
-                                    myEventLog.Log.Info($"数据回写失败：QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
-                                    myEventLog.Log.Info($"CCD2失败 数据回写失败");
+                                    myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
+                                    myEventLog.LogInfo($"CCD2失败 数据回写失败");
                                 }
                             }
                             else
@@ -933,7 +1058,7 @@ namespace PrinterManagerProject
                                 // --- 删除对比失败的信息 ---
                                 RemoveCCD2Valid();
 
-                                myEventLog.Log.Info($"CCD2失败 队列中未找到液体");
+                                myEventLog.LogInfo($"CCD2失败 队列中未找到液体");
                             }
                         }
                     }
@@ -946,7 +1071,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.Log.Error(ex.Message, ex);
+                    myEventLog.LogError(ex.Message, ex);
                 new LogHelper().ErrorLog($"处理接收CCD数据出错。"+ex.Message);
             }
         }
@@ -959,7 +1084,7 @@ namespace PrinterManagerProject
         {
             try
             {
-                myEventLog.Log.Info($"接收到PLC：{data}");
+                myEventLog.LogInfo($"接收到PLC：{data}");
                 // PLC 报错
                 if (data == PLCSerialPortData.ERROR)
                 {
@@ -1009,12 +1134,15 @@ namespace PrinterManagerProject
                 // 接收指令触发1#拍照
                 else if (data == PLCSerialPortData.CCD1_TACK_PICTURE)
                 {
-                    // --- 加入队列 ---
-                    AddQueue();
-
                     // 停50毫秒稳定液体
                     Thread.Sleep(50);
-                    CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
+
+                    // 开始拍照
+                    lock (ccd1LockHelper)
+                    {
+                        ccd1ErrorCount = 0;
+                    }
+                    CCD1TakePicture();
                 }
                 // 接收指令触发2#拍照
                 else if (data == PLCSerialPortData.CCD2_TACK_PICTURE)
@@ -1026,7 +1154,7 @@ namespace PrinterManagerProject
                 // 过光幕
                 else if (data == PLCSerialPortData.LIGHT_PASS)
                 {
-                    GoToScan();
+                    //GoToScan();
                 }
                 // 重置完成
                 else if (data == PLCSerialPortData.RESET_COMPLATE)
@@ -1043,7 +1171,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.Log.Error("处理接收PLC数据出错。"+ex.Message, ex);
+                    myEventLog.LogError("处理接收PLC数据出错。"+ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1056,8 +1184,7 @@ namespace PrinterManagerProject
         {
             try
             {
-
-                myEventLog.Log.Info($"接收扫码枪：{data}");
+                myEventLog.LogInfo($"接收扫码枪：{data}");
                 // 这里设置显示串口通讯
                 Dispatcher.Invoke(() =>
                 {
@@ -1071,7 +1198,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.Log.Error("处理接收到自动扫码枪数据出错。" + ex.Message, ex);
+                    myEventLog.LogError("处理接收到自动扫码枪数据出错。" + ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1084,7 +1211,7 @@ namespace PrinterManagerProject
         {
             try
             {
-                myEventLog.Log.Info($"接收到手持扫码枪：{data}");
+                myEventLog.LogInfo($"接收到手持扫码枪：{data}");
                 if (tabMain.SelectedIndex != 2)
                 {
                     Dispatcher.Invoke(() =>
@@ -1108,7 +1235,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.Log.Error("处理接收到手动扫码枪数据出错。"+ex.Message, ex);
+                    myEventLog.LogError("处理接收到手动扫码枪数据出错。"+ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1131,43 +1258,37 @@ namespace PrinterManagerProject
         }
 
         /// <summary>
-        /// 推入一个
-        /// 
-        /// 没有药品信息
-        /// </summary>
-        private void AddQueue()
-        {
-            // 保存溶媒信息到队列
-            DrugsQueueModel qModel = new DrugsQueueModel();
-            // 添加到队列
-            queue.Add(qModel);
-        }
-
-        /// <summary>
-        /// 获取进入的第一个料
+        /// 推入队列
         /// 写入扫描信息和数据库信息
         /// 并重置CCD计数器
         /// </summary>
-        private void WriteQueueDrug(Model.ListAllModel drug, string cmd, string spec, string ml)
+        /// <param name="drug">当前液体信息（携带二维码信息）</param>
+        /// <param name="cmd">CCD1命令内容</param>
+        /// <param name="spec">规格</param>
+        /// <param name="ml">液体毫升数</param>
+        /// <param name="ccd1TakePhotoTimes">CCD1拍照次数</param>
+        private void AddQueue(Model.ListAllModel drug, string cmd, string spec, string ml,int ccd1TakePhotoTimes)
         {
-            if (queue.Count > 0)
+            // 保存溶媒信息到队列
+            DrugsQueueModel qModel = new DrugsQueueModel();
+            if(drug != null)
             {
-                // 从队列获取没有药品信息的数据
-                DrugsQueueModel qModel = queue.Find(m => m.Drug == null);
+                // 保存识别数据
+                qModel.CMD = cmd;
+                qModel.Drug = drug;
+                qModel.Spec = spec;
+                qModel.ML = ml;
+                qModel.CCD1TakePhotoCount = ccd1TakePhotoTimes;
+                qModel.QRData = drug.QRcode;
 
-                if (qModel != null)
-                {
-                    // 保存识别数据
-                    qModel.CMD = cmd;
-                    qModel.Drug = drug;
-                    qModel.Spec = spec;
-                    qModel.ML = ml;
-                    qModel.Count = 0;
-                    qModel.QRData = drug.QRcode;
-
-                    myEventLog.Log.Info($"打印完成，修改队列中的液体信息");
-                }
+                myEventLog.LogInfo($"将液体信息插入队列:{qModel.QRData}");
             }
+            else
+            {
+                myEventLog.LogInfo($"将空液体信息插入队列");
+            }
+            // 添加到队列
+            queue.Add(qModel);
         }
 
         /// <summary>
@@ -1213,10 +1334,16 @@ namespace PrinterManagerProject
         private void SetScanResult(string result)
         {
             // 找到第一条刚过光幕的数据，赋值
-            DrugsQueueModel model = queue.Find(m => m.GoToScan);
+            DrugsQueueModel model = queue.Find(m => m.QRData == result);
             if (model != null)
             {
                 model.ScanData = result;
+                myEventLog.LogInfo($"修改液体扫描到的二维码：{result}");
+            }
+            else
+            {
+                myEventLog.LogInfo($"未找到二维码对应的液体");
+
             }
         }
 

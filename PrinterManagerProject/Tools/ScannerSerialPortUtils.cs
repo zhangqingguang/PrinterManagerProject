@@ -94,16 +94,16 @@ namespace PrinterManagerProject
                 {
                     sp.Write(instructions);//发送数据
 
-                    new LogHelper().SerialPortLog($"自动扫码枪发送:{instructions}");
+                    new LogHelper().SerialPortLog($"扫码枪发送:{instructions}");
 
-                    myEventLog.Log.Info($"自动扫码枪发送:{instructions}");
+                    myEventLog.LogInfo($"扫码枪发送:{instructions}");
 
                     return true;
                 }
                 catch (Exception ex)
                 {
                     new LogHelper().ErrorLog(ex.Message);
-                    myEventLog.Log.Error($"向自动扫码枪发送数据出错，{sp.PortName}。" + ex.Message, ex);
+                    myEventLog.LogError($"向自动扫码枪发送数据出错，{sp.PortName}。" + ex.Message, ex);
                 }
                 finally
                 {
@@ -124,7 +124,7 @@ namespace PrinterManagerProject
 
                 if (mSerialPortInterface != null)
                 {
-                    myEventLog.Log.Info($"成功打开自动扫码枪串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功打开自动扫码枪串口，{sp.PortName}。");
                     mSerialPortInterface.OnScannerComplated();
                 }
                 return true;
@@ -136,7 +136,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnScannerError(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error($"打开自动扫码枪串口出错，{sp.PortName}。" + ex.Message, ex);
+                myEventLog.LogError($"打开自动扫码枪串口出错，{sp.PortName}。" + ex.Message, ex);
                 return false;
             }
         }
@@ -153,7 +153,7 @@ namespace PrinterManagerProject
                 if (mSerialPortInterface != null)
                 {
                     mSerialPortInterface.OnScannerComplated();
-                    myEventLog.Log.Info($"成功关闭自动扫码枪串口，{sp.PortName}。");
+                    myEventLog.LogInfo($"成功关闭自动扫码枪串口，{sp.PortName}。");
                 }
                 return true;
             }
@@ -164,7 +164,7 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnScannerError(ex.Message);
                 }
                 new LogHelper().ErrorLog(ex.Message);
-                myEventLog.Log.Error($"关闭自动扫码枪串口出错，{sp.PortName}。" + ex.Message, ex);
+                myEventLog.LogError($"关闭自动扫码枪串口出错，{sp.PortName}。" + ex.Message, ex);
                 return false;
             }
         }
