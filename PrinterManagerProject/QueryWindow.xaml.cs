@@ -28,30 +28,31 @@ namespace PrinterManagerProject
         {
             if (needCloseWindowConfirm)
             {
-                MessageBoxResult result = MessageBox.Show("确定是退出综合查询系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                //关闭窗口
-                if (result == MessageBoxResult.Yes)
+                //MessageBoxResult result = MessageBox.Show("确定是退出综合查询系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                ////关闭窗口
+                //if (result == MessageBoxResult.Yes)
+                //{
+
+                //    e.Cancel = false;
+                //}
+                ////不关闭窗口
+                //if (result == MessageBoxResult.No)
+                //    e.Cancel = true;
+
+                // 打开主窗口
+                var collections = Application.Current.Windows;
+                foreach (Window window in collections)
                 {
-                    // 打开主窗口
-                    var collections = Application.Current.Windows;
-                    foreach (Window window in collections)
+                    BaseWindow win = window as BaseWindow;
+                    if (win != null)
                     {
-                        BaseWindow win = window as BaseWindow;
-                        if (win != null)
+                        // 其他Window直接关闭
+                        if (win.ToString().Contains("MainWindow"))
                         {
-                            // 其他Window直接关闭
-                            if (win.ToString().Contains("MainWindow"))
-                            {
-                                win.Show();
-                            }
+                            win.Show();
                         }
                     }
-
-                    e.Cancel = false;
                 }
-                //不关闭窗口
-                if (result == MessageBoxResult.No)
-                    e.Cancel = true;
             }
         }
     }

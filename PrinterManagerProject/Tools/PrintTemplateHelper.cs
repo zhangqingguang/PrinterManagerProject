@@ -22,11 +22,14 @@ namespace PrinterManagerProject.Tools
             {
                 if (File.Exists(path))
                 {
+                    myEventLog.LogInfo("自定义模板");
+
                     string config = File.ReadAllText(path);
                     model = JsonConvert.DeserializeObject<PrintTemplateModel>(config);
                 }
                 else
                 {
+                    myEventLog.LogInfo("默认模板");
                     model = DefaultConfig();
                 }
                 return model;

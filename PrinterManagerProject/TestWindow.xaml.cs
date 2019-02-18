@@ -14,6 +14,9 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using Zebra.Sdk.Comm;
+using Zebra.Sdk.Printer;
+using Zebra.Sdk.Printer.Discovery;
 using ZXing;
 using ZXing.PDF417;
 
@@ -29,7 +32,8 @@ namespace PrinterManagerProject
             InitializeComponent();
 
             // ViewBarCode();
-            ViewCard();
+            //ViewCard();
+            commandPrint();
         }
 
         private void ViewBarCode()
@@ -41,8 +45,8 @@ namespace PrinterManagerProject
                 return;
             }
 
-            var paperWidth = model.PageWidth * 3;
-            var paperHeight = model.PageHeight * 3;
+            var paperWidth = model.PageWidth * printMultiple;
+            var paperHeight = model.PageHeight * printMultiple;
             Bitmap image = new Bitmap(paperWidth, paperHeight);
             Graphics g = Graphics.FromImage(image);
 
@@ -93,6 +97,41 @@ namespace PrinterManagerProject
 
         }
 
+        private void commandPrint()
+        {
+            UsbConnection connection = null;
+            try
+            {
+                DiscoveredUsbPrinter usbPrinter = null;
+                List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
+                if (printers == null || printers.Count <= 0)
+                {
+                    MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
+                    myEventLog.LogInfo("没有检测到打印机，请检查打印机是否开启！");
+                    return;
+                }
+                usbPrinter = printers[0];
+
+                connection = new UsbConnection(usbPrinter.Address);
+
+                connection.Open();
+                var printer = ZebraPrinterFactory.GetInstance(connection);
+
+                var command = "^XAA@N,25,25,B:CYRILLIC.FNT^FO100,20^FS"
+                    + "^FDThis is a test.^FS"
+                    + "^A@N,50,50^FO200,40^FS"
+                    + "^FDThis string uses the B:Cyrillic.FNT^FS"
+                    + "^XZ";
+
+                printer.SendCommand(command);
+            }
+            catch (Exception)
+            {
+                connection.Close();
+            }
+            
+        }
+        int printMultiple = 1;
         private void ViewCard()
         {
             PrintTemplateModel model = new PrintTemplateHelper().GetConfig();
@@ -101,6 +140,8 @@ namespace PrinterManagerProject
                 MessageBox.Show("打印模板参数获取失败！");
                 return;
             }
+
+
 
             //double multiple = 1.56;
             //string fontName = "SimSun";
@@ -153,8 +194,8 @@ namespace PrinterManagerProject
 
             string fontName = "SimSun";
 
-            var paperWidth = model.PageWidth * 3;
-            var paperHeight = model.PageHeight * 3;
+            var paperWidth = model.PageWidth * printMultiple;
+            var paperHeight = model.PageHeight * printMultiple;
             Bitmap image = new Bitmap(paperWidth, paperHeight);
             Graphics g = Graphics.FromImage(image);
 
@@ -163,7 +204,7 @@ namespace PrinterManagerProject
             try
             {
                 //消除锯齿
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
                 g.PageUnit = GraphicsUnit.Pixel;
                 //清空图片背景颜色
                 g.Clear(System.Drawing.Color.White);
@@ -242,7 +283,7 @@ namespace PrinterManagerProject
         }
         private int ConvertInt(double num)
         {
-            double multiple = 3;
+            double multiple = printMultiple;
             return Convert.ToInt32(num * multiple);
         }
 
