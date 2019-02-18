@@ -126,7 +126,7 @@
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="9" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="操作人：" Width="100"/>
+                    <Label Content="操作员：" Width="100"/>
                     <ComboBox Width="120" SelectedIndex="0">
                         <ComboBoxItem Tag="0" Content="全部"/>
                         <ComboBoxItem Tag="1" Content="管理员"/>

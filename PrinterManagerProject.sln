@@ -15,6 +15,10 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.DAL",
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.BLL", "BLL\PrinterManagerProject.BLL.csproj", "{38D7AA58-C95B-449B-86C6-A8073A56E11F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.EF", "PrinterManagerProject.EF\PrinterManagerProject.EF.csproj", "{928E6D65-6FE4-429A-A587-A23D4E17D69D}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.EF.Test", "PrinterManagerProject.EF.Test\PrinterManagerProject.EF.Test.csproj", "{F2D20722-CBD9-4BB2-837E-FA13A79C204A}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,35 +101,35 @@ Global
 		{38D7AA58-C95B-449B-86C6-A8073A56E11F}.Release|x64.Build.0 = Release|Any CPU
 		{38D7AA58-C95B-449B-86C6-A8073A56E11F}.Release|x86.ActiveCfg = Release|Any CPU
 		{38D7AA58-C95B-449B-86C6-A8073A56E11F}.Release|x86.Build.0 = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|x64.Build.0 = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Debug|x86.Build.0 = Debug|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|Any CPU.Build.0 = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|x64.ActiveCfg = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|x64.Build.0 = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|x86.ActiveCfg = Release|Any CPU
+		{928E6D65-6FE4-429A-A587-A23D4E17D69D}.Release|x86.Build.0 = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|x64.Build.0 = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Debug|x86.Build.0 = Debug|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|Any CPU.Build.0 = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|x64.ActiveCfg = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|x64.Build.0 = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|x86.ActiveCfg = Release|Any CPU
+		{F2D20722-CBD9-4BB2-837E-FA13A79C204A}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
 	EndGlobalSection
 	GlobalSection(ExtensibilityGlobals) = postSolution
 		SolutionGuid = {07F755C4-0C0A-43E0-9E07-4F8206726D61}
-	EndGlobalSection
-	GlobalSection(TeamFoundationVersionControl) = preSolution
-		SccNumberOfProjects = 7
-		SccEnterpriseProvider = {4CA58AB2-18FA-4F8D-95D4-32DDF27D184C}
-		SccTeamFoundationServer = https://davema333.visualstudio.com/
-		SccLocalPath0 = .
-		SccProjectUniqueName1 = PrinterManagerProject\\PrinterManagerProject.csproj
-		SccProjectName1 = PrinterManagerProject
-		SccLocalPath1 = PrinterManagerProject
-		SccProjectUniqueName2 = Util.Controls\\Util.Controls.csproj
-		SccProjectName2 = Util.Controls
-		SccLocalPath2 = Util.Controls
-		SccProjectUniqueName3 = BLL\\PrinterManagerProject.BLL.csproj
-		SccProjectName3 = BLL
-		SccLocalPath3 = BLL
-		SccProjectUniqueName4 = Model\\PrinterManagerProject.Model.csproj
-		SccProjectName4 = Model
-		SccLocalPath4 = Model
-		SccProjectUniqueName5 = DBUtility\\PrinterManagerProject.DBUtility.csproj
-		SccProjectName5 = DBUtility
-		SccLocalPath5 = DBUtility
-		SccProjectUniqueName6 = DAL\\PrinterManagerProject.DAL.csproj
-		SccProjectName6 = DAL
-		SccLocalPath6 = DAL
 	EndGlobalSection
 EndGlobal

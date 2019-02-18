@@ -25,7 +25,7 @@ namespace PrinterManagerProject.BLL
         /// </summary>
         /// <param name="Sid">溶媒ID</param>
         /// <returns></returns>
-        public List<PrinterManagerProject.Model.Print_ymodel> getPrint_y_no(int Sid)
+        public List<PrinterManagerProject.Model.PrintDrugModel> getPrint_y_no(int Sid)
         {
             return dal.getPrint_y_no(Sid);
         }
@@ -34,7 +34,7 @@ namespace PrinterManagerProject.BLL
         /// </summary>
         /// <param name="Sid">溶媒ID</param>
         /// <returns></returns>
-        public List<PrinterManagerProject.Model.Print_ymodel> getPrint_y(int Sid)
+        public List<PrinterManagerProject.Model.PrintDrugModel> getPrint_y(int Sid)
         {
             return dal.getPrint_y(Sid);
         }

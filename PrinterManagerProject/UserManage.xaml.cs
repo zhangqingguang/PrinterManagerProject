@@ -11,9 +11,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
-using PrinterManagerProject.Model;
-using PrinterManagerProject.BLL;
 using System.Data;
+using PrinterManagerProject.EF;
 
 namespace PrinterManagerProject
 {
@@ -22,6 +21,7 @@ namespace PrinterManagerProject
     /// </summary>
     public partial class UserManage : BaseWindow
     {
+        EF.UserManager userManager = new UserManager();
         public UserManage()
         {
             InitializeComponent();
@@ -29,27 +29,28 @@ namespace PrinterManagerProject
         }
         private void LoadData()
         {
-            BLL.v_users users = new BLL.v_users();
-            dgvGroupRepairList.ItemsSource = users.get_v_users();
+            tUser users = new tUser();
+            dgvGroupRepairList.ItemsSource = userManager.GetAll();
         }
 
         private void BtnAddUser_Click(object sender, RoutedEventArgs e)
         {
-            BLL.v_users userbll = new BLL.v_users();            
+            tUser userbll = new tUser();            
             formcheck();
-            if (userbll.Exists(username.Text.Trim()))
+            if (userManager.Any(s=>s.user_name == username.Text.Trim()))
             {
-                MessageBox.Show("用户名已经存在,请修改后点击添加!");
+                MessageBox.Show($"用户名【{username.Text.Trim()}】已经存在,请修改后点击添加!");
                 return;
             }
-            Model.v_users usermodel = new Model.v_users();
+            tUser usermodel = new tUser();
             usermodel.user_name = username.Text.Trim();
             usermodel.password = userpwd.Text.Trim();
             usermodel.true_name = usertrue.Text.Trim();
             usermodel.type_name = usertype.Text.Trim();
             usermodel.createtime = DateTime.Now;
-            
-            if(userbll.Add(usermodel)>0)
+
+            userManager.Add(usermodel);
+            if (usermodel.ID>0)
             {
                 MessageBox.Show("用户添加成功!");
                 LoadData();
@@ -62,33 +63,34 @@ namespace PrinterManagerProject
 
         private void BtnUpdateUser_Click(object sender, RoutedEventArgs e)
         {
-            BLL.v_users userbll = new BLL.v_users();
+            tUser userbll = new tUser();
 
-            if(userid.Text.Trim()=="")
+            if (userid.Text.Trim()=="")
             {
                 MessageBox.Show("请选择您要修改的用户");
                 return;
             }
-            if (userbll.Exists(username.Text.Trim()))
+            var userId = Convert.ToInt32(userid.Text.Trim());
+            if (userManager.Any(s =>s.ID != userId && s.user_name == username.Text.Trim()))
             {
-                MessageBox.Show("用户名已经存在,请修改!");
+                MessageBox.Show($"用户名【{username.Text.Trim()}】已经存在,请修改!");
                 return;
             }
             formcheck();
-            Model.v_users usermodel = new Model.v_users();
+            tUser usermodel = new tUser();
             usermodel.ID = Convert.ToInt32(userid.Text.Trim());
             usermodel.user_name = username.Text.Trim();
             usermodel.password = userpwd.Text.Trim();
             usermodel.true_name = usertrue.Text.Trim();
             usermodel.type_name = usertype.Text.Trim();
             usermodel.createtime = DateTime.Now;
-
-            if(userbll.Update(usermodel))
+            try
             {
+                userManager.Update(usermodel);
                 MessageBox.Show("用户修改成功！");
                 LoadData();
             }
-            else
+            catch (Exception exception)
             {
                 MessageBox.Show("用户修改失败!");
             }
@@ -101,16 +103,17 @@ namespace PrinterManagerProject
                 MessageBox.Show("请选择您要修改的用户");
                 return;
             }
-            BLL.v_users userbll = new BLL.v_users();
+            tUser userbll = new tUser();
             int uid = Convert.ToInt32(userid.Text.Trim());
-            if (userbll.Delete(uid))
+            try
             {
+                userManager.Delete(uid);
                 MessageBox.Show("用户删除成功！");
                 LoadData();
             }
-            else
+            catch (Exception exception)
             {
-                MessageBox.Show("用户删除失败！");
+                MessageBox.Show("用户删除失败!");
             }
 
         }
@@ -120,13 +123,14 @@ namespace PrinterManagerProject
         {          
 
             var a = this.dgvGroupRepairList.SelectedItem;
-            var b = a as PrinterManagerProject.Model.v_users;
-
-            userid.Text = b.ID.ToString();
-            username.Text = b.user_name;
-            userpwd.Text = b.password;
-            usertrue.Text = b.true_name;
-            usertype.Text = b.type_name;
+            if (a is tUser b)
+            {
+                userid.Text = b.ID.ToString();
+                username.Text = b.user_name;
+                userpwd.Text = b.password;
+                usertrue.Text = b.true_name;
+                usertype.Text = b.type_name;
+            }
 
         }
 

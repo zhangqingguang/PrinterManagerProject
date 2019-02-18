@@ -34,22 +34,22 @@
                 <Label Grid.Row="0" Content="用户登录" FontWeight="Bold" Foreground="#333333" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,10"/>
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="60" Content="操作人"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200" Height="20" />
+                        <Label Width="60" Content="操作员"/>
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200" Height="20" Text="admin1" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Width="60" Content="密码"/>
-                        <PasswordBox Width="200" x:Name="txtCZRPWD"  Height="20" />
+                        <PasswordBox Width="200" x:Name="txtCZRPWD"  Height="20" Password="123456" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="60" Content="审核人"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Height="20" />
+                        <Label Width="60" Content="审核员"/>
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Height="20" Text="admin2" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Width="60" Content="密码"/>
-                        <PasswordBox Width="200" x:Name="txtSHRPWD" Height="20" />
+                        <PasswordBox Width="200" x:Name="txtSHRPWD" Height="20" Password="123456" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20,10,0,30">

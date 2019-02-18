@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using PrinterManagerProject.EF;
 
 namespace PrinterManagerProject.Tools
 {
@@ -31,7 +32,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 实际数据源(库)数据
         /// </summary>
-        public Model.ListAllModel Drug { get; set; }
+        public tOrder Drug { get; set; }
 
         /// <summary>
         /// 打印标签时生成的二维码

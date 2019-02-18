@@ -111,7 +111,7 @@
   <ItemGroup>
     <Compile Include="AotuDataListModel.cs" />
     <Compile Include="ListAllModel.cs" />
-    <Compile Include="Print_ymodel.cs" />
+    <Compile Include="PrintDrugModel.cs" />
     <Compile Include="tBatch_for_View.cs" />
     <Compile Include="v_order_info.cs" />
     <Compile Include="v_users.cs" />

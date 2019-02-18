@@ -326,9 +326,9 @@ namespace PrinterManagerProject.DAL
         /// </summary>
         /// <param name="Sid">溶媒ID</param>
         /// <returns></returns>
-        public List<PrinterManagerProject.Model.Print_ymodel> getPrint_y_no(int Sid)
+        public List<PrinterManagerProject.Model.PrintDrugModel> getPrint_y_no(int Sid)
         {
-            List<PrinterManagerProject.Model.Print_ymodel> list = new List<Print_ymodel>();
+            List<PrinterManagerProject.Model.PrintDrugModel> list = new List<PrintDrugModel>();
 
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select a.id, a.drug_name,a.use_count from dbo.tZHY_for_View a,(select * from dbo.tZHY_for_View where [id]="+Sid+") b "
@@ -351,9 +351,9 @@ namespace PrinterManagerProject.DAL
         /// </summary>
         /// <param name="Sid">溶媒ID</param>
         /// <returns></returns>
-        public List<PrinterManagerProject.Model.Print_ymodel> getPrint_y(int Sid)
+        public List<PrinterManagerProject.Model.PrintDrugModel> getPrint_y(int Sid)
         {
-            List<PrinterManagerProject.Model.Print_ymodel> list = new List<Print_ymodel>();
+            List<PrinterManagerProject.Model.PrintDrugModel> list = new List<PrintDrugModel>();
 
             StringBuilder strSql = new StringBuilder();
             strSql.Append("select a.id, a.drug_name,a.use_count from dbo.tZHY_for_View a,(select * from dbo.tZHY_for_View where [id]=" + Sid + ") b "
@@ -396,9 +396,9 @@ namespace PrinterManagerProject.DAL
         /// <summary>
 		/// 得到一个对象实体(ListAllModel)
 		/// </summary>
-		public Print_ymodel DataRowToModel_Print_ymodel(DataRow row)
+		public PrintDrugModel DataRowToModel_Print_ymodel(DataRow row)
         {
-            Print_ymodel model = new Print_ymodel();
+            PrintDrugModel model = new PrintDrugModel();
             if (row != null)
             {
                 if (row["id"] != null && row["id"].ToString() != "")

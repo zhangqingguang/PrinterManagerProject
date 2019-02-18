@@ -48,6 +48,12 @@
     <Reference Include="Csv, Version=1.0.31.0, Culture=neutral, processorArchitecture=MSIL">
       <HintPath>..\packages\Csv.1.0.31\lib\net40\Csv.dll</HintPath>
     </Reference>
+    <Reference Include="EntityFramework, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.dll</HintPath>
+    </Reference>
+    <Reference Include="EntityFramework.SqlServer, Version=6.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089, processorArchitecture=MSIL">
+      <HintPath>..\packages\EntityFramework.6.2.0\lib\net45\EntityFramework.SqlServer.dll</HintPath>
+    </Reference>
     <Reference Include="FluentFTP, Version=19.2.2.0, Culture=neutral, PublicKeyToken=f4af092b1d8df44f, processorArchitecture=MSIL">
       <HintPath>..\packages\FluentFTP.19.2.2\lib\net45\FluentFTP.dll</HintPath>
     </Reference>
@@ -81,6 +87,7 @@
       <Private>True</Private>
       <Private>True</Private>
     </Reference>
+    <Reference Include="System.ComponentModel.DataAnnotations" />
     <Reference Include="System.Configuration" />
     <Reference Include="System.Data" />
     <Reference Include="System.Drawing" />
@@ -150,6 +157,9 @@
     <Compile Include="Pages\SizeSettingPage.xaml.cs">
       <DependentUpon>SizeSettingPage.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Pages\DrugSettingPage.xaml.cs">
+      <DependentUpon>DrugSettingPage.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Pages\TimeSettingPage.xaml.cs">
       <DependentUpon>TimeSettingPage.xaml</DependentUpon>
     </Compile>
@@ -185,6 +195,7 @@
     <Compile Include="SignalPanelControl.xaml.cs">
       <DependentUpon>SignalPanelControl.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\UserCache.cs" />
     <Compile Include="UserManage.xaml.cs">
       <DependentUpon>UserManage.xaml</DependentUpon>
     </Compile>
@@ -215,6 +226,10 @@
     <Page Include="Pages\SizeSettingPage.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Pages\DrugSettingPage.xaml">
+      <Generator>MSBuild:Compile</Generator>
+      <SubType>Designer</SubType>
     </Page>
     <Page Include="Pages\TimeSettingPage.xaml">
       <SubType>Designer</SubType>
@@ -288,13 +303,9 @@
     <Resource Include="Images\bg.jpg" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\BLL\PrinterManagerProject.BLL.csproj">
-      <Project>{38d7aa58-c95b-449b-86c6-a8073a56e11f}</Project>
-      <Name>PrinterManagerProject.BLL</Name>
-    </ProjectReference>
-    <ProjectReference Include="..\Model\PrinterManagerProject.Model.csproj">
-      <Project>{53995dbb-9836-4647-ad22-865884fdeb9e}</Project>
-      <Name>PrinterManagerProject.Model</Name>
+    <ProjectReference Include="..\PrinterManagerProject.EF\PrinterManagerProject.EF.csproj">
+      <Project>{928e6d65-6fe4-429a-a587-a23d4e17d69d}</Project>
+      <Name>PrinterManagerProject.EF</Name>
     </ProjectReference>
     <ProjectReference Include="..\Util.Controls\Util.Controls.csproj">
       <Project>{343f577e-6388-442c-b725-2ea6893ab221}</Project>

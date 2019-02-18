@@ -306,7 +306,7 @@ namespace PrinterManagerProject.Model
 			get{return _is_twice_print;}
 		}
 		/// <summary>
-		/// 审核人
+		/// 审核员
 		/// </summary>
 		public string checker
 		{

@@ -77,7 +77,7 @@
                         <Label Name="lblTime" Content="当前时间：" Foreground="White" Margin="0,3,8,0"/>
 
                         <Menu Background="Transparent">
-                            <MenuItem Header="管理员" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xe655;">
+                            <MenuItem Name="UserHeader" Header="管理员" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xe655;">
                                 <MenuItem Name="miChangePassword" Icon="&#xe64a;" Header="修改密码" />
                                 <MenuItem Name="miLogout" Icon="&#xe649;" Header="注销" />
                             </MenuItem>

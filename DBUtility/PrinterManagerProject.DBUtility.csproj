@@ -122,6 +122,7 @@
     <Compile Include="CommandInfo.cs">
       <SubType>Code</SubType>
     </Compile>
+    <Compile Include="PivasDbHelperSQL.cs" />
     <Compile Include="DbHelperSQL.cs">
       <SubType>Code</SubType>
     </Compile>

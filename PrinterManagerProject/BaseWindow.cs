@@ -3,6 +3,7 @@ using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
 using System.Windows.Threading;
+using PrinterManagerProject.Tools;
 
 namespace PrinterManagerProject
 {
@@ -22,6 +23,8 @@ namespace PrinterManagerProject
         private MenuItem miExit;
         private MenuItem miPrint;
         private MenuItem miQuery;
+
+        private MenuItem userHeader;
 
         private DispatcherTimer dispatcherTimer;
 
@@ -57,11 +60,17 @@ namespace PrinterManagerProject
                 {
                     // 初始化控件
                     lblTime = metroWindowTemplate.FindName("lblTime", this) as Label;
+                    userHeader = metroWindowTemplate.FindName("UserHeader", this) as MenuItem;
                     miChangePassword = metroWindowTemplate.FindName("miChangePassword", this) as MenuItem;
                     miLogout = metroWindowTemplate.FindName("miLogout", this) as MenuItem;
                     miExit = metroWindowTemplate.FindName("miExit", this) as MenuItem;
                     miPrint = metroWindowTemplate.FindName("miPrint", this) as MenuItem;
                     miQuery = metroWindowTemplate.FindName("miQuery", this) as MenuItem;
+
+                    if (UserCache.Printer.ID != 0)
+                    {
+                        userHeader.Header = UserCache.Printer.true_name;
+                    }
 
                     // 事件绑定
                     miChangePassword.Click += miChangePassword_Click;

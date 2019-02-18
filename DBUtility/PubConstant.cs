@@ -2,7 +2,7 @@
 using System.Configuration;
 namespace PrinterManagerProject.DBUtility
 {
-    
+
     public class PubConstant
     {        
         /// <summary>

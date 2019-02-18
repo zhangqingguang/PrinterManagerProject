@@ -1,27 +1,29 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
-namespace PrinterManagerProject.Model
+namespace PrinterManagerProject.EF.Models
 {
-    public partial class Print_ymodel
+    public partial class PrintDrugModel
     {
         /// <summary>
         /// 
         /// </summary>
-        public Print_ymodel()
+        public PrintDrugModel()
         { }
         #region Model
-        private int _id;
+        private string _drugid;
         private string _drug_name;
         private string _use_count;
         /// <summary>
         /// 药品id
         /// </summary>
-        public int id
+        public string id
         {
-            set { _id = value; }
-            get { return _id; }
+            set { _drugid = value; }
+            get { return _drugid; }
         }
         /// <summary>
         /// 药品名称

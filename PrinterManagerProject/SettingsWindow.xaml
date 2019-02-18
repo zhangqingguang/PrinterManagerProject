@@ -33,15 +33,18 @@
                 </Grid.RowDefinitions>
 
                 <Border Grid.Row="0" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
-                    <Label Name="lblTimeSetting" Tag="Pages/TimeSettingPage.xaml"  Style="{StaticResource GridLabelSytle}" Content="批次时间设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove" Background="White"></Label>
+                    <Label Name="lblTimeSetting" Tag="Pages/TimeSettingPage.xaml"  Style="{StaticResource GridLabelSytle}" Content="批次时间同步" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove" Background="White"></Label>
                 </Border>
                 <Border Grid.Row="1" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
-                    <Label Name="lblParamSetting" Tag="Pages/ParamSettingPage.xaml" Style="{StaticResource GridLabelSytle}" Content="运行参数设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
+                    <Label Name="lblDrugSetting" Tag="Pages/DrugSettingPage.xaml"  Style="{StaticResource GridLabelSytle}" Content="药品信息同步" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove" Background="White"></Label>
                 </Border>
                 <Border Grid.Row="2" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
+                    <Label Name="lblParamSetting" Tag="Pages/ParamSettingPage.xaml" Style="{StaticResource GridLabelSytle}" Content="运行参数设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
+                </Border>
+                <Border Grid.Row="3" BorderThickness="0,0,0,1" BorderBrush="{StaticResource LeftMenuBorderBrush}">
                     <Label Name="lblSizeSetting" Tag="Pages/SizeSettingPage.xaml" Style="{StaticResource GridLabelSytle}" Content="溶媒尺寸设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
                 </Border>
-                <Border Grid.Row="3" BorderThickness="0">
+                <Border Grid.Row="4" BorderThickness="0">
                     <Label Name="lblPrintTemplate" Tag="Pages/PrintTemplatePage.xaml" Style="{StaticResource GridLabelSytle}" Content="打印模板设置" MouseDown="lblSetting_MouseDown" MouseMove="lblSetting_MouseMove"></Label>
                 </Border>
             </Grid>

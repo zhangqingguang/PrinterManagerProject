@@ -19,11 +19,13 @@ using System.Drawing.Drawing2D;
 using System.Drawing.Text;
 using System.Windows.Shapes;
 using System.Text;
-using PrinterManagerProject.BLL;
 using System.Linq;
 using System.Data;
 using log4net;
 using System.Threading.Tasks;
+using PrinterManagerProject.EF;
+using PrinterManagerProject.EF.Models;
+using PrinterManagerProject.EF.Bll;
 
 namespace PrinterManagerProject
 {
@@ -32,6 +34,10 @@ namespace PrinterManagerProject
     /// </summary>
     public partial class PrintWindow : BaseWindow, ScanerHandlerSerialPortInterface, ScannerSerialPortInterface, PLCSerialPortInterface, CCDSerialPortInterface
     {
+        /// <summary>
+        /// 是否要连接设备
+        /// </summary>
+        public static bool IsConnectDevices = false;
         private const int MaxTryPhotographTimes = 3;
 
         private List<DrugsQueueModel> queue = new List<DrugsQueueModel>();
@@ -41,62 +47,110 @@ namespace PrinterManagerProject
         private HistoryModel countModel = null;
         
         // 自动贴签
-        private List<PrinterManagerProject.Model.ListAllModel> autoPrintList = new List<Model.ListAllModel>();
+        private List<tOrder> autoPrintList = new List<tOrder>();
         // 自动显示贴签
-        private List<PrinterManagerProject.Model.ListAllModel> autoPrintCurrentList = new List<Model.ListAllModel>();
+        private List<tOrder> autoPrintCurrentList = new List<tOrder>();
         // 手动贴签
-        private List<PrinterManagerProject.Model.ListAllModel> handlerPrintList = new List<Model.ListAllModel>();
+        private List<tOrder> handlerPrintList = new List<tOrder>();
         // 自动显示贴签
-        private List<PrinterManagerProject.Model.ListAllModel> handlerPrintCurrentList = new List<Model.ListAllModel>();
+        private List<tOrder> handlerPrintCurrentList = new List<tOrder>();
         // 异常列表
-        private List<PrinterManagerProject.Model.ListAllModel> exceptionList = new List<Model.ListAllModel>();
+        private List<tOrder> exceptionList = new List<tOrder>();
+
+        private OrderManager orderManager = new OrderManager();
 
         private string currentBatch;
         private string currentDate;
+        private bool FormLoading = true;
 
         public PrintWindow()
         {
             InitializeComponent();
 
-            // 开启串口
-            PLCSerialPortUtils.GetInstance(this).Open();
-            CCDSerialPortUtils.GetInstance(this).Open();
-            ScannerSerialPortUtils.GetInstance(this).Open();
-            ScanHandlerSerialPortUtils.GetInstance(this).Open();
-            
-            // 检查打印机状态
-            InitPrinter();
-            
-            // 检查数据库状态
-            if (!CheckDBConnection())
+            if (IsConnectDevices)
+            {
+                // 开启串口
+                PLCSerialPortUtils.GetInstance(this).Open();
+                CCDSerialPortUtils.GetInstance(this).Open();
+                ScannerSerialPortUtils.GetInstance(this).Open();
+                ScanHandlerSerialPortUtils.GetInstance(this).Open();
+
+
+                // 检查打印机状态
+                #region 检查打印机状态，直到连接成功
+                bool continueTryConnectPrinter = false;
+                bool connectSuccess = false;
+                do
+                {
+                    string errorMsg = InitPrinter();
+
+                    if (string.IsNullOrEmpty(errorMsg) == false)
+                    {
+                        // 这里设置显示串口正常
+                        MessageBoxResult result = MessageBox.Show(errorMsg, "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        continueTryConnectPrinter = result == MessageBoxResult.OK;
+                    }
+                    else
+                    {
+                        connectSuccess = true;
+                    }
+
+                } while (continueTryConnectPrinter && connectSuccess==false);
+                if (connectSuccess == false)
+                {
+                    return;
+                }
+                #endregion
+
+                // 检查数据库状态
+                if (!CheckDBConnection())
+                {
+                    return;
+                }
+
+                if (!GetPrinterModelConfig())
+                    return;
+            }
+
+            if (CheckDBConnection() == false)
             {
                 return;
             }
 
-            if (!GetPrinterModelConfig())
-                return;
-
-            #region 绑定批次
-
-            BLL.tBatch_for_View tfv = new BLL.tBatch_for_View();
-            List<Model.tBatch_for_View> list = tfv.GetList();
-            list.Insert(0, new Model.tBatch_for_View() { batch = "0", batch_name = "请选择" });
-            this.cb_batch.DisplayMemberPath = "batch_name";
-            this.cb_batch.SelectedValuePath = "batch";
-            this.cb_batch.ItemsSource = list;
-
-            #endregion
-
-            //绑定批次调整后事件
-            this.cb_batch.SelectionChanged += Cb_batch_SelectionChanged;
-
-            this.use_date.SelectedDate = DateTime.Now.Date;
+            InitDate();
+            InitBatch();
 
             GetCount();
 
             // 检测打印机中是否有多余的打印内容，导致标签打印错位
             //CheckLabelsRemainingInBatch();
+            FormLoading = false;
         }
+
+        #region 初始化
+        /// <summary>
+        /// 初始化时间
+        /// </summary>
+        private void InitDate()
+        {
+            this.use_date.SelectedDate = DateTime.Now.Date;
+        }
+        /// <summary>
+        /// 初始化批次
+        /// </summary>
+        private void InitBatch()
+        {
+            tBatch tfv = new tBatch();
+            var list  = new BatchManager().GetAll();
+            list.Insert(0, new tBatch() { batch = "", batch_name = "请选择" });
+            this.cb_batch.DisplayMemberPath = "batch_name";
+            this.cb_batch.SelectedValuePath = "batch";
+            this.cb_batch.ItemsSource = list;
+
+            //绑定批次调整后事件
+            this.cb_batch.SelectionChanged += Cb_batch_SelectionChanged;
+        } 
+        #endregion
 
         #region 事件响应
         /// <summary>
@@ -121,15 +175,14 @@ namespace PrinterManagerProject
                         continue;
                     }
 
-                    Model.ListAllModel model = dg.Items[i] as Model.ListAllModel;
-                    if (model != null)
+                    if (dg.Items[i] is tOrder model)
                     {
                         switch (model.printing_status)
                         {
-                            case 0:
+                            case PrintStatusEnum.NotPrint:
                                 row.Background = notComplate;
                                 break;
-                            case 1:
+                            case PrintStatusEnum.Success:
                                 row.Background = complated;
                                 break;
                         }
@@ -180,6 +233,39 @@ namespace PrinterManagerProject
             }
         }
 
+        /// <summary>
+        /// 同步医嘱
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (ConnectionManager.CheckPivasConnetionStatus())
+            {
+                MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return ;
+            }
+            if (CheckDBConnection())
+            {
+                return;
+            }
+            if (this.use_date.SelectedDate.HasValue == false)
+            {
+                MessageBox.Show("请选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (this.use_date.SelectedDate.Value.Date<DateTime.Now.Date)
+            {
+                MessageBox.Show("只能选择今天和今天后的日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            myEventLog.LogInfo("开始同步医嘱");
+            new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
+            myEventLog.LogInfo("医嘱同步完成");
+
+            LoadData();
+        }
+
         private void ButtonPrint_Click(object sender, RoutedEventArgs e)
         {
             ////var model = autoPrintCurrentList[0];
@@ -202,19 +288,22 @@ namespace PrinterManagerProject
 
             if (tabMain.SelectedIndex == 0)
             {
-                var printer = GetPrinter();
-                var status = printer.GetCurrentStatus();
-                if (status.labelsRemainingInBatch > 0)
+                if (IsConnectDevices)
                 {
-                    // 打印机中有打印任务的，重置打印机
-                    printer.Reset();
-                    zPrinter = null;
-                }
+                    var printer = GetPrinter();
+                    var status = printer.GetCurrentStatus();
+                    if (status.labelsRemainingInBatch > 0)
+                    {
+                        // 打印机中有打印任务的，重置打印机
+                        printer.Reset();
+                        zPrinter = null;
+                    }
 
-                // 先关再开
-                PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
-                plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
-                plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                    // 先关再开
+                    PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
+                    plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
+                    plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                }
 
                 btnPrint.IsEnabled = false;
                 btnStopPrint.IsEnabled = true;
@@ -231,14 +320,15 @@ namespace PrinterManagerProject
 
         private void ButtonStopPrint_Click(object sender, RoutedEventArgs e)
         {
-            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
+            if (IsConnectDevices)
+            {
+                PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
 
-            ResetPrinter();
+                ResetPrinter();
+            }
 
             btnPrint.IsEnabled = true;
             btnStopPrint.IsEnabled = false;
-
-
         }
 
         private void Use_date_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
@@ -268,9 +358,13 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (!CheckDBConnection())
+            if (FormLoading)
             {
-                MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            if (CheckDBConnection()==false)
+            {
                 return;
             }
 
@@ -280,7 +374,7 @@ namespace PrinterManagerProject
             }
 
             //  根据tab选择要操作的数据源
-            List<Model.ListAllModel> currentSourceList = null;
+            List<tOrder> currentSourceList = null;
             switch (tabMain.SelectedIndex)
             {
                 case 1:
@@ -317,7 +411,7 @@ namespace PrinterManagerProject
         /// 绑定列表数据
         /// </summary>
         /// <param name="dataSource"></param>
-        private void BindDgvs(List<Model.ListAllModel> dataSource)
+        private void BindDgvs(List<tOrder> dataSource)
         {
             if (dataSource.Count <= 0)
             {
@@ -369,7 +463,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 初始化打印机并检测状态
         /// </summary>
-        private void InitPrinter()
+        private string InitPrinter()
         {
 
             string errorMsg = "";
@@ -379,7 +473,7 @@ namespace PrinterManagerProject
                 PrinterStatus printerStatus = GetPrinterStatus(null);
                 if(printerStatus == null)
                 {
-                    return;
+                    return "打印机连接失败，请检查打印机是否连接到上位机";
                 }
 
                 if (printerStatus.isReadyToPrint)
@@ -424,16 +518,8 @@ namespace PrinterManagerProject
             finally
             {
                 connection.Close();
-                if (string.IsNullOrEmpty(errorMsg) == false)
-                {
-                    // 这里设置显示串口正常
-                    MessageBoxResult result = MessageBox.Show(errorMsg, "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    if (result == MessageBoxResult.OK)
-                    {
-                        InitPrinter();
-                    }
-                }
             }
+            return errorMsg;
         }
 
         /// <summary>
@@ -622,7 +708,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 生成打印内容并推送的打印机
         /// </summary>
-        private void Print(ZebraPrinter printer, List<Model.Print_ymodel> drugs, ref Model.ListAllModel drug, ref StringBuilder b)
+        private void Print(ZebraPrinter printer, List<PrintDrugModel> drugs, ref tOrder drug, ref StringBuilder b)
         {
             #region 打印
 
@@ -651,12 +737,12 @@ namespace PrinterManagerProject
                     g.Clear(System.Drawing.Color.White);
 
                     // 生成条形码数据
-                    if (string.IsNullOrEmpty(drug.QRcode))
+                    if (string.IsNullOrEmpty(drug.barcode))
                     {
-                        drug.QRcode = Guid.NewGuid().ToString();
-                        drug.QRcode = drug.QRcode.Substring(drug.QRcode.Length - 21, 20);
+                        drug.barcode = Guid.NewGuid().ToString();
+                        drug.barcode = drug.barcode.Substring(drug.barcode.Length - 21, 20);
                     }
-                    myEventLog.LogInfo($"生成条形码：{drug.QRcode}");
+                    myEventLog.LogInfo($"生成条形码：{drug.barcode}");
 
                     #region PDF417
                     PDF417EncodingOptions pdf_options = new PDF417EncodingOptions
@@ -673,8 +759,8 @@ namespace PrinterManagerProject
                     pdf417Writer.Options = pdf_options;
                     #endregion
 
-                    myEventLog.LogInfo($"打印标签二维码内容：{drug.QRcode}");
-                    Bitmap bmp = pdf417Writer.Write(drug.QRcode);
+                    myEventLog.LogInfo($"打印标签二维码内容：{drug.barcode}");
+                    Bitmap bmp = pdf417Writer.Write(drug.barcode);
 
                     myEventLog.LogInfo($"标签尺寸：配置 {model.BarCodeWidth}/{model.BarCodeHeight}");
                     myEventLog.LogInfo($"标签尺寸：转换 {ConvertInt(model.BarCodeWidth)}/{ConvertInt(model.BarCodeHeight)}");
@@ -1184,15 +1270,15 @@ namespace PrinterManagerProject
                             string type = CCDSerialPortData.GetTypeValue(datas[3]); // 药袋种类
 
                             myEventLog.LogInfo($"CCD1品规:{spec[0]}-{spec[1]}");
-                            Model.ListAllModel currentDrug = GetModelBySpec(spec);
+                            tOrder currentDrug = GetModelBySpec(spec);
 
                             if (currentDrug != null)
                             {
                                 myEventLog.LogInfo($"CCD1医嘱:{currentDrug.Id}");
 
                                 // 获取水和药品信息
-                                AotuDataListBll bll = new AotuDataListBll();
-                                List<Model.Print_ymodel> drugs = bll.getPrint_y(currentDrug.Id);
+                                
+                                List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(currentDrug.Id);
                                 if (drugs != null && drugs.Count > 0)
                                 {
                                     myEventLog.LogInfo($"药品数量:{drugs.Count}");
@@ -1311,8 +1397,8 @@ namespace PrinterManagerProject
                                 if (success == true)
                                 {
                                     // 修改到数据库，修改失败则判为失败
-                                    AotuDataListBll bll = new AotuDataListBll();
-                                    if (bll.update_status(model.Drug.Id, model.Drug.QRcode))
+                                    
+                                    if (orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name))
                                     {
                                         myEventLog.LogInfo($"更新到数据库：ID={model.Drug.Id}");
                                         // 2#位通过
@@ -1323,24 +1409,24 @@ namespace PrinterManagerProject
                                         SaveCount();
 
                                         // 处理到数据源
-                                        Model.ListAllModel autoPrintModel = autoPrintList.Find(m => m.Id == model.Drug.Id);
+                                        tOrder autoPrintModel = autoPrintList.Find(m => m.Id == model.Drug.Id);
                                         if (autoPrintModel != null)
                                         {
                                             myEventLog.LogInfo($"更新列表：ID={autoPrintModel.Id}");
                                             // 回写数据
                                             autoPrintModel.sbatches = batchNumber;
                                             autoPrintModel.printing_time = DateTime.Now;
-                                            autoPrintModel.printing_model = 0;
-                                            autoPrintModel.printing_status = 1;
-                                            autoPrintModel.QRcode = model.Drug.QRcode;
+                                            autoPrintModel.printing_model = PrintModelEnum.Auto;
+                                            autoPrintModel.printing_status = PrintStatusEnum.Success;
+                                            autoPrintModel.barcode = model.Drug.barcode;
 
-                                            Model.ListAllModel autoPrintCurrentModel = autoPrintCurrentList.Find(m => m.Id == model.Drug.Id);
+                                            tOrder autoPrintCurrentModel = autoPrintCurrentList.Find(m => m.Id == model.Drug.Id);
                                             // 回写数据
                                             autoPrintCurrentModel.sbatches = batchNumber;
                                             autoPrintCurrentModel.printing_time = DateTime.Now;
-                                            autoPrintCurrentModel.printing_model = 0;
-                                            autoPrintCurrentModel.printing_status = 1;
-                                            autoPrintCurrentModel.QRcode = model.Drug.QRcode;
+                                            autoPrintCurrentModel.printing_model = PrintModelEnum.Auto;
+                                            autoPrintCurrentModel.printing_status = PrintStatusEnum.Success;
+                                            autoPrintCurrentModel.barcode = model.Drug.barcode;
 
                                             // 显示界面效果
                                             //Dispatcher.Invoke(() =>
@@ -1353,19 +1439,19 @@ namespace PrinterManagerProject
                                             // --- 设置为CCD2识别通过的状态 ---
                                             Success();
 
-                                            myEventLog.LogInfo($"数据回写成功：Id={autoPrintCurrentModel.Id},QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
+                                            myEventLog.LogInfo($"数据回写成功：Id={autoPrintCurrentModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                                             myEventLog.LogInfo($"CCD2成功");
                                         }
                                         else
                                         {
                                             success = false;
-                                            myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
+                                            myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                                         }
                                     }
                                     else // 数据库操作失败
                                     {
                                         // --- 删除对比失败的信息 ---
-                                        myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.QRcode},DrugId={model.Drug.Id}");
+                                        myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                                         myEventLog.LogInfo($"CCD2失败 数据回写失败");
                                     }
                                 }
@@ -1409,16 +1495,16 @@ namespace PrinterManagerProject
         /// </summary>
         /// <param name="spec"></param>
         /// <returns></returns>
-        private Model.ListAllModel GetModelBySpec(string[] spec)
+        private tOrder GetModelBySpec(string[] spec)
         {
             // 通过扫描出来的信息对比数据源，查找匹配的数据，如果查询到则发指令调整机器大小，否则1#位剔除
-                var queueIds = queue.Select(s => s.Drug.Id).ToList();
+            var queueIds = queue.Where(s=>s.Drug!=null).Select(s => s.Drug.Id).ToList();
             if (autoPrintCurrentList.Any()==false)
             {
                 var batch = currentBatch ?? this.cb_batch.SelectedValue.ToString();
                 autoPrintCurrentList = autoPrintList.FindAll(m => m.batch == batch).ToList();
             }
-            return autoPrintCurrentList.Find(m => queueIds.Contains(m.Id) == false && string.IsNullOrEmpty(m.QRcode) && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
+            return autoPrintCurrentList.Find(m => queueIds.Contains(m.Id) == false && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
         }
 
         /// <summary>
@@ -1622,16 +1708,16 @@ namespace PrinterManagerProject
         /// <param name="spec">规格</param>
         /// <param name="ml">液体毫升数</param>
         /// <param name="ccd1TakePhotoTimes">CCD1拍照次数</param>
-        private void AddQueue(Model.ListAllModel drug, string cmd, string spec, string ml,int ccd1TakePhotoTimes)
+        private void AddQueue(tOrder drug, string cmd, string spec, string ml,int ccd1TakePhotoTimes)
         {
             // 保存溶媒信息到队列
             DrugsQueueModel qModel = new DrugsQueueModel();
             if(drug != null)
             {
-                if (string.IsNullOrEmpty(drug.QRcode))
+                if (string.IsNullOrEmpty(drug.barcode))
                 {
-                    drug.QRcode = Guid.NewGuid().ToString();
-                    drug.QRcode = drug.QRcode.Substring(drug.QRcode.Length - 21, 20);
+                    drug.barcode = Guid.NewGuid().ToString();
+                    drug.barcode = drug.barcode.Substring(drug.barcode.Length - 21, 20);
                 }
                 // 保存识别数据
                 qModel.CMD = cmd;
@@ -1639,7 +1725,7 @@ namespace PrinterManagerProject
                 qModel.Spec = spec;
                 qModel.ML = ml;
                 qModel.CCD1TakePhotoCount = ccd1TakePhotoTimes;
-                qModel.QRData = drug.QRcode;
+                qModel.QRData = drug.barcode;
 
                 myEventLog.LogInfo($"将液体信息插入队列:Id={qModel.Drug.Id}，Code={qModel.QRData}");
             }
@@ -1883,22 +1969,7 @@ namespace PrinterManagerProject
         /// </summary>
         private bool CheckDBConnection()
         {
-            try
-            {
-                BLL.tBatch_for_View bll = new tBatch_for_View();
-                int count = bll.GetRecordCount("");
-
-                // 这里设置显示串口正常
-                Dispatcher.Invoke(() =>
-                {
-                    Ellipse ellipse = spcViewPanel.FindName("elDb") as Ellipse;
-                    ellipse.Fill = complate;
-                    Label label = spcViewPanel.FindName("lblDb") as Label;
-                    label.Content = "数据库链接正常";
-                });
-                return true;
-            }
-            catch (Exception)
+            if (ConnectionManager.CheckConnetionStatus() == false)
             {
                 // 这里设置显示串口正常
                 Dispatcher.Invoke(() =>
@@ -1906,9 +1977,23 @@ namespace PrinterManagerProject
                     Ellipse ellipse = spcViewPanel.FindName("elDb") as Ellipse;
                     ellipse.Fill = errorColor;
                     Label label = spcViewPanel.FindName("lblDb") as Label;
-                    label.Content = "数据库链接失败";
+                    label.Content = "数据库连接失败";
                 });
+
+                MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
+            }
+            else
+            {
+                // 这里设置显示串口正常
+                Dispatcher.Invoke(() =>
+                {
+                    Ellipse ellipse = spcViewPanel.FindName("elDb") as Ellipse;
+                    ellipse.Fill = complate;
+                    Label label = spcViewPanel.FindName("lblDb") as Label;
+                    label.Content = "数据库连接正常";
+                });
+                return true;
             }
         }
 
@@ -1918,20 +2003,25 @@ namespace PrinterManagerProject
         /// <summary>
         /// 
         /// </summary>
-
         public void LoadData()
         {
-            if (!CheckDBConnection())
+            if (FormLoading)
             {
-                MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
 
-            //获取数据
-            string strdate = Convert.ToDateTime(use_date.SelectedDate).ToString("yyyy-MM-dd");
+            if (CheckDBConnection()==false)
+            {
+                return;
+            }
 
-            BLL.AotuDataListBll alb = new AotuDataListBll();
-            autoPrintList = alb.getlist(strdate, "");
+            if (use_date.SelectedDate.HasValue == false)
+            {
+                MessageBox.Show("请先选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            //获取数据
+            autoPrintList = orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value);
 
 
             int autoCount = autoPrintList.Count(m => m.printing_status == 0);

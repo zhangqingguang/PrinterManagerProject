@@ -7,11 +7,13 @@ using Zebra.Sdk.Comm;
 using Zebra.Sdk.Graphics;
 using Zebra.Sdk.Printer;
 using Zebra.Sdk.Printer.Discovery;
-using PrinterManagerProject.BLL;
 using System.Collections.Generic;
 using PrinterManagerProject.Models;
 using System.Drawing.Drawing2D;
 using System.Drawing.Text;
+using System.Threading.Tasks;
+using PrinterManagerProject.EF;
+using PrinterManagerProject.EF.Bll;
 using ZXing.PDF417;
 using ZXing;
 
@@ -35,54 +37,63 @@ namespace PrinterManagerProject
 
             #region 读取打印机状态
 
-            DiscoveredUsbPrinter usbPrinter = null;
-            List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
-            if (printers == null || printers.Count <= 0)
+            if (ConnectionManager.CheckConnetionStatus()==false)
             {
-                MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
-                return;
+                MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
-            usbPrinter = printers[0];
 
-            connection = new UsbConnection(usbPrinter.Address);
-            try
-            {
-                connection.Open();
-                ZebraPrinter printer = ZebraPrinterFactory.GetInstance(connection);
 
-                PrinterStatus printerStatus = printer.GetCurrentStatus();
-                if (printerStatus.isReadyToPrint)
-                {
-                    Console.WriteLine("Ready To Print");
-                }
-                else if (printerStatus.isPaused)
-                {
-                    Console.WriteLine("Cannot Print because the printer is paused.");
-                }
-                else if (printerStatus.isHeadOpen)
-                {
-                    Console.WriteLine("Cannot Print because the printer head is open.");
-                }
-                else if (printerStatus.isPaperOut)
-                {
-                    Console.WriteLine("Cannot Print because the paper is out.");
-                }
-                else
-                {
-                    Console.WriteLine("Cannot Print.");
-                }
-            }
-            catch (ConnectionException ex)
+            if (PrintWindow.IsConnectDevices)
             {
-                Console.WriteLine(ex.ToString());
-            }
-            catch (ZebraPrinterLanguageUnknownException ex)
-            {
-                Console.WriteLine(ex.ToString());
-            }
-            finally
-            {
-                connection.Close();
+                DiscoveredUsbPrinter usbPrinter = null;
+                List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
+                if (printers == null || printers.Count <= 0)
+                {
+                    MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
+                    return;
+                }
+                usbPrinter = printers[0];
+
+                connection = new UsbConnection(usbPrinter.Address);
+                try
+                {
+                    connection.Open();
+                    ZebraPrinter printer = ZebraPrinterFactory.GetInstance(connection);
+
+                    PrinterStatus printerStatus = printer.GetCurrentStatus();
+                    if (printerStatus.isReadyToPrint)
+                    {
+                        Console.WriteLine("Ready To Print");
+                    }
+                    else if (printerStatus.isPaused)
+                    {
+                        Console.WriteLine("Cannot Print because the printer is paused.");
+                    }
+                    else if (printerStatus.isHeadOpen)
+                    {
+                        Console.WriteLine("Cannot Print because the printer head is open.");
+                    }
+                    else if (printerStatus.isPaperOut)
+                    {
+                        Console.WriteLine("Cannot Print because the paper is out.");
+                    }
+                    else
+                    {
+                        Console.WriteLine("Cannot Print.");
+                    }
+                }
+                catch (ConnectionException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                catch (ZebraPrinterLanguageUnknownException ex)
+                {
+                    Console.WriteLine(ex.ToString());
+                }
+                finally
+                {
+                    connection.Close();
+                }
             }
 
             #endregion
@@ -219,30 +230,77 @@ namespace PrinterManagerProject
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
+            var userManager = new UserManager();
 
-            //testPrint();
+            var crzName = txtCZR.Text.Trim();
+            var crzPassword = txtCZRPWD.Password.Trim();
+            var shrName = txtSHR.Text.Trim();
+            var shrPassword = txtCZRPWD.Password.Trim();
+            if (string.IsNullOrEmpty(crzName))
+            {
+                MessageBox.Show("请输入操作员！");
+                return;
+            }
+            if (string.IsNullOrEmpty(txtCZRPWD.Password.Trim()))
+            {
+                MessageBox.Show("请输入操作员密码！");
+                return;
+            }
+            if (string.IsNullOrEmpty(txtSHR.Text.Trim()))
+            {
+                MessageBox.Show("请输入审核员！");
+                return;
+            }
+            if (string.IsNullOrEmpty(txtCZRPWD.Password.Trim()))
+            {
+                MessageBox.Show("请输入审核员密码！");
+                return;
+            }
+            var czrUser = userManager.FirstOrDefault(s => s.user_name == crzName && s.password == crzPassword);
+            var fhrUser = userManager.FirstOrDefault(s => s.user_name == shrName && s.password == shrPassword);
+            if (czrUser == null)
+            {
+                MessageBox.Show("操作员账户或密码不正确！");
+                return;
+            }
+            else
+            {
+                if (czrUser.type_name != "操作员")
+                {
+                    MessageBox.Show($"{crzName}不是操作员！");
+                    return;
+                }
+            }
+
+            if (fhrUser == null)
+            {
+                MessageBox.Show("审核员账户或密码不正确！");
+                return;
+            }
+            else
+            {
+                if (fhrUser.type_name != "审核员")
+                {
+                    MessageBox.Show($"{crzName}不是审核员！");
+                    return;
+                }
+            }
+
+            if (ConnectionManager.CheckPivasConnetionStatus() == false)
+            {
+                MessageBox.Show("Pivas 数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            else
+            {
+                UserCache.Printer = czrUser;
+                UserCache.Checker = fhrUser;
 
 
-            //PrinterManagerProject.BLL.v_users v_userBll = new v_users();
-            //CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
-            //PLCSerialPortUtils.GetInstance(this).SendData("71");
-            //if (txtCZR.Text.Trim() == "" || txtCZRPWD.Password == "" || txtSHR.Text.Trim() == "" || txtSHRPWD.Password == "")
-            //{
-            //    MessageBox.Show("用户名密码不能为空！");
-            //    return;
-            //}
-            //if (v_userBll.UserLogin(txtCZR.Text.Trim(), txtCZRPWD.Password.Trim(), txtSHR.Text.Trim(), txtSHRPWD.Password.Trim()))
-            //{
-            new LogHelper().Log("测试用户登录！");
-            MainWindow window = new MainWindow();
-            window.Show();
-            this.Hide();
-            //}
-            //else
-            //{
-            //    MessageBox.Show("用户名密码不正确！请认真填写！");
-            //    return;
-            //}
+                new LogHelper().Log("测试用户登录！");
+                MainWindow window = new MainWindow();
+                window.Show();
+                this.Hide();
+            }
         }
 
 
