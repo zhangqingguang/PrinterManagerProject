@@ -34,7 +34,11 @@ namespace PrinterManagerProject.EF
                 var date = dateTime.ToString("yyyy-MM-dd");
 
 
-                var orders = db.tOrders.Where(s => s.use_date == date).ToList();
+                var orders = db.tOrders.Where(s => s.use_date == date)
+                    .OrderBy(s=>s.use_date)
+                    .ThenBy(s => s.group_num)
+                    .ThenBy(s => s.use_time)
+                    .ToList();
 
                 var zhys = db.tZHies.Where(s => s.use_date == date).GroupBy(s=>new
                 {
@@ -61,6 +65,9 @@ namespace PrinterManagerProject.EF
                     {
                         item = zhy.FirstOrDefault(s => s.drug_weight == "1");
                     }
+
+                    currentOrder = orders.Count > index ? orders.ElementAt(index) : null;
+
                     if (orders.Any() && currentOrder != null && zhy.Key.group_num == currentOrder.group_num &&
                         zhy.Key.use_time == currentOrder.use_time)
                     {

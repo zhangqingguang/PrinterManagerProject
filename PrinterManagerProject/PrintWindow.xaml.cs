@@ -125,6 +125,11 @@ namespace PrinterManagerProject
             // 检测打印机中是否有多余的打印内容，导致标签打印错位
             //CheckLabelsRemainingInBatch();
             FormLoading = false;
+
+            this.printerLabel.Content = UserCache.Printer.true_name;
+            this.checkerLabel.Content = UserCache.Checker.true_name;
+
+            LoadData();
         }
 
         #region 初始化
@@ -240,12 +245,12 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
         {
-            if (ConnectionManager.CheckPivasConnetionStatus())
+            if (ConnectionManager.CheckPivasConnetionStatus()==false)
             {
                 MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return ;
             }
-            if (CheckDBConnection())
+            if (CheckDBConnection()==false)
             {
                 return;
             }
@@ -259,9 +264,26 @@ namespace PrinterManagerProject
                 MessageBox.Show("只能选择今天和今天后的日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            myEventLog.LogInfo("开始同步医嘱");
-            new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
-            myEventLog.LogInfo("医嘱同步完成");
+
+            try
+            {
+                myEventLog.LogInfo("开始同步医嘱");
+                this.btnUpdate.Content = "正在同步...";
+                this.btnUpdate.IsEnabled = false;
+                new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
+                myEventLog.LogInfo("医嘱同步完成");
+                MessageBox.Show("从Pivas同步医嘱完成！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception exception)
+            {
+                myEventLog.LogError(exception.Message, exception);
+                MessageBox.Show("从Pivas同步医嘱出错！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally
+            {
+                this.btnUpdate.IsEnabled = true;
+                this.btnUpdate.Content = "从Pivas同步医嘱";
+            }
 
             LoadData();
         }

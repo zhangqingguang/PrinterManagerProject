@@ -297,9 +297,10 @@ namespace PrinterManagerProject
 
 
                 new LogHelper().Log("测试用户登录！");
+                this.Hide();
+
                 MainWindow window = new MainWindow();
                 window.Show();
-                this.Hide();
             }
         }
 

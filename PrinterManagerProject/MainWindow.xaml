@@ -24,19 +24,20 @@
         <Grid.Background>
             <ImageBrush ImageSource="Images/bg.jpg"/>
         </Grid.Background>
-        
+
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition/>
         </Grid.RowDefinitions>
         <Grid.ColumnDefinitions>
-            <ColumnDefinition/>
-            <ColumnDefinition/>
+            <ColumnDefinition Width="100*"/>
+            <ColumnDefinition Width="33*"/>
+            <ColumnDefinition Width="133*"/>
         </Grid.ColumnDefinitions>
 
-        <Button Name="btnPrintWindow" Grid.Row="0" Grid.Column="0" Content="贴签系统" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnPrintWindow_Click"/>
-        <Button Name="btnUserWindow" Grid.Row="0" Grid.Column="1" Content="用户设置" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="BtnUserWindow_Click" />
-        <Button Name="btnQueryWindow" Grid.Row="1" Grid.Column="0" Content="综合查询" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnQueryWindow_Click" />
-        <Button Name="btnSettingsWindow" Grid.Row="1" Grid.Column="1" Content="系统设置" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btnSettingsWindow_Click" />
+        <Button Name="btnPrintWindow" Grid.Row="0" Grid.Column="0" Content="贴签系统" HorizontalAlignment="Right" VerticalAlignment="Bottom" Click="btnPrintWindow_Click" Grid.ColumnSpan="2" Margin="0,0,20,20"/>
+        <Button Name="btnUserWindow" Grid.Row="0" Grid.Column="2" Content="用户设置" HorizontalAlignment="Left" VerticalAlignment="Bottom" Click="BtnUserWindow_Click" Margin="20,0,0,20" />
+        <Button Name="btnQueryWindow" Grid.Row="1" Grid.Column="0" Content="综合查询" HorizontalAlignment="Right" VerticalAlignment="Top" Click="btnQueryWindow_Click" Grid.ColumnSpan="2" Margin="0,20,20,0" />
+        <Button Name="btnSettingsWindow" Grid.Row="1" Grid.Column="2" Content="系统设置" HorizontalAlignment="Left" VerticalAlignment="Top" Click="btnSettingsWindow_Click" Margin="20,20,0,0" />
     </Grid>
 </local:BaseWindow>
