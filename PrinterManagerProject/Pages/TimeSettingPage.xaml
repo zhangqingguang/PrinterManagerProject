@@ -15,7 +15,7 @@
             <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Content="批次时间设置" Margin="10,0,0,0" HorizontalAlignment="Left"/>
-        <DataGrid Grid.Row="1" x:Name="dgvGroupRepairList">
+        <DataGrid Grid.Row="1" x:Name="dgv_list">
             <DataGrid.Columns>
                 <DataGridTextColumn  Header="编号"  Binding="{Binding batch, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                 <DataGridTextColumn  Header="名称"  Binding="{Binding batch_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>

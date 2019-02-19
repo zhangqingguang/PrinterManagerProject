@@ -18,7 +18,7 @@
             <RowDefinition Height="80"/>
         </Grid.RowDefinitions>
         <Label Grid.Row="0" Content="溶媒尺寸设置" Margin="10,0,0,0" HorizontalAlignment="Left"/>
-        <DataGrid Grid.Row="1" x:Name="dgvGroupRepairList">
+        <DataGrid Grid.Row="1" x:Name="dgv_list">
             <DataGrid.Columns>
                 <DataGridTextColumn  Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                 <DataGridTextColumn  Header="溶媒规格"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>

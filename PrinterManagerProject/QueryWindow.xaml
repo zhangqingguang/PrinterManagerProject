@@ -30,7 +30,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <DataGrid Grid.Row="0" x:Name="dgvGroupRepairList">
+                <DataGrid Grid.Row="0" x:Name="dgv_list">
                     <DataGrid.Columns>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>

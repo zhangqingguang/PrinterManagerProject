@@ -30,7 +30,7 @@ namespace PrinterManagerProject
         private void LoadData()
         {
             tUser users = new tUser();
-            dgvGroupRepairList.ItemsSource = userManager.GetAll();
+            dgv_list.ItemsSource = userManager.GetAll();
         }
 
         private void BtnAddUser_Click(object sender, RoutedEventArgs e)
@@ -119,10 +119,10 @@ namespace PrinterManagerProject
         }
 
 
-        private void DgvGroupRepairList_MouseUp(object sender, MouseButtonEventArgs e)
+        private void dgv_list_MouseUp(object sender, MouseButtonEventArgs e)
         {          
 
-            var a = this.dgvGroupRepairList.SelectedItem;
+            var a = this.dgv_list.SelectedItem;
             if (a is tUser b)
             {
                 userid.Text = b.ID.ToString();

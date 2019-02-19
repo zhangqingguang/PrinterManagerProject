@@ -17,6 +17,7 @@
             <Setter Property="Margin" Value="10" />
         </Style>
         <src:PrintStatusConverter x:Key="printStatusConverter"/>
+        <src:PrintModelConverter x:Key="printModelConverter"/>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1" Margin="5">
         <Grid>
@@ -36,10 +37,10 @@
                                 <ColumnDefinition Width="500"/>
                             </Grid.ColumnDefinitions>
                             
-                            <DataGrid Grid.Column="0" x:Name="dgvGroupDetailList">
+                            <DataGrid Grid.Column="0" x:Name="dgv_AllPrint">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding row_number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                                    <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>-->
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="组号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                     <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>-->
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="床号" Binding="{Binding bed_number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -51,6 +52,7 @@
                                     <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="生产企业" Binding="{Binding Company, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>-->
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒批号" Binding="{Binding sbatches, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签状态" Binding="{Binding printing_status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printStatusConverter}}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签模式" Binding="{Binding printing_model, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printModelConverter}}" Width="100"/>
                                     <!--<DataGridTemplateColumn Width="100">
                                         <DataGridTemplateColumn.HeaderTemplate>
                                             <DataTemplate>
@@ -102,18 +104,18 @@
                                 <ColumnDefinition Width="350"/>
                             </Grid.ColumnDefinitions>
 
-                            <DataGrid Grid.Column="0" x:Name="dgvGroupNoAutoList">
+                            <DataGrid Grid.Column="0" x:Name="dgv_ManualPrint">
                                 <DataGrid.Columns>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="床号" Binding="{Binding Position, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="姓名" Binding="{Binding PeopleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="药品名称" Binding="{Binding DrugName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称" Binding="{Binding SolventName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding SolventSpec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="打印状态" Binding="{Binding Stataus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="打印时间" Binding="{Binding MarkTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="组号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="床号" Binding="{Binding bed_number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="姓名" Binding="{Binding patient_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称" Binding="{Binding drug_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding drug_spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="药品名称" Binding="{Binding ydrug_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="220"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding ydrug_spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒批号" Binding="{Binding sbatches, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                                    <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签时间" Binding="{Binding printing_time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                                 </DataGrid.Columns>
                             </DataGrid>
 
@@ -132,7 +134,7 @@
                                 <ColumnDefinition Width="350"/>
                             </Grid.ColumnDefinitions>
 
-                            <DataGrid Grid.Column="0" x:Name="dgvGroupRepairList">
+                            <DataGrid Grid.Column="0" x:Name="dgv_RePrint">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -209,7 +211,7 @@
                                 <ColumnDefinition Width="350"/>
                             </Grid.ColumnDefinitions>
 
-                            <DataGrid Grid.Column="0" x:Name="dgvGroupCheckRejectsList">
+                            <DataGrid Grid.Column="0" x:Name="dgv_PrintError">
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -231,7 +233,7 @@
                                     <RowDefinition Height="Auto"/>
                                 </Grid.RowDefinitions>
 
-                                <DataGrid Grid.Row="0" x:Name="dgvGroupCheckRejectsRightList">
+                                <DataGrid Grid.Row="0" x:Name="dgv_DrugSummary">
                                     <DataGrid.Columns>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称"  Binding="{Binding SolventName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding Spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>

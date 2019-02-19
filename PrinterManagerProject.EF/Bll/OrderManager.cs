@@ -15,29 +15,28 @@ namespace PrinterManagerProject.EF
         /// <summary>
         /// 获取当天医嘱
         /// </summary>
-        /// <param name="dateTime"></param>
+        /// <param name="dateTime">用药日期</param>
+        /// <param name="batch">批次编号</param>
         /// <returns></returns>
-        public List<tOrder> GetAllOrderByDateTime(DateTime dateTime)
+        public List<tOrder> GetAllOrderByDateTime(DateTime dateTime,string batch)
         {
             var date = dateTime.ToString("yyyy-MM-dd");
-            var list = DBContext.tOrders
-                .AsNoTracking()
-                .Where(s => s.use_date == date)
-                .ToList();
+
+            var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date);
+            if (string.IsNullOrEmpty(batch) == false)
+            {
+                query = query.Where(s => s.batch == batch);
+            }
 
             if (dateTime.Date >= DateTime.Now.Date)
             {
-                if (list.Any() == false)
+                if (DBContext.tOrders.Any(s => s.use_date == date)==false)
                 {
                     new DataSync().SyncOrder(dateTime);
-                    list = DBContext.tOrders
-                        .AsNoTracking()
-                        .Where(s => s.use_date == date)
-                        .ToList();
                 }
             }
 
-            return list;
+            return query.ToList();
         }
 
         /// <summary>
@@ -56,10 +55,12 @@ namespace PrinterManagerProject.EF
                     s.use_date == order.use_date && s.use_time == order.use_time && s.group_num == order.group_num)
                 .Select(s => new
                 {
+                    s.sum_num,
                     drug_name = s.drug_name,
                     use_count = s.use_count,
                     id = s.drug_id
                 })
+                .OrderBy(s=>s.sum_num)
                 .ToList()
                 .Select(s => new PrintDrugModel()
                 {

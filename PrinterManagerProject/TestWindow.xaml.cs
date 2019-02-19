@@ -1,5 +1,6 @@
 ﻿using PrinterManagerProject.Models;
 using PrinterManagerProject.Tools;
+using PrinterManagerProject.Tools.Serial;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
@@ -32,8 +33,16 @@ namespace PrinterManagerProject
             InitializeComponent();
 
             // ViewBarCode();
-            ViewCard();
+            //ViewCard();
             //commandPrint();
+            PLCCommandTest();
+            ViewCard();
+        }
+
+        private void PLCCommandTest()
+        {
+            PLCTest plcTest = new PLCTest();
+            plcTest.SendData("%01#RDD0090000901**\r");
         }
 
         private void ViewBarCode()
@@ -134,6 +143,7 @@ namespace PrinterManagerProject
             }
             
         }
+
         int printMultiple = 3;
         private void ViewCard()
         {

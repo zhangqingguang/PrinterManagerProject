@@ -44,9 +44,11 @@ namespace PrinterManagerProject
         private PrintTemplateModel model = null;
         private Connection connection = null;
         private ZebraPrinter printer = null;
-        private HistoryModel countModel = null;
+        private SummaryCountModel countModel = new SummaryCountModel();
         
-        // 自动贴签
+        /// <summary>
+        /// 当前批次全部数据
+        /// </summary>
         private List<tOrder> autoPrintList = new List<tOrder>();
         // 自动显示贴签
         private List<tOrder> autoPrintCurrentList = new List<tOrder>();
@@ -120,8 +122,6 @@ namespace PrinterManagerProject
             InitDate();
             InitBatch();
 
-            GetCount();
-
             // 检测打印机中是否有多余的打印内容，导致标签打印错位
             //CheckLabelsRemainingInBatch();
             FormLoading = false;
@@ -161,7 +161,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 根据状态修改DataGridRow的颜色
         /// 调用方法
-        /// Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(DgvGroupDetailListStatus));
+        /// Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(dgv_AllPrintStatus));
         /// </summary>
         /// <param name="dg"></param>
         private void DgvListStatus(DataGrid dg)
@@ -299,10 +299,10 @@ namespace PrinterManagerProject
             //// 显示界面效果
             //Dispatcher.Invoke(() =>
             //{
-            //    dgvGroupDetailList.ItemsSource = null;
-            //    dgvGroupDetailList.ItemsSource = autoPrintCurrentList;
+            //    dgv_AllPrint.ItemsSource = null;
+            //    dgv_AllPrint.ItemsSource = autoPrintCurrentList;
             //});
-            //Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupDetailList);
+            //Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
             //return;
 
             // 清空队列
@@ -357,14 +357,7 @@ namespace PrinterManagerProject
         {
             currentDate = this.use_date.SelectedDate?.ToString("yyyy-MM-dd");
             //绑定批次调整后事件
-            this.cb_batch.SelectionChanged -= Cb_batch_SelectionChanged;
             this.cb_batch.SelectedIndex = 0;
-            this.cb_batch.SelectionChanged += Cb_batch_SelectionChanged;
-
-            this.dgvGroupDetailList.ItemsSource = null;
-            this.cb_dept.ItemsSource = null;
-            this.cb_drug.ItemsSource = null;
-            this.cb_drug_category.ItemsSource = null;
 
             // 清空右侧总统计信息
             lblNumber.Content = 0;
@@ -372,7 +365,6 @@ namespace PrinterManagerProject
 
             LoadData();
         }
-
         /// <summary>
         /// 筛选数据
         /// </summary>
@@ -380,104 +372,46 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (FormLoading)
-            {
-                return;
-            }
-
-            if (CheckDBConnection()==false)
-            {
-                return;
-            }
-
             if (this.cb_batch.SelectedValue != null)
             {
                 currentBatch = this.cb_batch.SelectedValue.ToString();
             }
 
-            //  根据tab选择要操作的数据源
-            List<tOrder> currentSourceList = null;
-            switch (tabMain.SelectedIndex)
-            {
-                case 1:
+            LoadData();
 
-                    // 绑定显示的列表
-                    handlerPrintCurrentList = handlerPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
-                    dgvGroupNoAutoList.EnableRowVirtualization = false;
-                    dgvGroupNoAutoList.DataContext = handlerPrintCurrentList;
-                    dgvGroupNoAutoList.ItemsSource = handlerPrintCurrentList;
 
-                    // 修改数据背景色
-                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupNoAutoList);
+            ////  根据tab选择要操作的数据源
+            //List<tOrder> currentSourceList = null;
+            //switch (tabMain.SelectedIndex)
+            //{
+            //    case 1:
 
-                    BindDgvs(handlerPrintList);
-                    break;
-                case 0:
-                default:
+            //        // 绑定显示的列表
+            //        handlerPrintCurrentList = handlerPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
+            //        dgv_ManualPrint.EnableRowVirtualization = false;
+            //        dgv_ManualPrint.DataContext = handlerPrintCurrentList;
+            //        dgv_ManualPrint.ItemsSource = handlerPrintCurrentList;
 
-                    // 绑定显示的列表
-                    autoPrintCurrentList = autoPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
-                    dgvGroupDetailList.EnableRowVirtualization = false;
-                    dgvGroupDetailList.DataContext = autoPrintCurrentList;
-                    dgvGroupDetailList.ItemsSource = autoPrintCurrentList;
+            //        // 修改数据背景色
+            //        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_ManualPrint);
 
-                    // 修改数据背景色
-                    Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupDetailList);
+            //        break;
+            //    case 0:
+            //    default:
 
-                    BindDgvs(autoPrintList);
-                    break;
-            }
+            //        // 绑定显示的列表
+            //        autoPrintCurrentList = autoPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
+            //        dgv_AllPrint.EnableRowVirtualization = false;
+            //        dgv_AllPrint.DataContext = autoPrintCurrentList;
+            //        dgv_AllPrint.ItemsSource = autoPrintCurrentList;
+
+            //        // 修改数据背景色
+            //        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
+
+            //        break;
+            //}
 
         }
-        /// <summary>
-        /// 绑定列表数据
-        /// </summary>
-        /// <param name="dataSource"></param>
-        private void BindDgvs(List<tOrder> dataSource)
-        {
-            if (dataSource.Count <= 0)
-            {
-                return;
-            }
-            //绑定右（溶媒统计）列表
-            var solventlist = dataSource.GroupBy(m => new { m.drug_name, m.drug_spec }).
-                Select(a => new SolventModel()
-                {
-                    SolventName = a.Key.drug_name,
-                    Spec = a.Key.drug_spec,
-                    Number = a.Count(),
-                    MarkNumber = a.Count() - a.Count(m => m.printing_status == 0)
-                }).ToList();
-            this.dgvGroupDetailRightList.ItemsSource = solventlist;
-            this.dgvGroupDetailRightList.CanUserSortColumns = false;
-            // 绑定右侧总统计信息
-            int number = solventlist.Sum(m => m.Number);
-            lblNumber.Content = number;
-            int markNumber = solventlist.Sum(m => m.MarkNumber);
-            lblMarkNumber.Content = markNumber;
-
-            // 绑定科室
-            var deptList = dataSource.GroupBy(m => new { m.departmengt_name, m.department_code }).Select(a => new { dept_name = a.Key.departmengt_name, dept_code = a.Key.department_code }).ToList();
-            deptList.Insert(0, new { dept_name = "全部", dept_code = "0" });
-            this.cb_dept.DisplayMemberPath = "dept_name";
-            this.cb_dept.SelectedValuePath = "dept_code";
-            this.cb_dept.ItemsSource = deptList;
-
-            // 绑定药品分类
-            var drugCategoryList = dataSource.GroupBy(m => new { m.ydrug_class_name }).Select(a => new { class_name = a.Key.ydrug_class_name }).ToList();
-            drugCategoryList.Insert(0, new { class_name = "全部" });
-            this.cb_drug_category.DisplayMemberPath = "class_name";
-            this.cb_drug_category.SelectedValuePath = "class_name";
-            this.cb_drug_category.ItemsSource = drugCategoryList;
-
-            // 绑定主药
-            var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
-            drugList.Insert(0, new { ydrug_name = "全部", ydrug_id = "" });
-            this.cb_drug.DisplayMemberPath = "ydrug_name";
-            this.cb_drug.SelectedValuePath = "ydrug_id";
-            this.cb_drug.ItemsSource = drugList;
-        }
-
         #endregion
 
         #region 读取打印机状态
@@ -1426,9 +1360,10 @@ namespace PrinterManagerProject
                                         // 2#位通过
                                         PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_PASS);
 
-                                        countModel.AllCount++;
                                         countModel.AutoCount++;
-                                        SaveCount();
+                                        countModel.PrintedTotalCount++;
+                                        countModel.NotPrintTotalCount--;
+                                        UpdateSummaryLabel();
 
                                         // 处理到数据源
                                         tOrder autoPrintModel = autoPrintList.Find(m => m.Id == model.Drug.Id);
@@ -1453,10 +1388,10 @@ namespace PrinterManagerProject
                                             // 显示界面效果
                                             //Dispatcher.Invoke(() =>
                                             //{
-                                            //    dgvGroupDetailList.ItemsSource = null;
-                                            //    dgvGroupDetailList.ItemsSource = autoPrintCurrentList;
+                                            //    dgv_AllPrint.ItemsSource = null;
+                                            //    dgv_AllPrint.ItemsSource = autoPrintCurrentList;
                                             //});
-                                            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupDetailList);
+                                            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
 
                                             // --- 设置为CCD2识别通过的状态 ---
                                             Success();
@@ -1490,9 +1425,9 @@ namespace PrinterManagerProject
                                 // 显示界面效果
                                 //Dispatcher.Invoke(() =>
                                 //{
-                                //    dgvGroupCheckRejectsList.ItemsSource = exceptionList;
+                                //    dgv_PrintError.ItemsSource = exceptionList;
                                 //});
-                                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgvGroupCheckRejectsList);
+                                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_PrintError);
 
                                 // --- 删除对比失败的信息 ---
                                 RemoveCCD2Valid();
@@ -2042,21 +1977,123 @@ namespace PrinterManagerProject
                 MessageBox.Show("请先选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            //获取数据
-            autoPrintList = orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value);
+            var batch = cb_batch.SelectedValue.ToString();
+            if (string.IsNullOrEmpty(batch))
+            {
+                // 选中请选择时，清空数据
+                autoPrintList = new List<tOrder>();
+            }
+            else
+            {
+                autoPrintList = string.IsNullOrEmpty(batch) ? new List<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
+            }
 
-
-            int autoCount = autoPrintList.Count(m => m.printing_status == 0);
-            int handlerCount = handlerPrintList.Count(m => m.printing_status == 0);
-            // 未贴签总量
-            Label lblUncomplate = spcViewPanel.FindName("lblUncomplate") as Label;
-            lblUncomplate.Content = autoCount + handlerCount;
-            Label lbl_aotu3 = spcViewPanel.FindName("lbl_aotu3") as Label;
-            lbl_aotu3.Content = autoCount;
-            Label lbl_manual3 = spcViewPanel.FindName("lbl_manual3") as Label;
-            lbl_manual3.Content = handlerCount;
+            BindDurgSummary(autoPrintList);
+            BindDrugType(autoPrintList);
+            BindDepartment(autoPrintList);
+            BindMainDrug(autoPrintList);
+            BindAllList(autoPrintList);
+            BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual).ToList());
+            BindSummaryLabels();
         }
 
+
+        private void BindSummaryLabels()
+        {
+            countModel.TotalCount = autoPrintList.Count();
+            //var autoPrintTotalCount = autoPrintList.Count();
+            //var manualPrintTotalCount = autoPrintList.Count();
+
+            countModel.PrintedTotalCount = autoPrintList.Count(s => s.printing_status.HasValue);
+            countModel.AutoCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Auto);
+            countModel.ManualCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Manual);
+
+            countModel.NotPrintTotalCount = autoPrintList.Count(s=>s.printing_status.HasValue == false || s.printing_status.Value == PrintStatusEnum.NotPrint);
+            //var autoNotPrintedCount = autoPrintList.Count();
+            //var manualNotPrintedCount = autoPrintList.Count();
+
+            UpdateSummaryLabel();
+        }
+
+        private void UpdateSummaryLabel()
+        {
+            spcViewPanel.lblTotalNumber.Content = countModel.TotalCount;
+            //spcViewPanel.lbl_aotu1.Content = autoPrintTotalCount;
+            //spcViewPanel.lbl_manual1.Content = manualPrintTotalCount;
+
+            spcViewPanel.lblComplated.Content = countModel.PrintedTotalCount;
+            spcViewPanel.lbl_aotu2.Content = countModel.AutoCount;
+            spcViewPanel.lbl_manual2.Content = countModel.ManualCount;
+
+            spcViewPanel.lblUncomplate.Content = countModel.NotPrintTotalCount;
+            //spcViewPanel.lbl_aotu3.Content = autoNotPrintedCount;
+            //spcViewPanel.lbl_manual3.Content = manualNotPrintedCount;
+        }
+
+        private void BindDurgSummary(List<tOrder> dataSource)
+        {
+            //绑定右（溶媒统计）列表
+            var solventlist = dataSource.GroupBy(m => new { m.drug_name, m.drug_spec }).
+                Select(a => new SolventModel()
+                {
+                    SolventName = a.Key.drug_name,
+                    Spec = a.Key.drug_spec,
+                    Number = a.Count(),
+                    MarkNumber = a.Count() - a.Count(m => m.printing_status == 0)
+                }).ToList();
+            this.dgvGroupDetailRightList.ItemsSource = solventlist;
+            this.dgvGroupDetailRightList.CanUserSortColumns = false;
+
+            // 绑定右侧总统计信息
+            int number = solventlist.Sum(m => m.Number);
+            lblNumber.Content = number;
+            int markNumber = solventlist.Sum(m => m.MarkNumber);
+            lblMarkNumber.Content = markNumber;
+        }
+
+        private void BindDrugType(List<tOrder> dataSource)
+        {
+            // 绑定药品分类
+            var drugCategoryList = dataSource.GroupBy(m => new { m.ydrug_class_name }).Select(a => new { class_name = a.Key.ydrug_class_name }).ToList();
+            drugCategoryList.Insert(0, new { class_name = "全部" });
+            this.cb_drug_category.DisplayMemberPath = "class_name";
+            this.cb_drug_category.SelectedValuePath = "class_name";
+            this.cb_drug_category.ItemsSource = drugCategoryList;
+        }
+
+        private void BindDepartment(List<tOrder> dataSource)
+        {
+            // 绑定科室
+            var deptList = dataSource.GroupBy(m => new { m.departmengt_name, m.department_code }).Select(a => new { dept_name = a.Key.departmengt_name, dept_code = a.Key.department_code }).ToList();
+            deptList.Insert(0, new { dept_name = "全部", dept_code = "0" });
+            this.cb_dept.DisplayMemberPath = "dept_name";
+            this.cb_dept.SelectedValuePath = "dept_code";
+            this.cb_dept.ItemsSource = deptList;
+        }
+        /// <summary>
+        /// 绑定主药
+        /// </summary>
+        /// <param name="dataSource"></param>
+        private void BindMainDrug(List<tOrder> dataSource)
+        {
+            // 绑定主药
+            var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
+            drugList.Insert(0, new { ydrug_name = "全部", ydrug_id = "" });
+            this.cb_drug.DisplayMemberPath = "ydrug_name";
+            this.cb_drug.SelectedValuePath = "ydrug_id";
+            this.cb_drug.ItemsSource = drugList;
+        }
+
+        private void BindAllList(List<tOrder> dataSource)
+        {
+            this.dgv_AllPrint.ItemsSource = dataSource;
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
+        }
+        private void BindManualList(List<tOrder> dataSource)
+        {
+            this.dgv_ManualPrint.ItemsSource = dataSource;
+            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_ManualPrint);
+        }
         #endregion
 
         #region 扫描枪1扫描信息处理 - 补打签队列页面
@@ -2072,29 +2109,6 @@ namespace PrinterManagerProject
 
         #endregion
 
-        #region 总数配置
-
-        private void GetCount()
-        {
-            countModel = new HistoryHelper().GetHistory();
-
-            Label lblTotalNumber = spcViewPanel.FindName("lblTotalNumber") as Label;
-            lblTotalNumber.Content = countModel.AllCount;
-
-            Label lbl_aotu1 = spcViewPanel.FindName("lbl_aotu1") as Label;
-            lbl_aotu1.Content = countModel.AutoCount;
-
-            Label lbl_manual1 = spcViewPanel.FindName("lbl_manual1") as Label;
-            lbl_manual1.Content = countModel.HandlerCount;
-
-        }
-
-        private void SaveCount()
-        {
-            new HistoryHelper().SaveConfig(countModel);
-        }
-
-        #endregion
     }
 
 }

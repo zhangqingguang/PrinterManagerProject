@@ -10,23 +10,23 @@ namespace PrinterManagerProject.Converter
 {   
 
     [ValueConversion(typeof(int), typeof(String))]
-    public class PrintStatusConverter : IValueConverter
+    public class PrintModelConverter : IValueConverter
     {
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value == null)
             {
-                return "待贴签";
+                return "";
             }
             int status = (int)value;
             switch(status)
             {
                 case 0:
-                    return "待贴签";
+                    return "自动贴签";
                 case 1:
-                    return "已贴签";
+                    return "手动贴签";
                 default:
-                    return "异常";
+                    return "";
             }
             
         }

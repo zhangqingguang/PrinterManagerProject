@@ -30,7 +30,7 @@
                     <RowDefinition Height="Auto"/>
                 </Grid.RowDefinitions>
 
-                <DataGrid Grid.Row="0" x:Name="dgvGroupRepairList" AutoGenerateColumns="False" SelectionMode="Single" DataGridRow.MouseUp="DgvGroupRepairList_MouseUp" >
+                <DataGrid Grid.Row="0" x:Name="dgv_list" AutoGenerateColumns="False" SelectionMode="Single" DataGridRow.MouseUp="dgv_list_MouseUp" >
                     <DataGrid.Columns>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编号"  Binding="{Binding ID, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="用户名" Binding="{Binding user_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>

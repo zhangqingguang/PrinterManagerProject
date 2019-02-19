@@ -88,26 +88,19 @@
                 </Grid.RowDefinitions>
 
                 <StackPanel Grid.Column="0" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5">
-                    <Label Content="贴签总数：" Margin="10,0,0,0"/>
+                    <Label Content="总贴签数：" Margin="10,0,0,0"/>
                     <Label Name="lblTotalNumber" Content="0" />
                 </StackPanel>
-                <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="10,5,10,5">
-                    <Label Content="贴签完成数：" Margin="10,0,0,0"/>
-                    <Label Name="lblComplated" Content="0" />
-                </StackPanel>
-                <StackPanel Grid.Column="0" Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,10">
-                    <Label Content="贴签未完成数：" Margin="10,0,0,0"/>
+                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5">
+                    <Label Content="未贴签数：" Margin="10,0,0,0"/>
                     <Label Name="lblUncomplate" Content="0" />
                 </StackPanel>
+                <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="10,5,10,5">
+                    <Label Content="已贴签数：" Margin="10,0,0,0"/>
+                    <Label Name="lblComplated" Content="0" />
+                </StackPanel>
 
-                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5">
-                    <Label Content="自动贴签：" Margin="10,0,0,0"/>
-                    <Label Name="lbl_aotu1" Content="0" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5">
-                    <Label Content="手动贴签：" Margin="10,0,0,0"/>
-                    <Label Name="lbl_manual1" Content="0" />
-                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5"/>
                 <StackPanel Grid.Column="1" Grid.Row="1" Orientation="Horizontal" Margin="10,5,10,5">
                     <Label Content="自动贴签：" Margin="10,0,0,0"/>
                     <Label Name="lbl_aotu2" Content="0" />
@@ -117,14 +110,8 @@
                     <Label Content="手动贴签：" Margin="10,0,0,0"/>
                     <Label Name="lbl_manual2" Content="0" />
                 </StackPanel>
-                <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,10">
-                    <Label  Content="自动贴签：" Margin="10,0,0,0"/>
-                    <Label Name="lbl_aotu3" Content="0" />
-                </StackPanel>
-                <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,5">
-                    <Label Content="手动贴签：" Margin="10,0,0,0"/>
-                    <Label Name="lbl_manual3" Content="0" />
-                </StackPanel>
+                <StackPanel Grid.Column="1" Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,10"/>
+                <StackPanel Grid.Column="2" Grid.Row="2" Orientation="Horizontal" Margin="10,5,10,5"/>
             </Grid>
         </Border>
     </Grid>

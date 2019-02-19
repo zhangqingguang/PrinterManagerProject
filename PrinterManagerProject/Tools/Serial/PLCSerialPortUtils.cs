@@ -255,7 +255,7 @@ namespace PrinterManagerProject
             string COMName = ConfigurationManager.AppSettings.Get("PLCCOMName");
 
             sp.PortName = COMName; // 端口
-            sp.BaudRate = 9600; // 波特率
+            sp.BaudRate = 115200; // 波特率
             sp.DataBits = 8; // 数据位
             sp.StopBits = StopBits.One; // 1个停止位
             sp.Parity = Parity.None; // 校验位（奇偶性）
@@ -273,19 +273,12 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
+            myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
             byte[] ReDatas = new byte[sp.BytesToRead];
             sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
             string result = Encoding.UTF8.GetString(ReDatas);
 
-            LogHelper helper = new LogHelper();
-            int length = PLCSerialPortData.ERROR.Length;
-            for (int i = 0; i < result.Length; i = i + length)
-            {
-                string data = result.Substring(i, length);
-
-                helper.SerialPortLog($"接收PLC:{data}");
-                mSerialPortInterface.OnPLCDataReceived(data);
-            }
+            mSerialPortInterface.OnPLCDataReceived(result);
         }
 
         /// <summary>
@@ -301,11 +294,13 @@ namespace PrinterManagerProject
             {
                 try
                 {
+                    var startTime = DateTime.Now;
                     sp.Write(instructions + "\r\n");//发送数据
-                    
-                    new LogHelper().SerialPortLog($"发送给PLC:{instructions}");
 
-                    myEventLog.LogInfo($"发送给PLC:{instructions}");
+                    myEventLog.LogInfo($"发送给PLC花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                    //new LogHelper().SerialPortLog($"发送给PLC:{instructions}");
+
+                    //myEventLog.LogInfo($"发送给PLC:{instructions}");
 
                     return true;
                 }
@@ -362,6 +357,7 @@ namespace PrinterManagerProject
                 if (mSerialPortInterface != null)
                 {
                     mSerialPortInterface.OnPLCComplated();
+                    myEventLog.LogInfo($"成功关闭PLC串口，{sp.PortName}。");
                 }
                 return true;
             }
@@ -370,7 +366,6 @@ namespace PrinterManagerProject
                 if (mSerialPortInterface != null)
                 {
                     mSerialPortInterface.OnPLCError(ex.Message);
-                    myEventLog.LogInfo($"成功关闭PLC串口，{sp.PortName}。");
                 }
                 new LogHelper().ErrorLog(ex.Message);
                 myEventLog.LogError($"PLC串口关闭出错，{sp.PortName}。" +ex.Message, ex);

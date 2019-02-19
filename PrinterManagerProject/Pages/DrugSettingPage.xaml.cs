@@ -33,7 +33,7 @@ namespace PrinterManagerProject.Pages
         public void BindList()
         {
             var batchs = drugManager.GetAll();
-            this.dgvGroupRepairList.ItemsSource = batchs;
+            this.dgv_list.ItemsSource = batchs;
         }
 
         private void ButtonBase_OnClick(object sender, RoutedEventArgs e)

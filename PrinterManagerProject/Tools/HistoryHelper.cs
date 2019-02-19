@@ -8,11 +8,31 @@ using System.Threading.Tasks;
 
 namespace PrinterManagerProject.Tools
 {
-    public class HistoryModel
+    /// <summary>
+    /// 
+    /// </summary>
+    public class SummaryCountModel
     {
-        public int AllCount { get; set; }
+        /// <summary>
+        /// 总液体数
+        /// </summary>
+        public int TotalCount { get; set; }
+        /// <summary>
+        /// 已贴签总数
+        /// </summary>
+        public int PrintedTotalCount { get; set; }
+        /// <summary>
+        /// 未贴签总数
+        /// </summary>
+        public int NotPrintTotalCount { get; set; }
+        /// <summary>
+        /// 已自动贴签总数
+        /// </summary>
         public int AutoCount { get; set; }
-        public int HandlerCount { get; set; }
+        /// <summary>
+        /// 已人工贴签总数
+        /// </summary>
+        public int ManualCount { get; set; }
     }
 
     public class HistoryHelper
@@ -20,20 +40,20 @@ namespace PrinterManagerProject.Tools
         public static string configPath = AppDomain.CurrentDomain.BaseDirectory + @"Config\";
         public static string fileName = "count.config";
 
-        public HistoryModel GetHistory()
+        public SummaryCountModel GetHistory()
         {
-            HistoryModel model;
+            SummaryCountModel model;
             string path = configPath + fileName;
             try
             {
                 if (File.Exists(path))
                 {
                     string config = File.ReadAllText(path);
-                    model = JsonConvert.DeserializeObject<HistoryModel>(config);
+                    model = JsonConvert.DeserializeObject<SummaryCountModel>(config);
                 }
                 else
                 {
-                    model = new HistoryModel();
+                    model = new SummaryCountModel();
                 }
                 return model;
             }
@@ -43,7 +63,7 @@ namespace PrinterManagerProject.Tools
             }
         }
 
-        public bool SaveConfig(HistoryModel model)
+        public bool SaveConfig(SummaryCountModel model)
         {
             try
             {
