@@ -32,8 +32,8 @@ namespace PrinterManagerProject
             InitializeComponent();
 
             // ViewBarCode();
-            //ViewCard();
-            commandPrint();
+            ViewCard();
+            //commandPrint();
         }
 
         private void ViewBarCode()
@@ -88,6 +88,9 @@ namespace PrinterManagerProject
                 DeleteObject(myImagePtr);
 
                 imgTest.Source = imgsource;
+
+
+                
             }
             finally
             {
@@ -131,7 +134,7 @@ namespace PrinterManagerProject
             }
             
         }
-        int printMultiple = 1;
+        int printMultiple = 3;
         private void ViewCard()
         {
             PrintTemplateModel model = new PrintTemplateHelper().GetConfig();
@@ -204,7 +207,7 @@ namespace PrinterManagerProject
             try
             {
                 //消除锯齿
-                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.Default;
+                g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.HighQuality;
                 g.PageUnit = GraphicsUnit.Pixel;
                 //清空图片背景颜色
                 g.Clear(System.Drawing.Color.White);
@@ -268,6 +271,13 @@ namespace PrinterManagerProject
                 DeleteObject(myImagePtr);
 
                 imgTest.Source = imgsource;
+
+                var fileName = Guid.NewGuid().ToString();
+                var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Config", fileName + ".jpg");
+                var pathTarget = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", fileName + "-bak.jpg");
+                image.Save(path);
+
+                ImageHelper.KiSaveAsJPEG(image,pathTarget, 20);
             }
             finally
             {

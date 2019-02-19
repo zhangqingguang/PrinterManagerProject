@@ -190,21 +190,21 @@
     </Compile>
     <Compile Include="Tools\CCDTimer.cs" />
     <Compile Include="Tools\HistoryHelper.cs" />
+    <Compile Include="Tools\ImageHelper.cs" />
     <Compile Include="Tools\LogHelper.cs" />
     <Compile Include="Tools\LogManager.cs" />
-    <Compile Include="Tools\PrintTemplateHelper.cs" />
-    <Compile Include="Tools\ScannerHandlerSerialPortUtils.cs" />
-    <Compile Include="Tools\ScannerSerialPortUtils.cs" />
-    <Compile Include="Tools\DrugsQueueModel.cs" />
-    <Compile Include="Tools\EncryptHelper.cs" />
-    <Compile Include="Tools\FontSize.cs" />
-    <Compile Include="Tools\IPrinter.cs" />
+    <Compile Include="Tools\Printer\PrintTemplateHelper.cs" />
+    <Compile Include="Tools\Serial\ScannerHandlerSerialPortUtils.cs" />
+    <Compile Include="Tools\Serial\ScannerSerialPortUtils.cs" />
+    <Compile Include="Models\DrugsQueueModel.cs" />
+    <Compile Include="Tools\Printer\FontSize.cs" />
+    <Compile Include="Tools\Printer\IPrinter.cs" />
     <Compile Include="Tools\PaperWidth.cs" />
-    <Compile Include="Tools\Printer.cs" />
-    <Compile Include="Tools\PrinterFactory.cs" />
-    <Compile Include="Tools\PrintQueueHelper.cs" />
-    <Compile Include="Tools\CCDSerialPortUtils.cs" />
-    <Compile Include="Tools\PLCSerialPortUtils.cs" />
+    <Compile Include="Tools\Printer\Printer.cs" />
+    <Compile Include="Tools\Printer\PrinterFactory.cs" />
+    <Compile Include="Tools\Printer\PrintQueueHelper.cs" />
+    <Compile Include="Tools\Serial\CCDSerialPortUtils.cs" />
+    <Compile Include="Tools\Serial\PLCSerialPortUtils.cs" />
     <Compile Include="SettingsWindow.xaml.cs">
       <DependentUpon>SettingsWindow.xaml</DependentUpon>
     </Compile>

@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using PrinterManagerProject.EF;
 
-namespace PrinterManagerProject.Tools
+namespace PrinterManagerProject.Models
 {
     /// <summary>
     /// 药品队列模型
