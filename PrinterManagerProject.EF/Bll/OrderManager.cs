@@ -19,7 +19,7 @@ namespace PrinterManagerProject.EF
         /// <param name="dateTime">用药日期</param>
         /// <param name="batch">批次编号</param>
         /// <returns></returns>
-        public List<tOrder> GetAllOrderByDateTime(DateTime dateTime,string batch)
+        public ObservableCollection<tOrder> GetAllOrderByDateTime(DateTime dateTime,string batch)
         {
             var date = dateTime.ToString("yyyy-MM-dd");
 
@@ -39,7 +39,12 @@ namespace PrinterManagerProject.EF
 
             var list =  query.ToList();
             ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
-            return list;
+            foreach (var order in list)
+            {
+                oList.Add(order);
+            }
+
+            return oList;
         }
 
         /// <summary>

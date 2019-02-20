@@ -18,6 +18,20 @@
         </Style>
         <src:PrintStatusConverter x:Key="printStatusConverter"/>
         <src:PrintModelConverter x:Key="printModelConverter"/>
+        <src:RowBgColorConverter x:Key="rowBgColorConverter"/>
+        <!--<Style TargetType="DataGridRow">
+            <Style.Triggers>
+                <DataTrigger Binding="{Binding printing_status}" Value="NotPrint">
+                    <Setter Property="Background" Value="#FFdddddd" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding printing_status}" Value="Auto">
+                    <Setter Property="Background" Value="#FFcae8fc" />
+                </DataTrigger>
+                <DataTrigger Binding="{Binding printing_status}" Value="2">
+                    <Setter Property="Background" Value="#607EEA" />
+                </DataTrigger>
+            </Style.Triggers>
+        </Style>-->
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1" Margin="5">
         <Grid>
@@ -38,6 +52,12 @@
                             </Grid.ColumnDefinitions>
                             
                             <DataGrid Grid.Column="0" x:Name="dgv_AllPrint">
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="Background" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>-->
@@ -105,6 +125,12 @@
                             </Grid.ColumnDefinitions>
 
                             <DataGrid Grid.Column="0" x:Name="dgv_ManualPrint">
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="Background" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="组号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -135,6 +161,12 @@
                             </Grid.ColumnDefinitions>
 
                             <DataGrid Grid.Column="0" x:Name="dgv_RePrint">
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="Background" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -212,6 +244,12 @@
                             </Grid.ColumnDefinitions>
 
                             <DataGrid Grid.Column="0" x:Name="dgv_PrintError">
+                                <DataGrid.RowStyle>
+                                    <Style TargetType="DataGridRow">
+                                        <Setter Property="Background" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                    </Style>
+                                </DataGrid.RowStyle>
                                 <DataGrid.Columns>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
                                     <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>

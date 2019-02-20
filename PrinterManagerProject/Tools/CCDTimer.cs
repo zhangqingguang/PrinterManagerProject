@@ -58,7 +58,7 @@ namespace PrinterManagerProject.Tools
         public void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             currentCount++;
-            if (currentCount > 15)
+            if (currentCount > AppConfig.CcdTakePhotoExpireTime/100)
             {
                 timer.Stop();
 
@@ -108,7 +108,7 @@ namespace PrinterManagerProject.Tools
         public void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             currentCount++;
-            if (currentCount > 15)
+            if (currentCount > AppConfig.CcdTakePhotoExpireTime / 100)
             {
                 timer.Stop();
 

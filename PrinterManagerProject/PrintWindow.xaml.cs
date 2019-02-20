@@ -1,6 +1,7 @@
 ﻿using PrinterManagerProject.Models;
 using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
@@ -38,21 +39,6 @@ namespace PrinterManagerProject
         /// 是否要连接设备
         /// </summary>
         public static bool IsConnectDevices = true;
-        private const int MaxTryPhotographTimes = 3;
-
-        /// <summary>
-        /// CCD拍照等待时间
-        /// </summary>
-        private int ccdTakePhotoSleepTime = 10;
-        /// <summary>
-        /// 将CCD设为空闲状态等待时间
-        /// </summary>
-        private int freeCCDBusyState = 100;
-        /// <summary>
-        /// CCD拍照超时时间
-        /// </summary>
-        private int ccdTakePhotoExpireTime = 500;
-
         private List<DrugsQueueModel> queue = new List<DrugsQueueModel>();
         private PrintTemplateModel model = null;
         private Connection connection = null;
@@ -63,15 +49,15 @@ namespace PrinterManagerProject
         /// <summary>
         /// 当前批次全部数据
         /// </summary>
-        private List<tOrder> autoPrintList = new List<tOrder>();
+        private ObservableCollection<tOrder> autoPrintList = new ObservableCollection<tOrder>();
         // 自动显示贴签
-        private List<tOrder> autoPrintCurrentList = new List<tOrder>();
+        private ObservableCollection<tOrder> autoPrintCurrentList = new ObservableCollection<tOrder>();
         // 手动贴签
-        private List<tOrder> handlerPrintList = new List<tOrder>();
+        private ObservableCollection<tOrder> handlerPrintList = new ObservableCollection<tOrder>();
         // 自动显示贴签
-        private List<tOrder> handlerPrintCurrentList = new List<tOrder>();
+        private ObservableCollection<tOrder> handlerPrintCurrentList = new ObservableCollection<tOrder>();
         // 异常列表
-        private List<tOrder> exceptionList = new List<tOrder>(); 
+        private ObservableCollection<tOrder> exceptionList = new ObservableCollection<tOrder>(); 
         #endregion
 
 
@@ -194,43 +180,6 @@ namespace PrinterManagerProject
         #endregion
 
         #region 事件响应
-        /// <summary>
-        /// 根据状态修改DataGridRow的颜色
-        /// 调用方法
-        /// Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action(dgv_AllPrintStatus));
-        /// </summary>
-        /// <param name="dg"></param>
-        private void DgvListStatus(DataGrid dg)
-        {
-            if (dg != null)
-            {
-                SolidColorBrush notComplate = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFdddddd")); // 未完成的-灰色
-                SolidColorBrush complated = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#FFcae8fc")); // 完成的--浅蓝色
-                SolidColorBrush exception = new SolidColorBrush(System.Windows.Media.Color.FromRgb(96, 126, 234)); // 异常的-蓝色
-
-                for (int i = 0; i < dg.Items.Count; i++)
-                {
-                    var row = dg.ItemContainerGenerator.ContainerFromItem(dg.Items[i]) as DataGridRow;
-                    if (row == null)
-                    {
-                        continue;
-                    }
-
-                    if (dg.Items[i] is tOrder model)
-                    {
-                        switch (model.printing_status)
-                        {
-                            case PrintStatusEnum.NotPrint:
-                                row.Background = notComplate;
-                                break;
-                            case PrintStatusEnum.Success:
-                                row.Background = complated;
-                                break;
-                        }
-                    }
-                }
-            }
-        }
 
         private void BaseWindow_Closing(object sender, CancelEventArgs e)
         {
@@ -338,7 +287,6 @@ namespace PrinterManagerProject
             //    dgv_AllPrint.ItemsSource = null;
             //    dgv_AllPrint.ItemsSource = autoPrintCurrentList;
             //});
-            //Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
             //return;
 
             // 清空队列
@@ -447,9 +395,6 @@ namespace PrinterManagerProject
             //        dgv_ManualPrint.DataContext = handlerPrintCurrentList;
             //        dgv_ManualPrint.ItemsSource = handlerPrintCurrentList;
 
-            //        // 修改数据背景色
-            //        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_ManualPrint);
-
             //        break;
             //    case 0:
             //    default:
@@ -459,9 +404,6 @@ namespace PrinterManagerProject
             //        dgv_AllPrint.EnableRowVirtualization = false;
             //        dgv_AllPrint.DataContext = autoPrintCurrentList;
             //        dgv_AllPrint.ItemsSource = autoPrintCurrentList;
-
-            //        // 修改数据背景色
-            //        Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
 
             //        break;
             //}
@@ -717,7 +659,7 @@ namespace PrinterManagerProject
         }
         int printMultiple = 3;
         /// <summary>
-        /// 生成打印内容并推送的打印机
+        /// 生成打印内容并推送到打印机
         /// </summary>
         private void Print(ZebraPrinter printer, List<PrintDrugModel> drugs, ref tOrder drug, ref StringBuilder b)
         {
@@ -1109,7 +1051,7 @@ namespace PrinterManagerProject
         {
             Task.Run(() =>
             {
-                Thread.Sleep(freeCCDBusyState);
+                Thread.Sleep(AppConfig.FreeCCDBusyState);
                 ccd1IsBusy = false;
             });
         }
@@ -1126,7 +1068,7 @@ namespace PrinterManagerProject
         {
             Task.Run(() =>
             {
-                Thread.Sleep(freeCCDBusyState);
+                Thread.Sleep(AppConfig.FreeCCDBusyState);
                 ccd2IsBusy = false;
             });
         }
@@ -1167,11 +1109,11 @@ namespace PrinterManagerProject
                             label.Content = "CCD1通讯正常";
                         });
 
-                        if (ccd1ErrorCount < MaxTryPhotographTimes - 1)
+                        if (ccd1ErrorCount < AppConfig.CCD1TakePhotoMaxTimes - 1)
                         {
                             ccd1ErrorCount++;
                             //1#拍照
-                            Thread.Sleep(ccdTakePhotoSleepTime);
+                            Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
 
                             // 重新拍照
                             CCD1TakePicture();
@@ -1225,7 +1167,7 @@ namespace PrinterManagerProject
                                     if (ccd2ErrorCount < model.CCD1TakePhotoCount)
                                     {
                                         //2#拍照
-                                        Thread.Sleep(ccdTakePhotoSleepTime);
+                                        Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
                                         CCD2TakePicture();
 
                                         return;
@@ -1477,33 +1419,11 @@ namespace PrinterManagerProject
                                         UpdateSummaryLabel();
 
                                         // 处理到数据源
-                                        tOrder autoPrintModel = autoPrintList.Find(m => m.Id == model.Drug.Id);
+                                        tOrder autoPrintModel = autoPrintList.Where(m => m.Id == model.Drug.Id).FirstOrDefault();
                                         if (autoPrintModel != null)
                                         {
-                                            myEventLog.LogInfo($"更新列表：ID={autoPrintModel.Id}");
                                             // 回写数据
-                                            autoPrintModel.sbatches = batchNumber;
-                                            autoPrintModel.printing_time = DateTime.Now;
-                                            autoPrintModel.printing_model = PrintModelEnum.Auto;
-                                            autoPrintModel.printing_status = PrintStatusEnum.Success;
-                                            autoPrintModel.barcode = model.Drug.barcode;
-
-                                            //tOrder autoPrintCurrentModel = autoPrintList.Find(m => m.Id == model.Drug.Id);
-                                            //// 回写数据
-                                            //autoPrintCurrentModel.sbatches = batchNumber;
-                                            //autoPrintCurrentModel.printing_time = DateTime.Now;
-                                            //autoPrintCurrentModel.printing_model = PrintModelEnum.Auto;
-                                            //autoPrintCurrentModel.printing_status = PrintStatusEnum.Success;
-                                            //autoPrintCurrentModel.barcode = model.Drug.barcode;
-
-                                            // 显示界面效果
-                                            //Dispatcher.Invoke(() =>
-                                            //{
-                                            //    dgv_AllPrint.ItemsSource = null;
-                                            //    dgv_AllPrint.ItemsSource = autoPrintCurrentList;
-                                            //});
-                                            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
-
+                                            PrintSuccess(autoPrintModel, batchNumber);
                                             // --- 设置为CCD2识别通过的状态 ---
                                             Success();
 
@@ -1533,13 +1453,6 @@ namespace PrinterManagerProject
 
                                 exceptionList.Add(model.Drug);
 
-                                // 显示界面效果
-                                //Dispatcher.Invoke(() =>
-                                //{
-                                //    dgv_PrintError.ItemsSource = exceptionList;
-                                //});
-                                Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_PrintError);
-
                                 // --- 删除对比失败的信息 ---
                                 RemoveCCD2Valid();
                             }
@@ -1567,7 +1480,7 @@ namespace PrinterManagerProject
         {
             // 通过扫描出来的信息对比数据源，查找匹配的数据，如果查询到则发指令调整机器大小，否则1#位剔除
             var queueIds = queue.Where(s=>s.Drug!=null).Select(s => s.Drug.Id).ToList();
-            return autoPrintList.Find(m => queueIds.Contains(m.Id) == false && m.printing_status == PrintStatusEnum.NotPrint && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
+            return autoPrintList.FirstOrDefault(m => queueIds.Contains(m.Id) == false && m.printing_status == PrintStatusEnum.NotPrint && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
             //            if (autoPrintCurrentList.Any()==false)
             //            {
             //#warning 调用线程无法访问此对象
@@ -2112,8 +2025,8 @@ namespace PrinterManagerProject
 
         private void CreatePLCReader()
         {
-            lightListener = new PLCReader(this, 200, "%01#RCP3R0170R0171R0173**");
-            warningListener = new PLCReader(this, 1000, "%01#RCP5R0090R0095R0096R0097R0098**");
+            lightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RCP3R0170R0171R0173**");
+            warningListener = new PLCReader(this, AppConfig.WarningReaderIntervalTime, "%01#RCP5R0090R0095R0096R0097R0098**");
         }
 
         public void OnScannerError(string msg)
@@ -2163,6 +2076,25 @@ namespace PrinterManagerProject
             });
         }
 
+        /// <summary>
+        /// 贴签完成，修改列表中内容和颜色
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="sBatchs">药品批号</param>
+        private void PrintSuccess(tOrder model,string sBatchs)
+        {
+#warning 可能有线程出错Bug
+            myEventLog.LogInfo($"更新列表：ID={model.Id}");
+            model.printing_time = DateTime.Now;
+            model.sbatches = sBatchs; ;
+            model.printing_model = PrintModelEnum.Auto;
+            model.printing_status = PrintStatusEnum.Success;
+            model.barcode = DateTime.Now.ToString("HH:mm:ss");
+            model.SetPropertyChanged("printing_time");
+            model.SetPropertyChanged("sbatches");
+            model.SetPropertyChanged("printing_model");
+            model.SetPropertyChanged("printing_status");
+        }
         #endregion
 
         #region 数据库链接检查
@@ -2227,11 +2159,11 @@ namespace PrinterManagerProject
             if (string.IsNullOrEmpty(batch))
             {
                 // 选中请选择时，清空数据
-                autoPrintList = new List<tOrder>();
+                autoPrintList = new ObservableCollection<tOrder>();
             }
             else
             {
-                autoPrintList = string.IsNullOrEmpty(batch) ? new List<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
+                autoPrintList = string.IsNullOrEmpty(batch) ? new ObservableCollection<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
             }
 
             BindDurgSummary(autoPrintList);
@@ -2239,8 +2171,9 @@ namespace PrinterManagerProject
             BindDepartment(autoPrintList);
             BindMainDrug(autoPrintList);
             BindAllList(autoPrintList);
-            BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual).ToList());
             BindSummaryLabels();
+            //autoPrintList.Where(s => s.printing_model == PrintModelEnum.Manual)
+            //BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual));
         }
 
 
@@ -2280,7 +2213,7 @@ namespace PrinterManagerProject
             });
         }
 
-        private void BindDurgSummary(List<tOrder> dataSource)
+        private void BindDurgSummary(ObservableCollection<tOrder> dataSource)
         {
             //绑定右（溶媒统计）列表
             var solventlist = dataSource.GroupBy(m => new { m.drug_name, m.drug_spec }).
@@ -2301,7 +2234,7 @@ namespace PrinterManagerProject
             lblMarkNumber.Content = markNumber;
         }
 
-        private void BindDrugType(List<tOrder> dataSource)
+        private void BindDrugType(ObservableCollection<tOrder> dataSource)
         {
             // 绑定药品分类
             var drugCategoryList = dataSource.GroupBy(m => new { m.ydrug_class_name }).Select(a => new { class_name = a.Key.ydrug_class_name }).ToList();
@@ -2311,7 +2244,7 @@ namespace PrinterManagerProject
             this.cb_drug_category.ItemsSource = drugCategoryList;
         }
 
-        private void BindDepartment(List<tOrder> dataSource)
+        private void BindDepartment(ObservableCollection<tOrder> dataSource)
         {
             // 绑定科室
             var deptList = dataSource.GroupBy(m => new { m.departmengt_name, m.department_code }).Select(a => new { dept_name = a.Key.departmengt_name, dept_code = a.Key.department_code }).ToList();
@@ -2324,7 +2257,7 @@ namespace PrinterManagerProject
         /// 绑定主药
         /// </summary>
         /// <param name="dataSource"></param>
-        private void BindMainDrug(List<tOrder> dataSource)
+        private void BindMainDrug(ObservableCollection<tOrder> dataSource)
         {
             // 绑定主药
             var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
@@ -2334,15 +2267,13 @@ namespace PrinterManagerProject
             this.cb_drug.ItemsSource = drugList;
         }
 
-        private void BindAllList(List<tOrder> dataSource)
+        private void BindAllList(ObservableCollection<tOrder> dataSource)
         {
             this.dgv_AllPrint.ItemsSource = dataSource;
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_AllPrint);
         }
-        private void BindManualList(List<tOrder> dataSource)
+        private void BindManualList(ObservableCollection<tOrder> dataSource)
         {
             this.dgv_ManualPrint.ItemsSource = dataSource;
-            Dispatcher.BeginInvoke(System.Windows.Threading.DispatcherPriority.ApplicationIdle, new Action<DataGrid>(DgvListStatus), dgv_ManualPrint);
         }
         #endregion
 

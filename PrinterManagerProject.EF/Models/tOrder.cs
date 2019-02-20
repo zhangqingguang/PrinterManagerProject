@@ -5,13 +5,10 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace PrinterManagerProject.EF.Models
+namespace PrinterManagerProject.EF
 {
-    public partial class tUser : INotifyPropertyChanged
+    public partial class tOrder : INotifyPropertyChanged
     {
-        public tUser()
-        {
-        }
 
         public event PropertyChangedEventHandler PropertyChanged;
 
@@ -21,9 +18,10 @@ namespace PrinterManagerProject.EF.Models
                 PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
 
-        public void PropertyChang(string propertyName)
+        public void SetPropertyChanged(string propertyName)
         {
-            OnPropertyChanged(propertyName);
+            if (PropertyChanged != null)
+                PropertyChanged(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }
