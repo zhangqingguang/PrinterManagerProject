@@ -31,7 +31,11 @@ namespace PrinterManagerProject.Tools.Serial
             myEventLog.LogInfo($"PLC出错：{msg}");
         }
 
-        public void OnPLCComplated()
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="type">1:连接成功，0：关闭连接</param>
+        public void OnPLCComplated(int type)
         {
         }
     }

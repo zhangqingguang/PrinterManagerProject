@@ -58,7 +58,7 @@ namespace PrinterManagerProject.Tools
         public void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             currentCount++;
-            if (currentCount > 8)
+            if (currentCount > 15)
             {
                 timer.Stop();
 
@@ -108,7 +108,7 @@ namespace PrinterManagerProject.Tools
         public void Timer_Elapsed(object sender, ElapsedEventArgs e)
         {
             currentCount++;
-            if (currentCount > 5)
+            if (currentCount > 15)
             {
                 timer.Stop();
 

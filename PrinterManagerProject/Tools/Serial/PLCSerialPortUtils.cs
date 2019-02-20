@@ -22,7 +22,7 @@ namespace PrinterManagerProject
         
         void OnPLCError(string msg);
         
-        void OnPLCComplated();
+        void OnPLCComplated(int type);
     }
 
     /// <summary>
@@ -273,10 +273,14 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+            //myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
             byte[] ReDatas = new byte[sp.BytesToRead];
             sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
             string result = Encoding.UTF8.GetString(ReDatas);
+
+            //myEventLog.LogInfo($"PLC接收数据：{result},{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+
+            result = result.Replace("\r", "");
 
             mSerialPortInterface.OnPLCDataReceived(result);
         }
@@ -294,10 +298,14 @@ namespace PrinterManagerProject
             {
                 try
                 {
+                    if (instructions.Contains("WCS") || instructions.Contains("WDD"))
+                    {
+                        myEventLog.LogInfo($"发送给PLC:{instructions}");
+                    }
                     var startTime = DateTime.Now;
                     sp.Write(instructions + "\r\n");//发送数据
 
-                    myEventLog.LogInfo($"发送给PLC花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                    //myEventLog.LogInfo($"发送给PLC花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                     //new LogHelper().SerialPortLog($"发送给PLC:{instructions}");
 
                     //myEventLog.LogInfo($"发送给PLC:{instructions}");
@@ -328,7 +336,7 @@ namespace PrinterManagerProject
 
                 if (mSerialPortInterface != null)
                 {
-                    mSerialPortInterface.OnPLCComplated();
+                    mSerialPortInterface.OnPLCComplated(1);
                     myEventLog.LogInfo($"成功打开PLC串口，{sp.PortName}。");
                 }
                 return true;
@@ -356,7 +364,7 @@ namespace PrinterManagerProject
 
                 if (mSerialPortInterface != null)
                 {
-                    mSerialPortInterface.OnPLCComplated();
+                    mSerialPortInterface.OnPLCComplated(0);
                     myEventLog.LogInfo($"成功关闭PLC串口，{sp.PortName}。");
                 }
                 return true;

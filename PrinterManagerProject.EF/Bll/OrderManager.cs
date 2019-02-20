@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Data.SqlClient;
 using System.Linq;
 using System.Linq.Expressions;
@@ -36,7 +37,9 @@ namespace PrinterManagerProject.EF
                 }
             }
 
-            return query.ToList();
+            var list =  query.ToList();
+            ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
+            return list;
         }
 
         /// <summary>

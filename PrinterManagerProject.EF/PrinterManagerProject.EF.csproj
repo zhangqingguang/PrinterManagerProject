@@ -74,6 +74,7 @@
     <Compile Include="Models\PrintDrugModel.cs" />
     <Compile Include="Models\PrintModel.cs" />
     <Compile Include="Models\PrintStatusEnum.cs" />
+    <Compile Include="Models\tUser.cs" />
     <Compile Include="PrintTagDb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>

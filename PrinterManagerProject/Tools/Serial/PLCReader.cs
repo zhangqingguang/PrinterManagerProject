@@ -14,8 +14,9 @@ namespace PrinterManagerProject.Tools
     {
         private PLCSerialPortUtils plcUtils;
         private Task task=null;
-        private int Frequent=1000;
+        private int Frequent=100;
         private string data;
+        private bool isStop=false;
         /// <summary>
         /// 
         /// </summary>
@@ -26,6 +27,7 @@ namespace PrinterManagerProject.Tools
         {
             plcUtils = PLCSerialPortUtils.GetInstance(serialPortInterface);
             Frequent = frequent;
+            this.data = data;
         }
         /// <summary>
         /// 开始监听
@@ -33,11 +35,18 @@ namespace PrinterManagerProject.Tools
         public void Start()
         {
             task?.Dispose();
+            isStop = false;
+            myEventLog.LogInfo($"开始监听");
 
             task = Task.Run(() =>
             {
-                plcUtils.SendData(data);
-                Thread.Sleep(Frequent);
+                while (isStop==false)
+                {
+                    plcUtils.SendData(data);
+                    Thread.Sleep(Frequent);
+                }
+                myEventLog.LogInfo($"停止监听");
+
             });
         }
         /// <summary>
@@ -45,7 +54,7 @@ namespace PrinterManagerProject.Tools
         /// </summary>
         public void Stop()
         {
-            task.Dispose();
+            isStop = true;
         }
     }
 
