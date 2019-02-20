@@ -45,7 +45,8 @@ namespace PrinterManagerProject
         private Connection connection = null;
         private ZebraPrinter printer = null;
         private SummaryCountModel countModel = new SummaryCountModel();
-        
+
+        #region 列表数据对象
         /// <summary>
         /// 当前批次全部数据
         /// </summary>
@@ -57,12 +58,34 @@ namespace PrinterManagerProject
         // 自动显示贴签
         private List<tOrder> handlerPrintCurrentList = new List<tOrder>();
         // 异常列表
-        private List<tOrder> exceptionList = new List<tOrder>();
+        private List<tOrder> exceptionList = new List<tOrder>(); 
+        #endregion
+
+
+
+        #region PLC使用属性
+        /// <summary>
+        /// CCD1是否正在识别
+        /// </summary>
+        private bool ccd1IsBusy = false;
+        /// <summary>
+        /// CCD2是否正在识别
+        /// </summary>
+        private bool ccd2IsBusy = false;
+        /// <summary>
+        /// 光幕指令
+        /// </summary>
+        private PLCReader lightListener;
+        /// <summary>
+        /// 警告指令
+        /// </summary>
+        private PLCReader warningListener;
+        //private PLCReader ccd2LightListener;
+        //private PLCReader printLightListener; 
+        #endregion
 
         private OrderManager orderManager = new OrderManager();
 
-        private string currentBatch;
-        private string currentDate;
         private bool FormLoading = true;
 
         public PrintWindow()
@@ -323,10 +346,12 @@ namespace PrinterManagerProject
 
                     // 先关再开
                     PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
-                    plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
-                    plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                    //plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
+                    //plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                    plcUtils.SendData("%01#WCSR00291**"); // 停止打印
+                    plcUtils.SendData("%01#WCSR00201**"); // 开始打印
                 }
-
+                
                 btnPrint.IsEnabled = false;
                 btnStopPrint.IsEnabled = true;
 
@@ -344,7 +369,8 @@ namespace PrinterManagerProject
         {
             if (IsConnectDevices)
             {
-                PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
+                //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
+                PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00291**"); // 停止打印
 
                 ResetPrinter();
             }
@@ -355,7 +381,6 @@ namespace PrinterManagerProject
 
         private void Use_date_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
         {
-            currentDate = this.use_date.SelectedDate?.ToString("yyyy-MM-dd");
             //绑定批次调整后事件
             this.cb_batch.SelectedIndex = 0;
 
@@ -372,11 +397,6 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            if (this.cb_batch.SelectedValue != null)
-            {
-                currentBatch = this.cb_batch.SelectedValue.ToString();
-            }
-
             LoadData();
 
 
@@ -964,7 +984,7 @@ namespace PrinterManagerProject
         {
             ccd1ErrorCount = -1;
             myEventLog.LogInfo($"CCD1超时");
-            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+            SendCCD1Out();
         }
         /// <summary>
         /// 发送CCD1拍照命令，并开始CCD1超时计时
@@ -1008,7 +1028,7 @@ namespace PrinterManagerProject
         {
             ccd2ErrorCount = -1;
             myEventLog.LogInfo($"CCD2超时");
-            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+            SendCCD2Out();
             RemoveCCD2Error();
         }
         /// <summary>
@@ -1041,6 +1061,38 @@ namespace PrinterManagerProject
         }
         #endregion
 
+        private void SendCCD1Out()
+        {
+
+            //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD009000904E31**");  // 1N:CCD1剔除
+            SetCCD1IsNotBusy();
+        }
+
+        private void SetCCD1IsNotBusy()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(100);
+                ccd1IsBusy = false;
+            });
+        }
+        private void SendCCD2Out()
+        {
+
+            //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);DOT2_PASS
+            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009014E34**"); //4N：CCD2剔除
+            SetCCD2IsNotBusy();
+        }
+
+        private void SetCCD2IsNotBusy()
+        {
+            Task.Run(() =>
+            {
+                Thread.Sleep(100);
+                ccd2IsBusy = false;
+            });
+        }
         #region 接收串口信息
 
 
@@ -1094,7 +1146,7 @@ namespace PrinterManagerProject
                             ccd1ErrorCount++;
                             myEventLog.LogInfo($"CCD1第{ccd1ErrorCount}次识别失败，从CCD1剔除");
                             // 从1#位剔除药袋
-                            PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+                            SendCCD1Out();
                         }
                     }
                 }
@@ -1158,7 +1210,7 @@ namespace PrinterManagerProject
                         }
 
                         // 从2#位剔除药袋
-                        PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+                        SendCCD2Out();
                         // 删除队列
                         RemoveCCD2Error();
                     }
@@ -1247,8 +1299,10 @@ namespace PrinterManagerProject
                                     myEventLog.LogInfo($"获取Printer花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     startTime = DateTime.Now;
                                     // 发送指令，调整PLC药袋大小以及打印机高度
-                                    if (PLCSerialPortUtils.GetInstance(this).SendData(mlCmd))
+                                    //if (PLCSerialPortUtils.GetInstance(this).SendData(mlCmd))
+                                    if (PLCSerialPortUtils.GetInstance(this).SendData($"%01#WDD00900009003{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}**")) // 71-78
                                     {
+                                        SetCCD1IsNotBusy();
                                         myEventLog.LogInfo($"CCD1命令发送成功花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                         startTime = DateTime.Now;
 
@@ -1291,14 +1345,15 @@ namespace PrinterManagerProject
                                     // 从1#位剔除（不是本组）的药袋
                                     myEventLog.LogInfo($"CCD1失败， 没有药品信息");
                                     AddQueue(null, data, spec[0], spec[1], ccd1Count);
-                                    PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+                                    SendCCD1Out();
+
                                 }
                             }
                             else
                             {
                                 // 从1#位剔除（不是本组）的药袋
                                 myEventLog.LogInfo($"CCD1失败， 未找到当前品规（{spec[0]}-{spec[1]}）的带贴签液体");
-                                PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
+                                SendCCD1Out();
                             }
 
                             new LogHelper().PrinterLog(b.ToString());
@@ -1358,7 +1413,8 @@ namespace PrinterManagerProject
                                     {
                                         myEventLog.LogInfo($"更新到数据库：ID={model.Drug.Id}");
                                         // 2#位通过
-                                        PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_PASS);
+                                        PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009015934**");  //1Y:CCD1继续
+                                        SetCCD2IsNotBusy();
 
                                         countModel.AutoCount++;
                                         countModel.PrintedTotalCount++;
@@ -1416,10 +1472,10 @@ namespace PrinterManagerProject
                             if(success == false)
                             {
                                 // 从2#位剔除信息对比失败的药袋
-                                PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);
+                                SendCCD2Out();
 
                                 // 记录到异常列表
-                                
+
                                 exceptionList.Add(model.Drug);
 
                                 // 显示界面效果
@@ -1458,7 +1514,7 @@ namespace PrinterManagerProject
             var queueIds = queue.Where(s=>s.Drug!=null).Select(s => s.Drug.Id).ToList();
             if (autoPrintCurrentList.Any()==false)
             {
-                var batch = currentBatch ?? this.cb_batch.SelectedValue.ToString();
+                var batch = this.cb_batch.SelectedValue?.ToString();
                 autoPrintCurrentList = autoPrintList.FindAll(m => m.batch == batch).ToList();
             }
             return autoPrintCurrentList.Find(m => queueIds.Contains(m.Id) == false && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
@@ -1472,95 +1528,198 @@ namespace PrinterManagerProject
         {
             try
             {
-                myEventLog.LogInfo($"接收到PLC：{data}");
-                // PLC 报错
-                if (data == PLCSerialPortData.ERROR)
+                if (data.StartsWith("!"))
                 {
-                    Dispatcher.Invoke(() =>
-                    {
-                        btnPrint.IsEnabled = true;
-                        btnStopPrint.IsEnabled = false;
-                    });
-
-                    ResetPrinter();
+                    // 异常信号
                 }
-                // PLC 超时停机
-                else if (data == PLCSerialPortData.OVER_TIME)
+                else if(data.Contains("#RCP"))
                 {
-                    Dispatcher.Invoke(() =>
+                    // 读信号结果
+                    if (data.Length == "%01#RCP123**".Length)
                     {
-                        btnPrint.IsEnabled = true;
-                        btnStopPrint.IsEnabled = false;
-                    });
+                        var dataArray = data.ToCharArray();
+                        // 打印机光幕状态结果
+                        var ccd1Status = dataArray[7];
+                        var printStatus = dataArray[8];
+                        var ccd2Status = dataArray[9];
 
-                    ResetPrinter();
-                }
-                // PLC 缺纸
-                else if (data == PLCSerialPortData.NO_PAPER)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        btnPrint.IsEnabled = true;
-                        btnStopPrint.IsEnabled = false;
-                        MessageBox.Show("设备的打印机缺纸，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    });
+                        if (ccd1Status == '1' && ccd1IsBusy == false)
+                        {
+                            ccd1IsBusy = true;
 
-                    ResetPrinter();
-                }
-                // PLC 缺色带
-                else if (data == PLCSerialPortData.NO_COLOR)
-                {
-                    Dispatcher.Invoke(() =>
-                    {
-                        btnPrint.IsEnabled = true;
-                        btnStopPrint.IsEnabled = false;
-                        MessageBox.Show("设备的打印机缺少色带，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                    });
+                            // 停50毫秒稳定液体
+                            Thread.Sleep(50);
 
-                    ResetPrinter();
-                }
-                // 接收指令触发1#拍照
-                else if (data == PLCSerialPortData.CCD1_TACK_PICTURE)
-                {
-                    // 停50毫秒稳定液体
-                    Thread.Sleep(50);
+                            // 开始拍照
+                            lock (ccd1LockHelper)
+                            {
+                                ccd1ErrorCount = 0;
+                            }
+                            CCD1TakePicture();
+                        }
 
-                    // 开始拍照
-                    lock (ccd1LockHelper)
-                    {
-                        ccd1ErrorCount = 0;
+                        if (ccd2Status == '1' && ccd2IsBusy == false)
+                        {
+                            ccd2IsBusy = true;
+
+                            // 停50毫秒稳定液体
+                            Thread.Sleep(50);
+                            // 开始拍照
+                            lock (ccd2LockHelper)
+                            {
+                                ccd2ErrorCount = 0;
+                            }
+                            CCD2TakePicture();
+                        }
+
+                        if (printStatus == '1')
+                        {
+                            GoToScan();
+                        }
                     }
-                    CCD1TakePicture();
-                }
-                // 接收指令触发2#拍照
-                else if (data == PLCSerialPortData.CCD2_TACK_PICTURE)
-                {
-                    // 停50毫秒稳定液体
-                    Thread.Sleep(50);
-                    // 开始拍照
-                    lock (ccd2LockHelper)
+                    else if (data.Length == "%01#RCP12345**".Length)
                     {
-                        ccd2ErrorCount = 0;
+                        var dataArray = data.ToCharArray();
+                        // 异常状态结果
+                        var warning = dataArray[7];
+                        var blockWarning = dataArray[8];
+                        var printCardOutOfWarning = dataArray[9];
+                        var colorTapeOutOfWarning = dataArray[10];
+                        var emptyWarning = dataArray[11];
+
+                        if (warning == '1' || blockWarning == '1')
+                        {
+                            MessageBox.Show("设备有卡药，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ResetPrinter();
+                        }
+                        if (printCardOutOfWarning == '1')
+                        {
+                            MessageBox.Show("设备的打印机缺纸，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ResetPrinter();
+                        }
+                        if (colorTapeOutOfWarning == '1')
+                        {
+                            MessageBox.Show("设备的打印机缺少色带，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                            ResetPrinter();
+                        }
+                        if (emptyWarning == '1')
+                        {
+                            // 长时间未方药，停机
+                            ResetPrinter();
+                        }
+                        if (warning == '1'
+                            || blockWarning == '1'
+                            || printCardOutOfWarning == '1'
+                            || printCardOutOfWarning == '1'
+                            || colorTapeOutOfWarning == '1'
+                            || emptyWarning == '1')
+                        {
+                            Dispatcher.Invoke(() =>
+                            {
+                                btnPrint.IsEnabled = true;
+                                btnStopPrint.IsEnabled = false;
+                            });
+                        }
+
                     }
-                    CCD2TakePicture();
                 }
-                // 过光幕
-                else if (data == PLCSerialPortData.LIGHT_PASS)
+                else if (data.Contains("#WC"))
                 {
-                    GoToScan();
+                    // 写开始/停止指令返回结果
                 }
-                // 重置完成
-                else if (data == PLCSerialPortData.RESET_COMPLATE)
+                else if (data.Contains("#WD"))
                 {
-                    // 这里设置显示串口正常
-                    Dispatcher.Invoke(() =>
-                    {
-                        Ellipse ellipse = spcViewPanel.FindName("elControlSystem") as Ellipse;
-                        ellipse.Fill = complate;
-                        Label label = spcViewPanel.FindName("lblControlSystem") as Label;
-                        label.Content = "控制系统通讯正常";
-                    });
+                    // 写CCD1和CCD2指令返回结果
                 }
+                //myEventLog.LogInfo($"接收到PLC：{data}");
+                //// PLC 报错
+                //if (data == PLCSerialPortData.ERROR)
+                //{
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        btnPrint.IsEnabled = true;
+                //        btnStopPrint.IsEnabled = false;
+                //    });
+
+                //    ResetPrinter();
+                //}
+                //// PLC 超时停机
+                //else if (data == PLCSerialPortData.OVER_TIME)
+                //{
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        btnPrint.IsEnabled = true;
+                //        btnStopPrint.IsEnabled = false;
+                //    });
+
+                //    ResetPrinter();
+                //}
+                //// PLC 缺纸
+                //else if (data == PLCSerialPortData.NO_PAPER)
+                //{
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        btnPrint.IsEnabled = true;
+                //        btnStopPrint.IsEnabled = false;
+                //        MessageBox.Show("设备的打印机缺纸，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //    });
+
+                //    ResetPrinter();
+                //}
+                //// PLC 缺色带
+                //else if (data == PLCSerialPortData.NO_COLOR)
+                //{
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        btnPrint.IsEnabled = true;
+                //        btnStopPrint.IsEnabled = false;
+                //        MessageBox.Show("设备的打印机缺少色带，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                //    });
+
+                //    ResetPrinter();
+                //}
+                //// 接收指令触发1#拍照
+                //else if (data == PLCSerialPortData.CCD1_TACK_PICTURE)
+                //{
+                //    // 停50毫秒稳定液体
+                //    Thread.Sleep(50);
+
+                //    // 开始拍照
+                //    lock (ccd1LockHelper)
+                //    {
+                //        ccd1ErrorCount = 0;
+                //    }
+                //    CCD1TakePicture();
+                //}
+                //// 接收指令触发2#拍照
+                //else if (data == PLCSerialPortData.CCD2_TACK_PICTURE)
+                //{
+                //    // 停50毫秒稳定液体
+                //    Thread.Sleep(50);
+                //    // 开始拍照
+                //    lock (ccd2LockHelper)
+                //    {
+                //        ccd2ErrorCount = 0;
+                //    }
+                //    CCD2TakePicture();
+                //}
+                //// 过光幕
+                //else if (data == PLCSerialPortData.LIGHT_PASS)
+                //{
+                //    GoToScan();
+                //}
+                //// 重置完成
+                //else if (data == PLCSerialPortData.RESET_COMPLATE)
+                //{
+                //    // 这里设置显示串口正常
+                //    Dispatcher.Invoke(() =>
+                //    {
+                //        Ellipse ellipse = spcViewPanel.FindName("elControlSystem") as Ellipse;
+                //        ellipse.Fill = complate;
+                //        Label label = spcViewPanel.FindName("lblControlSystem") as Label;
+                //        label.Content = "控制系统通讯正常";
+                //    });
+                //}
             }
             catch (Exception ex)
             {
@@ -1833,6 +1992,7 @@ namespace PrinterManagerProject
                 label.Content = "CCD2连接失败";
             });
         }
+
         public void OnCCD2Complated()
         {
             // 这里设置显示串口连接成功
@@ -1859,6 +2019,12 @@ namespace PrinterManagerProject
         }
         public void OnPLCComplated()
         {
+            lightListener = new PLCReader(this, 200,"%01#RCP8R0170R0171R0173**");
+            warningListener = new PLCReader(this, 1000, "%01#RCP8R0090R0095R0096R0097R0098**");
+
+            lightListener.Start();
+            warningListener.Start();
+
             // 这里设置显示串口连接成功
             Dispatcher.Invoke(() =>
             {
