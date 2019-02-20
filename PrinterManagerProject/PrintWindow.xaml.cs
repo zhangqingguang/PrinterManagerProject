@@ -374,6 +374,11 @@ namespace PrinterManagerProject
                     plcUtils.SendData("%01#WCSR00201**"); // 开始打印
                     myEventLog.LogInfo($"发送开始命令");
 
+                    if(lightListener == null || warningListener == null)
+                    {
+                        CreatePLCReader();
+                    }
+
                     lightListener.Start();
                     warningListener.Start();
                 }
@@ -2086,8 +2091,7 @@ namespace PrinterManagerProject
             if (type == 1)
             {
                 // 连接成功
-                lightListener = new PLCReader(this, 200, "%01#RCP3R0170R0171R0173**");
-                warningListener = new PLCReader(this, 1000, "%01#RCP5R0090R0095R0096R0097R0098**");
+                CreatePLCReader();
 
             }
             else
@@ -2106,6 +2110,11 @@ namespace PrinterManagerProject
             });
         }
 
+        private void CreatePLCReader()
+        {
+            lightListener = new PLCReader(this, 200, "%01#RCP3R0170R0171R0173**");
+            warningListener = new PLCReader(this, 1000, "%01#RCP5R0090R0095R0096R0097R0098**");
+        }
 
         public void OnScannerError(string msg)
         {

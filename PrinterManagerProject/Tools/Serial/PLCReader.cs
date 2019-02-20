@@ -34,7 +34,6 @@ namespace PrinterManagerProject.Tools
         /// </summary>
         public void Start()
         {
-            task?.Dispose();
             isStop = false;
             myEventLog.LogInfo($"开始监听");
 
