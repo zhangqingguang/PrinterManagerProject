@@ -38,7 +38,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 是否要连接设备
         /// </summary>
-        public static bool IsConnectDevices = false;
+        public static bool IsConnectDevices = true;
         private List<DrugsQueueModel> queue = new List<DrugsQueueModel>();
         private PrintTemplateModel model = null;
         private Connection connection = null;
@@ -57,7 +57,7 @@ namespace PrinterManagerProject
         // 自动显示贴签
         private ObservableCollection<tOrder> handlerPrintCurrentList = new ObservableCollection<tOrder>();
         // 异常列表
-        private ObservableCollection<tOrder> exceptionList = new ObservableCollection<tOrder>(); 
+        private ObservableCollection<tOrder> exceptionList = new ObservableCollection<tOrder>();
         #endregion
 
 
@@ -87,6 +87,8 @@ namespace PrinterManagerProject
 
         private bool FormLoading = true;
 
+        IPrinterManager printerManager = new UsbConnectionManager();
+
         public PrintWindow()
         {
             InitializeComponent();
@@ -99,14 +101,13 @@ namespace PrinterManagerProject
                 ScannerSerialPortUtils.GetInstance(this).Open();
                 ScanHandlerSerialPortUtils.GetInstance(this).Open();
 
-
                 // 检查打印机状态
                 #region 检查打印机状态，直到连接成功
                 bool continueTryConnectPrinter = false;
                 bool connectSuccess = false;
                 do
                 {
-                    string errorMsg = InitPrinter();
+                    string errorMsg = printerManager.InitPrinter();
 
                     if (string.IsNullOrEmpty(errorMsg) == false)
                     {
@@ -119,7 +120,7 @@ namespace PrinterManagerProject
                         connectSuccess = true;
                     }
 
-                } while (continueTryConnectPrinter && connectSuccess==false);
+                } while (continueTryConnectPrinter && connectSuccess == false);
                 if (connectSuccess == false)
                 {
                     return;
@@ -168,7 +169,7 @@ namespace PrinterManagerProject
         private void InitBatch()
         {
             tBatch tfv = new tBatch();
-            var list  = new BatchManager().GetAll();
+            var list = new BatchManager().GetAll();
             list.Insert(0, new tBatch() { batch = "", batch_name = "请选择" });
             this.cb_batch.DisplayMemberPath = "batch_name";
             this.cb_batch.SelectedValuePath = "batch";
@@ -176,7 +177,7 @@ namespace PrinterManagerProject
 
             //绑定批次调整后事件
             this.cb_batch.SelectionChanged += Cb_batch_SelectionChanged;
-        } 
+        }
         #endregion
 
         #region 事件响应
@@ -230,12 +231,12 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
         {
-            if (ConnectionManager.CheckPivasConnetionStatus()==false)
+            if (ConnectionManager.CheckPivasConnetionStatus() == false)
             {
                 MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return ;
+                return;
             }
-            if (CheckDBConnection()==false)
+            if (CheckDBConnection() == false)
             {
                 return;
             }
@@ -244,7 +245,7 @@ namespace PrinterManagerProject
                 MessageBox.Show("请选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
-            if (this.use_date.SelectedDate.Value.Date<DateTime.Now.Date)
+            if (this.use_date.SelectedDate.Value.Date < DateTime.Now.Date)
             {
                 MessageBox.Show("只能选择今天和今天后的日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
@@ -297,7 +298,7 @@ namespace PrinterManagerProject
                 if (IsConnectDevices)
                 {
                     var printer = GetPrinter();
-                    if(printer == null)
+                    if (printer == null)
                     {
                         myEventLog.LogInfo("Printer连接失败！");
                         MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
@@ -322,7 +323,7 @@ namespace PrinterManagerProject
                     plcUtils.SendData("%01#WCSR00201**"); // 开始打印
                     myEventLog.LogInfo($"发送开始命令");
 
-                    if(lightListener == null || warningListener == null)
+                    if (lightListener == null || warningListener == null)
                     {
                         CreatePLCReader();
                     }
@@ -330,7 +331,7 @@ namespace PrinterManagerProject
                     lightListener.Start();
                     warningListener.Start();
                 }
-                
+
                 btnPrint.IsEnabled = false;
                 btnStopPrint.IsEnabled = true;
 
@@ -353,10 +354,10 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"发送停止命令");
 
                 ResetPrinter();
-
-                lightListener.Stop();
-                warningListener.Stop();
             }
+
+            lightListener.Stop();
+            warningListener.Stop();
 
             btnPrint.IsEnabled = true;
             btnStopPrint.IsEnabled = false;
@@ -413,67 +414,6 @@ namespace PrinterManagerProject
 
         #region 读取打印机状态
 
-        /// <summary>
-        /// 初始化打印机并检测状态
-        /// </summary>
-        private string InitPrinter()
-        {
-
-            string errorMsg = "";
-            try
-            {
-
-                PrinterStatus printerStatus = GetPrinterStatus(null);
-                if(printerStatus == null)
-                {
-                    return "打印机连接失败，请检查打印机是否连接到上位机";
-                }
-
-                if (printerStatus.isReadyToPrint)
-                {
-                    Console.WriteLine("Ready To Print");
-                    myEventLog.LogInfo("打印机准备完毕！");
-                    System.Console.WriteLine("打印机准备完毕！");
-                }
-                else if (printerStatus.isHeadOpen)
-                {
-                    errorMsg = "打印机头已打开，请检查打印机状态！";
-                    myEventLog.Log.Warn("打印机头已打开，请检查打印机状态！");
-                    Console.WriteLine("Cannot Print because the printer head is open.");
-                }
-                else if (printerStatus.isPaperOut)
-                {
-                    errorMsg = "纸张用完，请检查打印机是否有纸！";
-                    myEventLog.Log.Warn("纸张用完，请检查打印机是否有纸！");
-                    Console.WriteLine("Cannot Print because the paper is out.");
-                }
-                else if(printerStatus.isPaused)
-                {
-                    errorMsg = "打印机已暂停，请检查打印机状态！";
-                    myEventLog.Log.Warn("打印机已暂停，请检查打印机状态！");
-                    Console.WriteLine("Cannot Print because the printer is paused.");
-                }
-                else 
-                {
-                    Console.WriteLine("Cannot Print.");
-                }
-            }
-            catch (ConnectionException e)
-            {
-                errorMsg = "打印机连接失败，请检查是否连接到上位机！";
-                Console.WriteLine(e.ToString());
-            }
-            catch (ZebraPrinterLanguageUnknownException e)
-            {
-                errorMsg = "打印机设置出错，请检查打印机！";
-                Console.WriteLine(e.ToString());
-            }
-            finally
-            {
-                connection.Close();
-            }
-            return errorMsg;
-        }
 
         /// <summary>
         /// 尝试打开打印机连接
@@ -509,7 +449,7 @@ namespace PrinterManagerProject
             catch (Exception ex)
             {
                 MessageBox.Show("与打印机连接出错！");
-                myEventLog.LogError("打开打印机连接出错！",ex);
+                myEventLog.LogError("打开打印机连接出错！", ex);
                 return false;
             }
         }
@@ -528,7 +468,7 @@ namespace PrinterManagerProject
             //return null;
             if (TryOpenPrinterConnection())
             {
-                if (zPrinter!=null && zPrinter.Connection.Connected == false)
+                if (zPrinter != null && zPrinter.Connection.Connected == false)
                 {
                     myEventLog.LogInfo("Printer连接失败，重置Printer！");
                     zPrinter = null;
@@ -542,36 +482,6 @@ namespace PrinterManagerProject
             return zPrinter;
         }
 
-        /// <summary>
-        /// 获取打印机状态
-        /// </summary>
-        /// <returns></returns>
-        private PrinterStatus GetPrinterStatus(ZebraPrinter printer)
-        {
-            if(printer == null)
-            {
-                printer = GetPrinter();
-            }
-
-            if (printer != null)
-            {
-                return printer.GetCurrentStatus();
-            }
-            return null;
-        }
-        /// <summary>
-        /// 获取打印机缓冲区中未打印标签数量
-        /// </summary>
-        /// <returns></returns>
-        private int GetLabelsRemainingInBatch(ZebraPrinter printer)
-        {
-            var status = GetPrinterStatus(printer);
-            if (status != null)
-            {
-                return status.labelsRemainingInBatch;
-            }
-            return 0;
-        }
 
         /// <summary>
         /// 打印机中是否有多余的打印任务
@@ -608,7 +518,7 @@ namespace PrinterManagerProject
                 var printer = GetPrinter();
                 if (printer != null)
                 {
-                    var labelsCount = GetLabelsRemainingInBatch(printer);
+                    var labelsCount =printerManager.GetLabelsRemainingInBatch(printer);
                     PrinterHasExtraContent = labelsCount > queue.Count(s => s.GoToScan == false);
 
                     myEventLog.LogInfo($"检测打印机是否有多余打印任务：{(PrinterHasExtraContent ? "有" : "无")},打印任务：{labelsCount}，未贴签：{queue.Count(s => s.GoToScan == false)}");
@@ -772,7 +682,7 @@ namespace PrinterManagerProject
                         // 只修改Y轴，向下平铺
                         y += (int)height + margin;
                         u_y += (int)height + margin;
-                    } 
+                    }
                     #endregion
 
                     g.DrawString(string.Format("处方医生：{0}", drug.doctor_name), new Font(fontName, ConvertFontInt(model.DoctorFontSize)), bush, ConvertInt(model.DoctorFontX), ConvertInt(model.DoctorFontY));
@@ -794,7 +704,9 @@ namespace PrinterManagerProject
 
                     myEventLog.LogInfo($"画图花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                     // 控制打印宽度
+                    startTime = DateTime.Now;
                     printer.PrintImage(imageI, 0, 0, paperWidth, paperHeight, false);
+                    myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
                 }
                 catch (Exception e)
@@ -810,19 +722,19 @@ namespace PrinterManagerProject
             }
             catch (ConnectionException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (ZebraPrinterLanguageUnknownException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (IOException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
@@ -922,26 +834,26 @@ namespace PrinterManagerProject
             }
             catch (ConnectionException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (ZebraPrinterLanguageUnknownException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             catch (IOException e)
             {
-                    myEventLog.LogError(e.Message, e);
+                myEventLog.LogError(e.Message, e);
                 new LogHelper().PrinterLog(e.Message);
                 Console.WriteLine(e.ToString());
             }
             finally
             {
-                if(connection!=null)
-                connection.Close();
+                if (connection != null)
+                    connection.Close();
             }
 
             #endregion
@@ -975,6 +887,8 @@ namespace PrinterManagerProject
             ccd1Timer.Start();
             myEventLog.LogInfo($"CCD1开始计时");
             CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
+            ccd1StartTime = DateTime.Now;
+
         }
         /// <summary>
         /// 停止CCD1计时
@@ -1017,6 +931,7 @@ namespace PrinterManagerProject
 
             ccd2Timer = new CCD2Timer();
             ccd2Timer.CCDExpire += Ccd2Timer_CCD2Expire;
+            ccd2StartTime = DateTime.Now;
             ccd2Timer.Start();
             myEventLog.LogInfo($"CCD2开始计时");
             CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE2);
@@ -1043,7 +958,7 @@ namespace PrinterManagerProject
 
             //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
             PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090000900324E**");  // 1N:CCD1剔除
-                    myEventLog.LogInfo($"发送CCD1剔除命令");
+            myEventLog.LogInfo($"发送CCD1剔除命令");
             SetCCD1IsNotBusy();
         }
 
@@ -1060,7 +975,7 @@ namespace PrinterManagerProject
 
             //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);DOT2_PASS
             PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090100901344E**"); //4N：CCD2剔除
-                    myEventLog.LogInfo($"发送CCD2剔除命令");
+            myEventLog.LogInfo($"发送CCD2剔除命令");
             SetCCD2IsNotBusy();
         }
 
@@ -1074,6 +989,8 @@ namespace PrinterManagerProject
         }
         #region 接收串口信息
 
+        DateTime ccd1StartTime = DateTime.Now;
+        DateTime ccd2StartTime = DateTime.Now;
 
 
         /// <summary>
@@ -1092,6 +1009,7 @@ namespace PrinterManagerProject
                 {
                     lock (ccd1LockHelper)
                     {
+                        myEventLog.LogInfo($"CCD1拍照花费时间:{(DateTime.Now - ccd1StartTime).TotalMilliseconds}");
                         CCD1StopWait();
                         if (ccd1ErrorCount == -1)
                         {
@@ -1136,6 +1054,7 @@ namespace PrinterManagerProject
                     lock (ccd2LockHelper)
                     {
 
+                        myEventLog.LogInfo($"CCD2拍照花费时间:{(DateTime.Now - ccd2StartTime).TotalMilliseconds}");
                         CCD2StopWait();
                         if (ccd2ErrorCount == -1)
                         {
@@ -1219,9 +1138,10 @@ namespace PrinterManagerProject
                     string[] datas = data.Split(' ');
 
                     int ccd1Count = 0;
-                    if (datas[1] == "A1" )
+                    if (datas[1] == "A1")
                     {
-                        if(ccd1ErrorCount != -1)
+                        myEventLog.LogInfo($"CCD1拍照花费时间:{(DateTime.Now - ccd1StartTime).TotalMilliseconds}");
+                        if (ccd1ErrorCount != -1)
                         {
                             // CCD1拍照次数
                             ccd1Count = ccd1ErrorCount;
@@ -1236,6 +1156,7 @@ namespace PrinterManagerProject
                     }
                     else
                     {
+                        myEventLog.LogInfo($"CCD2拍照花费时间:{(DateTime.Now - ccd2StartTime).TotalMilliseconds}");
                         if (ccd2ErrorCount != -1)
                         {
                             // CCD1识别成功，停止CCD1计时
@@ -1280,7 +1201,7 @@ namespace PrinterManagerProject
                                 myEventLog.LogInfo($"CCD1医嘱:{currentDrug.Id}");
 
                                 // 获取水和药品信息
-                                
+
                                 List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(currentDrug.Id);
                                 if (drugs != null && drugs.Count > 0)
                                 {
@@ -1308,9 +1229,9 @@ namespace PrinterManagerProject
                                         AddQueue(currentDrug, data, spec[0], spec[1], ccd1Count);
                                         myEventLog.LogInfo($"插入队列花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                         startTime = DateTime.Now;
-                                        Print(printer, drugs, ref currentDrug, ref b);
+                                        //Print(printer, drugs, ref currentDrug, ref b);
                                         //commandPrint();
-                                        myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                        //myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                         //CheckLabelsRemainingInBatchOnce();
 
                                         //if (PrinterHasExtraContent)
@@ -1386,7 +1307,7 @@ namespace PrinterManagerProject
                                         myEventLog.LogInfo($"CCD2失败，未扫描到二维码{model.ScanData}");
                                     }
                                     else
-                                    if (model.ScanData!=model.QRData)
+                                    if (model.ScanData != model.QRData)
                                     {
                                         myEventLog.LogInfo($"CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
                                     }
@@ -1404,15 +1325,10 @@ namespace PrinterManagerProject
                                 if (success == true)
                                 {
                                     // 修改到数据库，修改失败则判为失败
-                                    
+
                                     if (orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name))
                                     {
                                         myEventLog.LogInfo($"更新到数据库：ID={model.Drug.Id}");
-                                        // 2#位通过
-                                    myEventLog.LogInfo($"发送CCD2继续命令");
-                                        PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009013459**");  //1Y:CCD2继续
-                                        SetCCD2IsNotBusy();
-
                                         countModel.AutoCount++;
                                         countModel.PrintedTotalCount++;
                                         countModel.NotPrintTotalCount--;
@@ -1422,6 +1338,11 @@ namespace PrinterManagerProject
                                         tOrder autoPrintModel = autoPrintList.Where(m => m.Id == model.Drug.Id).FirstOrDefault();
                                         if (autoPrintModel != null)
                                         {
+                                            // 2#位通过
+                                            myEventLog.LogInfo($"发送CCD2继续命令");
+                                            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009013459**");  //1Y:CCD2继续
+                                            SetCCD2IsNotBusy();
+
                                             // 回写数据
                                             PrintSuccess(autoPrintModel, batchNumber);
                                             // --- 设置为CCD2识别通过的状态 ---
@@ -1441,10 +1362,16 @@ namespace PrinterManagerProject
                                         // --- 删除对比失败的信息 ---
                                         myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                                         myEventLog.LogInfo($"CCD2失败 数据回写失败");
+                                        success = false;
                                     }
                                 }
                             }
-                            if(success == false)
+                            else
+                            {
+                                myEventLog.LogInfo($"CCD2失败，队列中无数据");
+                                success = false;
+                            }
+                            if (success == false)
                             {
                                 // 从2#位剔除信息对比失败的药袋
                                 SendCCD2Out();
@@ -1467,8 +1394,8 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.LogError(ex.Message, ex);
-                new LogHelper().ErrorLog($"处理接收CCD数据出错。"+ex.Message);
+                myEventLog.LogError(ex.Message, ex);
+                new LogHelper().ErrorLog($"处理接收CCD数据出错。" + ex.Message);
             }
         }
         /// <summary>
@@ -1479,7 +1406,7 @@ namespace PrinterManagerProject
         private tOrder GetModelBySpec(string[] spec)
         {
             // 通过扫描出来的信息对比数据源，查找匹配的数据，如果查询到则发指令调整机器大小，否则1#位剔除
-            var queueIds = queue.Where(s=>s.Drug!=null).Select(s => s.Drug.Id).ToList();
+            var queueIds = queue.Where(s => s.Drug != null).Select(s => s.Drug.Id).ToList();
             return autoPrintList.FirstOrDefault(m => queueIds.Contains(m.Id) == false && m.printing_status == PrintStatusEnum.NotPrint && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
             //            if (autoPrintCurrentList.Any()==false)
             //            {
@@ -1502,7 +1429,7 @@ namespace PrinterManagerProject
                 {
                     // 异常信号
                 }
-                else if(data.Contains("$RC"))
+                else if (data.Contains("$RC"))
                 {
                     // 读信号结果
                     if (data.Length == "%01#RC123**".Length)
@@ -1554,7 +1481,7 @@ namespace PrinterManagerProject
                     }
                     else if (data.Length == "%01#RC12345**".Length)
                     {
-                            //myEventLog.LogInfo($"PLC接收报警信号");
+                        //myEventLog.LogInfo($"PLC接收报警信号");
                         var dataArray = data.ToCharArray();
                         // 异常状态结果
                         var warning = dataArray[6];
@@ -1699,7 +1626,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.LogError("处理接收PLC数据出错。"+ex.Message, ex);
+                myEventLog.LogError("处理接收PLC数据出错。" + ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1726,7 +1653,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.LogError("处理接收到自动扫码枪数据出错。" + ex.Message, ex);
+                myEventLog.LogError("处理接收到自动扫码枪数据出错。" + ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1766,7 +1693,7 @@ namespace PrinterManagerProject
             }
             catch (Exception ex)
             {
-                    myEventLog.LogError("处理接收到手动扫码枪数据出错。"+ex.Message, ex);
+                myEventLog.LogError("处理接收到手动扫码枪数据出错。" + ex.Message, ex);
                 new LogHelper().ErrorLog(ex.Message);
             }
         }
@@ -1784,7 +1711,7 @@ namespace PrinterManagerProject
         private void Success()
         {
             lock (queueHelper)
-                {
+            {
                 // 判断是否有队列数据
                 if (queue.Count > 0)
                 {
@@ -1803,11 +1730,11 @@ namespace PrinterManagerProject
         /// <param name="spec">规格</param>
         /// <param name="ml">液体毫升数</param>
         /// <param name="ccd1TakePhotoTimes">CCD1拍照次数</param>
-        private void AddQueue(tOrder drug, string cmd, string spec, string ml,int ccd1TakePhotoTimes)
+        private void AddQueue(tOrder drug, string cmd, string spec, string ml, int ccd1TakePhotoTimes)
         {
             // 保存溶媒信息到队列
             DrugsQueueModel qModel = new DrugsQueueModel();
-            if(drug != null)
+            if (drug != null)
             {
                 if (string.IsNullOrEmpty(drug.barcode))
                 {
@@ -2081,7 +2008,7 @@ namespace PrinterManagerProject
         /// </summary>
         /// <param name="model"></param>
         /// <param name="sBatchs">药品批号</param>
-        private void PrintSuccess(tOrder model,string sBatchs)
+        private void PrintSuccess(tOrder model, string sBatchs)
         {
 #warning 可能有线程出错Bug
             myEventLog.LogInfo($"更新列表：ID={model.Id}");
@@ -2094,6 +2021,9 @@ namespace PrinterManagerProject
             model.SetPropertyChanged("sbatches");
             model.SetPropertyChanged("printing_model");
             model.SetPropertyChanged("printing_status");
+
+            myEventLog.LogInfo($"更新列表内容");
+
         }
         #endregion
 
@@ -2145,7 +2075,7 @@ namespace PrinterManagerProject
                 return;
             }
 
-            if (CheckDBConnection()==false)
+            if (CheckDBConnection() == false)
             {
                 return;
             }
@@ -2187,7 +2117,7 @@ namespace PrinterManagerProject
             countModel.AutoCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Auto);
             countModel.ManualCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Manual);
 
-            countModel.NotPrintTotalCount = autoPrintList.Count(s=>s.printing_status.HasValue == false || s.printing_status.Value == PrintStatusEnum.NotPrint);
+            countModel.NotPrintTotalCount = autoPrintList.Count(s => s.printing_status.HasValue == false || s.printing_status.Value == PrintStatusEnum.NotPrint);
             //var autoNotPrintedCount = autoPrintList.Count();
             //var manualNotPrintedCount = autoPrintList.Count();
 

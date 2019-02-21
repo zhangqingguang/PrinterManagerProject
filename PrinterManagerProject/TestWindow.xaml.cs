@@ -16,6 +16,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
 using Zebra.Sdk.Comm;
+using Zebra.Sdk.Graphics;
 using Zebra.Sdk.Printer;
 using Zebra.Sdk.Printer.Discovery;
 using ZXing;
@@ -35,7 +36,7 @@ namespace PrinterManagerProject
             // ViewBarCode();
             //ViewCard();
             //commandPrint();
-            PLCCommandTest();
+            //PLCCommandTest();
             ViewCard();
         }
 
@@ -144,9 +145,19 @@ namespace PrinterManagerProject
             
         }
 
+
+        private ZebraPrinter printer = null;
+        IPrinterManager printerManager = new UsbConnectionManager();
+
         int printMultiple = 3;
         private void ViewCard()
         {
+
+            if (printer == null)
+            {
+                printer = printerManager.GetPrinter();
+            }
+
             PrintTemplateModel model = new PrintTemplateHelper().GetConfig();
             if (model == null)
             {
@@ -154,59 +165,9 @@ namespace PrinterManagerProject
                 return;
             }
 
-
-
-            //double multiple = 1.56;
-            //string fontName = "SimSun";
-
-            //Bitmap image = new Bitmap(model.PageWidth, model.PageHeight);
-            //Graphics g = Graphics.FromImage(image);
-            //System.Drawing.Brush bush = new SolidBrush(System.Drawing.Color.Black);//填充的颜色
-
-            //try
-            //{
-            //    //消除锯齿
-            //    g.SmoothingMode = System.Drawing.Drawing2D.SmoothingMode.AntiAlias;
-            //    //清空图片背景颜色
-            //    g.Clear(System.Drawing.Color.White);
-
-            //    var code = "00012311251";
-            //    var barcodeData = new Pdf417lib().GetPDF417Auto(code, 2, 2);
-            //    using (System.IO.MemoryStream ms = new System.IO.MemoryStream(barcodeData))
-            //    {
-            //        using (System.Drawing.Imaging.Metafile mf = new System.Drawing.Imaging.Metafile(ms))
-            //        {
-            //            g.DrawImage(mf, model.BarCodeX, model.BarCodeY, model.BarCodeWidth, model.BarCodeHeight);
-            //        }
-            //    }
-
-            //    g.DrawString("普通外科二病区", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.AreaFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.AreaFontX, model.AreaFontY);
-            //    g.DrawString("2018-11-12补", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DateFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.DateFontX, model.DateFontY);
-            //    g.DrawString("1/1", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.PageNumFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.PageNumFontX, model.PageNumFontY);
-            //    g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(model.SplitX, model.SplitY), new System.Drawing.Point(model.SplitX + model.SplitWidth, model.SplitY));
-            //    g.DrawString(code, new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DoctorAdviceFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.DoctorAdviceFontX, model.DoctorAdviceFontY);
-            //    g.DrawString("31床", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.BedFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.BedFontX, model.BedFontY);
-            //    g.DrawString("史新平", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.PatientFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.PatientFontX, model.PatientFontY);
-            //    g.DrawString("男", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.GenderFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.GenderFontX, model.GenderFontY);
-            //    g.DrawString("1批", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.BatchNumberFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.BatchNumberFontX, model.BatchNumberFontY);
-            //    g.DrawString("[C-4]-1", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.SerialNumberFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.SerialNumberFontX, model.SerialNumberFontY);
-            //    g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(model.Split2X, model.Split2Y), new System.Drawing.Point(model.Split2X + model.Split2Width, model.Split2Y));
-            //    g.DrawString("药品名称", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DrugsTitleFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.DrugsTitleFontX, model.DrugsTitleFontY);
-            //    g.DrawString("5%葡萄糖注射液[100ml](非PVC双阀)", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DrugsContentFontSize / multiple))), bush, model.DrugsContentFontX, model.DrugsContentFontY);
-            //    g.DrawString("用量", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.UseTitleFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.UseTitleFontX, model.UseTitleFontY);
-            //    g.DrawString("100ml", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.UseValueFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.UseValueFontX, model.UseValueFontY);
-            //    g.DrawString("处方医生：张慧", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DoctorFontSize / multiple))), bush, model.DoctorFontX, model.DoctorFontY);
-            //    g.DrawString("备注：", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.RemarkFontSize / multiple))), bush, model.RemarkFontX, model.RemarkFontY);
-            //    g.DrawString("滴速：40滴/分   静脉续滴   qd(8点)", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.SpeedFontSize / multiple))), bush, model.SpeedFontX, model.SpeedFontY);
-            //    g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(model.Split3X, model.Split3Y), new System.Drawing.Point(model.Split3X + model.Split3Width, model.Split3Y));
-            //    g.DrawString("审核：焦媛媛", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.ExamineFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.ExamineFontX, model.ExamineFontY);
-            //    g.DrawString("复审：", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.ReviewFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.ReviewFontX, model.ReviewFontY);
-            //    g.DrawString("排药：牛捷", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.SortFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.SortFontX, model.SortFontY);
-            //    g.DrawString("配液：", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DispensingFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.DispensingFontX, model.DispensingFontY);
-            //    g.DrawString("配液：___时___分", new Font(fontName, Convert.ToInt32(Math.Ceiling(model.DispensingDateFontSize / multiple)), System.Drawing.FontStyle.Bold), bush, model.DispensingDateFontX, model.DispensingDateFontY);
-
             string fontName = "SimSun";
 
+            var startTime = DateTime.Now;
             var paperWidth = model.PageWidth * printMultiple;
             var paperHeight = model.PageHeight * printMultiple;
             Bitmap image = new Bitmap(paperWidth, paperHeight);
@@ -273,21 +234,28 @@ namespace PrinterManagerProject
                 g.DrawString("配液：___时___分", new Font(fontName, ConvertFontInt(model.DispensingDateFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(model.DispensingDateFontX), ConvertInt(model.DispensingDateFontY));
 
 
-                image.Save(AppDomain.CurrentDomain.BaseDirectory + @"Config\test" + DateTime.Now.Millisecond + ".jpg");
+                //image.Save(AppDomain.CurrentDomain.BaseDirectory + @"Config\test" + DateTime.Now.Millisecond + ".jpg");
 
-                IntPtr myImagePtr = image.GetHbitmap();     //创建GDI对象，返回指针
-                BitmapSource imgsource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(myImagePtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());  //创建imgSource
+                //IntPtr myImagePtr = image.GetHbitmap();     //创建GDI对象，返回指针
+                //BitmapSource imgsource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(myImagePtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());  //创建imgSource
 
-                DeleteObject(myImagePtr);
+                //DeleteObject(myImagePtr);
 
-                imgTest.Source = imgsource;
+                //imgTest.Source = imgsource;
 
-                var fileName = Guid.NewGuid().ToString();
-                var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Config", fileName + ".jpg");
-                var pathTarget = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", fileName + "-bak.jpg");
-                image.Save(path);
+                //var fileName = Guid.NewGuid().ToString();
+                //var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Config", fileName + ".jpg");
+                //var pathTarget = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", fileName + "-bak.jpg");
+                //image.Save(path);
 
-                ImageHelper.KiSaveAsJPEG(image,pathTarget, 20);
+                //ImageHelper.KiSaveAsJPEG(image,pathTarget, 20);
+
+                ZebraImageI imageI = ZebraImageFactory.GetImage(image);
+                myEventLog.LogInfo($"画图花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                startTime = DateTime.Now;
+                printer.PrintImage(imageI, 0, 0, paperWidth, paperHeight, false);
+                myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+
             }
             finally
             {

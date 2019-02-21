@@ -195,7 +195,10 @@
     <Compile Include="Tools\ImageHelper.cs" />
     <Compile Include="Tools\LogHelper.cs" />
     <Compile Include="Tools\LogManager.cs" />
+    <Compile Include="Tools\Printer\IPrinterManager.cs" />
     <Compile Include="Tools\Printer\PrintTemplateHelper.cs" />
+    <Compile Include="Tools\Printer\DriveConnectionManager.cs" />
+    <Compile Include="Tools\Printer\UsbConnectionManager.cs" />
     <Compile Include="Tools\Serial\PLCTest.cs" />
     <Compile Include="Tools\Serial\PLCReader.cs" />
     <Compile Include="Tools\Serial\ScannerHandlerSerialPortUtils.cs" />
