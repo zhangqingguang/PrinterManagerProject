@@ -9,29 +9,22 @@
         mc:Ignorable="d"
         Title="深圳壹达物联科技有限公司 智能贴签系统" Height="1080" Width="1920" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
     <Window.Resources>
-        <Style x:Key="DataGridTextColumnCenterSytle" TargetType="{x:Type TextBlock}">
-            <Setter Property="HorizontalAlignment" Value="Center" />
-            <Setter Property="VerticalAlignment" Value="Center" />
-        </Style>
-        <Style x:Key="GridStackPanelSytle" TargetType="{x:Type StackPanel}">
-            <Setter Property="Margin" Value="10" />
-        </Style>
-        <src:PrintStatusConverter x:Key="printStatusConverter"/>
-        <src:PrintModelConverter x:Key="printModelConverter"/>
-        <src:RowBgColorConverter x:Key="rowBgColorConverter"/>
-        <!--<Style TargetType="DataGridRow">
-            <Style.Triggers>
-                <DataTrigger Binding="{Binding printing_status}" Value="NotPrint">
-                    <Setter Property="Background" Value="#FFdddddd" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding printing_status}" Value="Auto">
-                    <Setter Property="Background" Value="#FFcae8fc" />
-                </DataTrigger>
-                <DataTrigger Binding="{Binding printing_status}" Value="2">
-                    <Setter Property="Background" Value="#607EEA" />
-                </DataTrigger>
-            </Style.Triggers>
-        </Style>-->
+        <ResourceDictionary>
+            <Style x:Key="DataGridTextColumnCenterSytle" TargetType="{x:Type TextBlock}">
+                <Setter Property="HorizontalAlignment" Value="Center" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+            </Style>
+            <Style x:Key="GridStackPanelSytle" TargetType="{x:Type StackPanel}">
+                <Setter Property="Margin" Value="10" />
+            </Style>
+            <src:PrintStatusConverter x:Key="printStatusConverter"/>
+            <src:PrintModelConverter x:Key="printModelConverter"/>
+            <src:RowBgColorConverter x:Key="rowBgColorConverter"/>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="styles/ControlStyle.xaml" />
+                <ResourceDictionary Source="styles/PrintWindowStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1" Margin="5">
         <Grid>
@@ -43,7 +36,7 @@
             <Border Grid.Row="0" BorderBrush="#333333" BorderThickness="0,0,0,1">
 
                 <TabControl x:Name="tabMain" TabStripPlacement="Bottom">
-                    <TabItem Cursor="Hand" Header="自动贴签队列" Height="30">
+                    <TabItem Cursor="Hand" Header="自动贴签队列" Style="{StaticResource controlTabItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -107,16 +100,15 @@
                                 </DataGrid>
 
                                 <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4" HorizontalAlignment="Right">
-                                    <Label Content="合计" FontWeight="Bold" />
-                                    <Label Content="待贴数量：" Margin="10,0,0,0"/>
+                                    <Label Content="待贴数：" Margin="10,0,0,0"/>
                                     <Label x:Name="lblNumber" Content="0" HorizontalAlignment="Right" />
-                                    <Label Content="已贴数量：" Margin="10,0,0,0"/>
+                                    <Label Content="已贴数：" Margin="10,0,0,0"/>
                                     <Label x:Name="lblMarkNumber" Content="0" HorizontalAlignment="Right" />
                                 </StackPanel>
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Cursor="Hand" Header="手动贴签队列" Height="30">
+                    <TabItem Cursor="Hand" Header="手动贴签队列"  Style="{StaticResource controlTabItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -152,7 +144,7 @@
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Cursor="Hand" Header="补打签队列" Height="30">
+                    <TabItem Cursor="Hand" Header="补打签队列"  Style="{StaticResource controlTabItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -235,7 +227,7 @@
                             </Grid>
                         </Grid>
                     </TabItem>
-                    <TabItem Cursor="Hand" Header="成品异常队列" Height="30">
+                    <TabItem Cursor="Hand" Header="成品异常队列" Style="{StaticResource controlTabItem}">
                         <Grid>
                             <Grid.ColumnDefinitions>
                                 <ColumnDefinition Width="*"/>
@@ -300,10 +292,9 @@
                     <Grid.RowDefinitions>
                         <RowDefinition/>
                         <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
-                        <ColumnDefinition/>
-                        <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
                         <ColumnDefinition/>
@@ -311,46 +302,82 @@
                     </Grid.ColumnDefinitions>
 
                     <StackPanel Grid.Row="0" Grid.Column="0" Orientation="Horizontal">
-                        <Label Content="用药日期" Margin="15,0,0,0" Width="60"/>
-                        <DatePicker Width="100" x:Name="use_date" SelectedDateChanged="Use_date_SelectedDateChanged"/>
+                        <Label Content="用药日期" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <DatePicker Width="120" Height="30" FontSize="20" x:Name="use_date" SelectedDateChanged="Use_date_SelectedDateChanged">
+                            <DatePicker.Resources>
+                                <Style TargetType="{x:Type Calendar}">
+                                    <Setter Property="Foreground" Value="#FF333333"/>
+                                    <Setter Property="Background">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                                                <GradientStop Color="#FFE4EAF0" Offset="0"/>
+                                                <GradientStop Color="#FFECF0F4" Offset="0.16"/>
+                                                <GradientStop Color="#FFFCFCFD" Offset="0.16"/>
+                                                <GradientStop Color="#FFFFFFFF" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="BorderBrush">
+                                        <Setter.Value>
+                                            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0" >
+                                                <GradientStop Color="#FFA3AEB9" Offset="0"/>
+                                                <GradientStop Color="#FF8399A9" Offset="0.375"/>
+                                                <GradientStop Color="#FF718597" Offset="0.375"/>
+                                                <GradientStop Color="#FF617584" Offset="1"/>
+                                            </LinearGradientBrush>
+                                        </Setter.Value>
+                                    </Setter>
+                                    <Setter Property="BorderThickness" Value="1"/>
+                                    <Setter Property="Template">
+                                        <Setter.Value>
+                                            <ControlTemplate TargetType="{x:Type Calendar}">
+                                                <StackPanel x:Name="PART_Root" HorizontalAlignment="Center">
+                                                    <CalendarItem x:Name="PART_CalendarItem" BorderBrush="{TemplateBinding BorderBrush}" BorderThickness="{TemplateBinding BorderThickness}" Background="{TemplateBinding Background}" Style="{TemplateBinding CalendarItemStyle}"/>
+                                                </StackPanel>
+                                            </ControlTemplate>
+                                        </Setter.Value>
+                                    </Setter>
+                                </Style>
+                            </DatePicker.Resources>
+                        </DatePicker>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="批次" Margin="15,0,0,0" Width="60"/>
-                        <ComboBox x:Name="cb_batch" Width="Auto" MinWidth="100" SelectedIndex="0">
+                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Label Content="批次" Margin="15,0,0,0"  Style="{StaticResource controlLabel}"/>
+                        <ComboBox x:Name="cb_batch" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
                         </ComboBox>
                     </StackPanel>
-                    <StackPanel Grid.Row="0" Grid.Column="1" Orientation="Horizontal">
-                        <Label Content="科室" Margin="15,0,0,0" Width="60"/>
-                        <ComboBox x:Name="cb_dept" Width="Auto" MinWidth="100" SelectedIndex="0">
+                    <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
+                        <Label Content="科室" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <ComboBox x:Name="cb_dept" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="药品分类" Margin="15,0,0,0" Width="60"/>
-                        <ComboBox x:Name="cb_drug_category" Width="Auto" MinWidth="100" SelectedIndex="0">
+                        <Label Content="药品分类" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <ComboBox x:Name="cb_drug_category" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
+                        </ComboBox>
+                    </StackPanel>
+                    <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
+                        <Label Content="主药分组" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">
-                        <Label Content="主药分组" Margin="15,0,0,0" Width="60"/>
-                        <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0">
-                        </ComboBox>
+                        <Label Content="操作员" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <Label Name="printerLabel" Content="" Style="{StaticResource controlLabel}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal">
-                        <Label Content="操作员" Margin="15,0,0,0" Width="60"/>
-                        <Label Name="printerLabel" Content="" Width="60"/>
+                    <StackPanel Grid.Row="1" Grid.Column="2" Orientation="Horizontal" Margin="0,10,0,0">
+                        <Label Content="审核员" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
+                        <Label Name="checkerLabel" Content="" Style="{StaticResource controlLabel}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Content="审核员" Margin="15,0,0,0" Width="60"/>
-                        <Label Name="checkerLabel" Content="" Width="60"/>
+                    <StackPanel Grid.Row="0" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center">
+                        <Button x:Name="btnPrint" Content="自动贴签" Click="ButtonPrint_Click" Style="{StaticResource BaseButton}"/>
                     </StackPanel>
-                    <StackPanel Grid.Row="0" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button x:Name="btnPrint" Width="100" Content="自动贴签" Margin="0,0,20,0" Click="ButtonPrint_Click"/>
-                    </StackPanel>
-                    <StackPanel Grid.Row="1" Grid.Column="4" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
-                        <Button x:Name="btnStopPrint" Width="100" Content="停止贴签" Margin="0,0,20,0" Click="ButtonStopPrint_Click" IsEnabled="False"/>
+                    <StackPanel Grid.Row="1" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button x:Name="btnStopPrint" Content="停止贴签" Click="ButtonStopPrint_Click" IsEnabled="False" Style="{StaticResource BaseButton}"/>
                     </StackPanel>
 
-                    <StackPanel Grid.Row="0" Grid.Column="5" Orientation="Horizontal" HorizontalAlignment="Center">
-                        <Button x:Name="btnUpdate" Width="120" Content="从Pivas同步医嘱" Margin="0,0,20,0 " Click="ButtonUpdate_Click"/>
+                    <StackPanel Grid.Row="2" Grid.Column="3" Orientation="Horizontal" HorizontalAlignment="Center" Margin="0,10,0,0">
+                        <Button x:Name="btnUpdate" Content="从Pivas同步医嘱" Style="{StaticResource BaseButton}" Click="ButtonUpdate_Click"/>
                     </StackPanel>
                 </Grid>
 

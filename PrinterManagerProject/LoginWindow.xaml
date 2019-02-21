@@ -7,14 +7,22 @@
         Style="{StaticResource MetroWindowStyle}"
         mc:Ignorable="d"
         Title="深圳壹达物联科技有限公司 智能贴签系统" Height="600" Width="800"  WindowStartupLocation="CenterScreen" ResizeMode="NoResize">
+    <Window.Resources>
+        <ResourceDictionary>
+            <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="Styles/ControlStyle.xaml" />
+            </ResourceDictionary.MergedDictionaries>
+        </ResourceDictionary>
+    </Window.Resources>
     <Grid Grid.Row="0">
         <Grid.Background>
             <ImageBrush ImageSource="Images/bg.jpg"/>
         </Grid.Background>
-        
+
         <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="212*"/>
-            <ColumnDefinition Width="541*"/>
+            <ColumnDefinition Width="75*"/>
+            <ColumnDefinition Width="80"/>
+            <ColumnDefinition Width="157*"/>
         </Grid.ColumnDefinitions>
 
         <Grid.RowDefinitions>
@@ -23,7 +31,7 @@
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
 
-        <Border Grid.Row="1" Width="400" Height="Auto" BorderBrush="SteelBlue" BorderThickness="1" CornerRadius="3" Grid.ColumnSpan="2" Margin="170,0,170,0">
+        <Border Grid.Row="1" Width="400" Height="Auto" BorderBrush="SteelBlue" BorderThickness="1" CornerRadius="3" Grid.ColumnSpan="3" Margin="199,0">
             <Border.Background>
                 <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
                     <GradientStop Color="White" Offset="0"/>
@@ -31,30 +39,30 @@
                 </LinearGradientBrush>
             </Border.Background>
             <StackPanel Orientation="Vertical">
-                <Label Grid.Row="0" Content="用户登录" FontWeight="Bold" Foreground="#333333" FontSize="22" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,10"/>
+                <Label Grid.Row="0" Content="用户登录" FontWeight="Bold" Foreground="#333333" FontSize="28" HorizontalAlignment="Center" VerticalAlignment="Center" Margin="0,20,0,10"/>
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="60" Content="操作员"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200" Height="20" Text="admin1" />
+                        <Label Width="80" Content="操作员" Style="{StaticResource controlLabel }"/>
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200"  Style="{StaticResource controlTextBox }" Text="admin1" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Width="60" Content="密码"/>
-                        <PasswordBox Width="200" x:Name="txtCZRPWD"  Height="20" Password="123456" />
+                        <Label Width="80" Content="密码" Style="{StaticResource controlLabel }"/>
+                        <PasswordBox Width="200" x:Name="txtCZRPWD" Style="{StaticResource controlPasswordBox }" Password="123456" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
-                        <Label Width="60" Content="审核员"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Height="20" Text="admin2" />
+                        <Label Width="80"  Content="审核员" Style="{StaticResource controlLabel }"/>
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Style="{StaticResource controlTextBox }" Text="admin2" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
-                        <Label Width="60" Content="密码"/>
-                        <PasswordBox Width="200" x:Name="txtSHRPWD" Height="20" Password="123456" />
+                        <Label Width="80"  Content="密码" Style="{StaticResource controlLabel }"/>
+                        <PasswordBox Width="200" x:Name="txtSHRPWD" Style="{StaticResource controlPasswordBox }" Password="123456" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20,10,0,30">
-                    <Button Name="btnLogin" Content="确定" Click="btnLogin_Click" Width="50" />
-                    <Button Name="btnCancel" Content="取消" Click="btnCancel_Click" Width="50" Margin="20,0,0,0" />
+                    <Button Name="btnLogin" Content="确定" Click="btnLogin_Click" Style="{StaticResource BaseButton }" />
+                    <Button Name="btnCancel" Content="取消" Click="btnCancel_Click" Margin="20 0 0 0" Style="{StaticResource BaseButton }" />
                 </StackPanel>
             </StackPanel>
         </Border>

@@ -38,7 +38,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 是否要连接设备
         /// </summary>
-        public static bool IsConnectDevices = true;
+        public static bool IsConnectDevices = false;
         private List<DrugsQueueModel> queue = new List<DrugsQueueModel>();
         private PrintTemplateModel model = null;
         private Connection connection = null;
@@ -353,10 +353,10 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"发送停止命令");
 
                 ResetPrinter();
-            }
 
-            lightListener.Stop();
-            warningListener.Stop();
+                lightListener.Stop();
+                warningListener.Stop();
+            }
 
             btnPrint.IsEnabled = true;
             btnStopPrint.IsEnabled = false;
