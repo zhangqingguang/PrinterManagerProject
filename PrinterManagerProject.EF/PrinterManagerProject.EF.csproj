@@ -66,6 +66,7 @@
     <Compile Include="Bll\ZHYManager.cs" />
     <Compile Include="Bll\OrderManager.cs" />
     <Compile Include="Bll\UserManager.cs" />
+    <Compile Include="Compare\IOrderMainDrugCompare.cs" />
     <Compile Include="DataSync.cs" />
     <Compile Include="IDal\BaseDALL.cs" />
     <Compile Include="IDal\IDALL.cs" />
@@ -144,5 +145,6 @@
       <Name>PrinterManagerProject.DBUtility</Name>
     </ProjectReference>
   </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

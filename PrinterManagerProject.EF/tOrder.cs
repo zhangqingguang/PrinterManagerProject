@@ -81,5 +81,6 @@ namespace PrinterManagerProject.EF
         public string CheckUserName { get; set; }
         public string is_print_snv { get; set; }
         public string barcode { get; set; }
+        public string ydrug_id { get; set; }
     }
 }

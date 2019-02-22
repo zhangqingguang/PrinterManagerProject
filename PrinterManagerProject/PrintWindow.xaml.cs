@@ -38,7 +38,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 是否要连接设备
         /// </summary>
-        public static bool IsConnectDevices = true;
+        public static bool IsConnectDevices = false;
         private List<DrugsQueueModel> queue = new List<DrugsQueueModel>();
         private PrintTemplateModel model = null;
         private Connection connection = null;
@@ -254,7 +254,6 @@ namespace PrinterManagerProject
             try
             {
                 myEventLog.LogInfo("开始同步医嘱");
-                this.btnUpdate.Content = "正在同步...";
                 this.btnUpdate.IsEnabled = false;
                 new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
                 myEventLog.LogInfo("医嘱同步完成");
@@ -268,7 +267,6 @@ namespace PrinterManagerProject
             finally
             {
                 this.btnUpdate.IsEnabled = true;
-                this.btnUpdate.Content = "从Pivas同步医嘱";
             }
 
             LoadData();
@@ -354,10 +352,10 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"发送停止命令");
 
                 ResetPrinter();
-            }
 
-            lightListener.Stop();
-            warningListener.Stop();
+                lightListener.Stop();
+                warningListener.Stop();
+            }
 
             btnPrint.IsEnabled = true;
             btnStopPrint.IsEnabled = false;
@@ -382,33 +380,6 @@ namespace PrinterManagerProject
         private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             LoadData();
-
-
-            ////  根据tab选择要操作的数据源
-            //List<tOrder> currentSourceList = null;
-            //switch (tabMain.SelectedIndex)
-            //{
-            //    case 1:
-
-            //        // 绑定显示的列表
-            //        handlerPrintCurrentList = handlerPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
-            //        dgv_ManualPrint.EnableRowVirtualization = false;
-            //        dgv_ManualPrint.DataContext = handlerPrintCurrentList;
-            //        dgv_ManualPrint.ItemsSource = handlerPrintCurrentList;
-
-            //        break;
-            //    case 0:
-            //    default:
-
-            //        // 绑定显示的列表
-            //        autoPrintCurrentList = autoPrintList.FindAll(m => m.batch == this.cb_batch.SelectedValue + "").ToList();
-            //        dgv_AllPrint.EnableRowVirtualization = false;
-            //        dgv_AllPrint.DataContext = autoPrintCurrentList;
-            //        dgv_AllPrint.ItemsSource = autoPrintCurrentList;
-
-            //        break;
-            //}
-
         }
         #endregion
 
@@ -1407,7 +1378,9 @@ namespace PrinterManagerProject
         {
             // 通过扫描出来的信息对比数据源，查找匹配的数据，如果查询到则发指令调整机器大小，否则1#位剔除
             var queueIds = queue.Where(s => s.Drug != null).Select(s => s.Drug.Id).ToList();
-            return autoPrintList.FirstOrDefault(m => queueIds.Contains(m.Id) == false && m.printing_status == PrintStatusEnum.NotPrint && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
+            return autoPrintList.Where(m => queueIds.Contains(m.Id) == false && m.printing_status == PrintStatusEnum.NotPrint && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]))
+                // 按照主药进行打印
+                .OrderBy(s=>s.ydrug_name).FirstOrDefault();
             //            if (autoPrintCurrentList.Any()==false)
             //            {
             //#warning 调用线程无法访问此对象
@@ -1753,6 +1726,7 @@ namespace PrinterManagerProject
             }
             else
             {
+                //qModel.Drug = new tOrder();
                 myEventLog.LogInfo($"将空液体信息插入队列");
             }
             // 添加到队列
@@ -2065,6 +2039,8 @@ namespace PrinterManagerProject
         #endregion
 
         #region 数据源加载绑定
+
+        private ObservableCollection<tOrder> datasource = new ObservableCollection<tOrder>();
         /// <summary>
         /// 
         /// </summary>
@@ -2089,25 +2065,33 @@ namespace PrinterManagerProject
             if (string.IsNullOrEmpty(batch))
             {
                 // 选中请选择时，清空数据
-                autoPrintList = new ObservableCollection<tOrder>();
+                datasource = new ObservableCollection<tOrder>();
             }
             else
             {
-                autoPrintList = string.IsNullOrEmpty(batch) ? new ObservableCollection<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
+                datasource = string.IsNullOrEmpty(batch) ? new ObservableCollection<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
             }
+            autoPrintList = datasource;
 
-            BindDurgSummary(autoPrintList);
+            // 绑定药品分类下拉框
             BindDrugType(autoPrintList);
+            // 绑定科室下拉框
             BindDepartment(autoPrintList);
+            // 绑定主药下拉框
             BindMainDrug(autoPrintList);
+
+            // 绑定右边溶媒汇总列表
+            BindDurgSummary(autoPrintList);
+            // 绑定待贴签列表
             BindAllList(autoPrintList);
-            BindSummaryLabels();
+            // 绑定统计数字
+            GetSummaryLabels();
             //autoPrintList.Where(s => s.printing_model == PrintModelEnum.Manual)
             //BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual));
         }
 
 
-        private void BindSummaryLabels()
+        private void GetSummaryLabels()
         {
             countModel.TotalCount = autoPrintList.Count();
             //var autoPrintTotalCount = autoPrintList.Count();
@@ -2123,7 +2107,9 @@ namespace PrinterManagerProject
 
             UpdateSummaryLabel();
         }
-
+        /// <summary>
+        /// 绑定统计数字
+        /// </summary>
         private void UpdateSummaryLabel()
         {
 
@@ -2142,7 +2128,10 @@ namespace PrinterManagerProject
                 //spcViewPanel.lbl_manual3.Content = manualNotPrintedCount;
             });
         }
-
+        /// <summary>
+        /// 绑定右边溶媒统计
+        /// </summary>
+        /// <param name="dataSource"></param>
         private void BindDurgSummary(ObservableCollection<tOrder> dataSource)
         {
             //绑定右（溶媒统计）列表
@@ -2163,7 +2152,10 @@ namespace PrinterManagerProject
             int markNumber = solventlist.Sum(m => m.MarkNumber);
             lblMarkNumber.Content = markNumber;
         }
-
+        /// <summary>
+        /// 绑定药品分类下拉框
+        /// </summary>
+        /// <param name="dataSource"></param>
         private void BindDrugType(ObservableCollection<tOrder> dataSource)
         {
             // 绑定药品分类
@@ -2173,7 +2165,10 @@ namespace PrinterManagerProject
             this.cb_drug_category.SelectedValuePath = "class_name";
             this.cb_drug_category.ItemsSource = drugCategoryList;
         }
-
+        /// <summary>
+        /// 绑定科室下拉框
+        /// </summary>
+        /// <param name="dataSource"></param>
         private void BindDepartment(ObservableCollection<tOrder> dataSource)
         {
             // 绑定科室
@@ -2184,22 +2179,53 @@ namespace PrinterManagerProject
             this.cb_dept.ItemsSource = deptList;
         }
         /// <summary>
-        /// 绑定主药
+        /// 绑定主药下拉框
         /// </summary>
         /// <param name="dataSource"></param>
         private void BindMainDrug(ObservableCollection<tOrder> dataSource)
         {
             // 绑定主药
-            var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
-            drugList.Insert(0, new { ydrug_name = "全部", ydrug_id = "" });
+            var drugIds = dataSource.Select(s=>s.ydrug_id).Distinct().ToList();
+            DrugManager drugManager = new DrugManager();
+            var drugList = drugManager.GetAll(s => drugIds.Contains(s.drug_code))
+                .OrderBy(s=>s.drug_name)
+                .ThenBy(s=>s.drug_form)
+                .ThenBy(s=>s.drug_spec)
+                .Select(s=>new
+                {
+                    ydrug_id = s.drug_code,
+                    ydrug_name=s.drug_name+" "+s.drug_spec +" "+s.drug_form
+                }).ToList();
+            //var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
+            drugList.Insert(0, new { ydrug_id = "" , ydrug_name = "全部"});
             this.cb_drug.DisplayMemberPath = "ydrug_name";
             this.cb_drug.SelectedValuePath = "ydrug_id";
             this.cb_drug.ItemsSource = drugList;
         }
-
+        /// <summary>
+        /// 待贴签列表绑定
+        /// </summary>
+        /// <param name="dataSource"></param>
         private void BindAllList(ObservableCollection<tOrder> dataSource)
         {
             this.dgv_AllPrint.ItemsSource = dataSource;
+            //var query = dataSource.AsQueryable();
+            //// 科室
+            //if (cb_dept.SelectedItem!=null && string.IsNullOrEmpty(cb_dept.SelectedItem.ToString()))
+            //{
+            //    query.Where(s => s.department_code == cb_dept.SelectedItem.ToString());
+            //}
+            //// 主药分组
+            //if (cb_drug.SelectedItem != null && string.IsNullOrEmpty(cb_drug.SelectedItem.ToString()))
+            //{
+            //    query.Where(s => s.ydrug_name == cb_drug.SelectedItem.ToString());
+            //}
+            //// 药品分类
+            //if (cb_drug_category.SelectedItem != null && string.IsNullOrEmpty(cb_drug_category.SelectedItem.ToString()))
+            //{
+            //    query.Where(s => s.ydrug_class_name == cb_drug_category.SelectedItem.ToString());
+            //}
+            //this.dgv_AllPrint.ItemsSource = query.ToList();
         }
         private void BindManualList(ObservableCollection<tOrder> dataSource)
         {

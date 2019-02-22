@@ -46,6 +46,7 @@
           <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
           <Property Name="RowNumber" Type="int" Nullable="false" />
           <Property Name="drug_id" Type="varchar" MaxLength="20" />
+          <Property Name="ydrug_id" Type="varchar" MaxLength="20" />
           <Property Name="drug_number" Type="varchar" MaxLength="20" />
           <Property Name="drug_name" Type="varchar" MaxLength="100" />
           <Property Name="ydrug_name" Type="varchar" MaxLength="100" />
@@ -384,6 +385,7 @@
           <Property Name="CheckUserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ydrug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -506,6 +508,7 @@
           <EntitySetMapping Name="tOrders">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrder">
               <MappingFragment StoreEntitySet="tOrder">
+                <ScalarProperty Name="ydrug_id" ColumnName="ydrug_id" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="is_print_snv" ColumnName="is_print_snv" />
                 <ScalarProperty Name="CheckUserName" ColumnName="CheckUserName" />

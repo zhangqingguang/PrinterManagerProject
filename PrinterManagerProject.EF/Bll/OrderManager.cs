@@ -36,8 +36,8 @@ namespace PrinterManagerProject.EF
                     new DataSync().SyncOrder(dateTime);
                 }
             }
-
-            var list =  query.ToList();
+            // 列表按照医嘱组号、用药时间排序
+            var list =  query.OrderBy(s=>s.group_num).ThenBy(s=>s.use_time).ToList();
             ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
             foreach (var order in list)
             {

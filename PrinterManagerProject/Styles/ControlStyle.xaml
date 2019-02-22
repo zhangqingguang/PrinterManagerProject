@@ -7,7 +7,7 @@
     </Style>
     <Style x:Key="BaseButton" TargetType="{x:Type Button}">
         <Setter Property="Height" Value="55" />
-        <Setter Property="FontSize" Value="28" />
+        <Setter Property="FontSize" Value="24" />
         <Setter Property="Padding" Value="40 0" />
     </Style>
     <Style x:Key="controlTextBox" TargetType="{x:Type TextBox}">
@@ -19,7 +19,7 @@
         <Setter Property="FontSize" Value="20" />
     </Style>
     <Style x:Key="controlComboBox" TargetType="{x:Type ComboBox}">
-        <Setter Property="Height" Value="45" />
-        <Setter Property="FontSize" Value="30" />
+        <Setter Property="Height" Value="32" />
+        <Setter Property="FontSize" Value="20" />
     </Style>
 </ResourceDictionary>

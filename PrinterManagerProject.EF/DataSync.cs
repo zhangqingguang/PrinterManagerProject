@@ -114,6 +114,7 @@ namespace PrinterManagerProject.EF
 
                         order.ydrug_class_name = item.drug_class_name;
                         order.ydrug_name = item.drug_name;
+                        order.ydrug_id = item.drug_id;
                         order.ydrug_spec = item.drug_spec;
                         order.RowNumber = number++;
                         order.printing_status = 0;
