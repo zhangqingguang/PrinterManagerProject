@@ -44,6 +44,8 @@ namespace PrinterManagerProject
         private Connection connection = null;
         private ZebraPrinter printer = null;
         private SummaryCountModel countModel = new SummaryCountModel();
+        private WarningManager warningManager = new WarningManager();
+
 
         #region 列表数据对象
         /// <summary>
@@ -1088,6 +1090,7 @@ namespace PrinterManagerProject
                 else if (data.Length == CCDSerialPortData.CCD1_ERROR.Length)
                 {
 
+                    #region 设置串口状态
                     // 这里设置显示串口正常
                     Dispatcher.Invoke(() =>
                     {
@@ -1101,13 +1104,12 @@ namespace PrinterManagerProject
                         Label label2 = spcViewPanel.FindName("lblCCD2") as Label;
                         label2.Content = "CCD2通讯正常";
                     });
+                    #endregion
 
-                    StringBuilder b = new StringBuilder();
-
-                    b.AppendLine(string.Format("{0}：开始处理", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
                     string[] datas = data.Split(' ');
 
+                    #region 过滤拍照超时，记录CCD1拍照次数，停止CCD超时计时
                     int ccd1Count = 0;
                     if (datas[1] == "A1")
                     {
@@ -1139,6 +1141,11 @@ namespace PrinterManagerProject
                             return;
                         }
                     }
+                    #endregion
+
+                    StringBuilder b = new StringBuilder();
+
+                    b.AppendLine(string.Format("{0}：开始处理", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
 
                     b.AppendLine(string.Format("{0}：分割完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
                     // 数据正确
@@ -1148,6 +1155,7 @@ namespace PrinterManagerProject
                         // CCD1的反馈
                         if (datas[1] == "A1")
                         {
+                            #region 处理CCD1数据
                             //string mlCmd1 = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
 
                             //myEventLog.LogInfo($"向PLC发送液体大小命令：{mlCmd1}");
@@ -1244,11 +1252,14 @@ namespace PrinterManagerProject
                                 SendCCD1Out();
                             }
 
-                            new LogHelper().PrinterLog(b.ToString());
+                            new LogHelper().PrinterLog(b.ToString()); 
+                            #endregion
                         }
                         // CCD2的反馈
                         else if (datas[1] == "A3")
                         {
+                            #region 处理CCD2数据
+
                             //myEventLog.LogInfo("收到CCD2识别成功命令");
                             //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_PASS);
                             //Success();
@@ -1268,28 +1279,32 @@ namespace PrinterManagerProject
 
                             bool success = true;
                             DrugsQueueModel model = queue.FirstOrDefault();
-                            if (model != null)
+                            if (model != null && model.Drug!=null)
                             {
+
                                 // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
                                 if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
                                 {
                                     if (string.IsNullOrEmpty(model.ScanData))
                                     {
                                         myEventLog.LogInfo($"CCD2失败，未扫描到二维码{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1],WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                     }
                                     else
                                     if (model.ScanData != model.QRData)
                                     {
                                         myEventLog.LogInfo($"CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                     }
 
                                     if (!model.Drug.drug_name.Contains(spec[0]))
                                     {
                                         myEventLog.LogInfo($"CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}-{spec[1]}");
-                                    }
-                                    if (!model.Drug.drug_spec.Contains(spec[1]))
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                    }else if (!model.Drug.drug_spec.Contains(spec[1]))
                                     {
                                         myEventLog.LogInfo($"CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                     }
                                     success = false;
                                 }
@@ -1306,33 +1321,34 @@ namespace PrinterManagerProject
                                         UpdateSummaryLabel();
 
                                         // 处理到数据源
-                                        tOrder autoPrintModel = autoPrintList.Where(m => m.Id == model.Drug.Id).FirstOrDefault();
-                                        if (autoPrintModel != null)
-                                        {
-                                            // 2#位通过
-                                            myEventLog.LogInfo($"发送CCD2继续命令");
-                                            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009013459**");  //1Y:CCD2继续
-                                            SetCCD2IsNotBusy();
+                                        tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
+                                        // 2#位通过
+                                        myEventLog.LogInfo($"发送CCD2继续命令");
+                                        PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009013459**");  //1Y:CCD2继续
+                                        SetCCD2IsNotBusy();
 
-                                            // 回写数据
-                                            PrintSuccess(autoPrintModel, batchNumber);
-                                            // --- 设置为CCD2识别通过的状态 ---
-                                            Success();
+                                        // 回写数据
+                                        PrintSuccess(autoPrintModel, batchNumber);
+                                        // --- 设置为CCD2识别通过的状态 ---
+                                        Success();
 
-                                            myEventLog.LogInfo($"数据回写成功：Id={autoPrintModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                            myEventLog.LogInfo($"CCD2成功");
-                                        }
-                                        else
-                                        {
-                                            success = false;
-                                            myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                        }
+                                        myEventLog.LogInfo($"数据回写成功：Id={autoPrintModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                        myEventLog.LogInfo($"CCD2成功");
+                                        //if (autoPrintModel != null)
+                                        //{
+                                        //}
+                                        //else
+                                        //{
+                                        //    success = false;
+                                        //    myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                        //}
                                     }
                                     else // 数据库操作失败
                                     {
                                         // --- 删除对比失败的信息 ---
                                         myEventLog.LogInfo($"数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                                         myEventLog.LogInfo($"CCD2失败 数据回写失败");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                         success = false;
                                     }
                                 }
@@ -1341,6 +1357,7 @@ namespace PrinterManagerProject
                             {
                                 myEventLog.LogInfo($"CCD2失败，队列中无数据");
                                 success = false;
+                                warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.NotInQueue, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                             }
                             if (success == false)
                             {
@@ -1354,7 +1371,8 @@ namespace PrinterManagerProject
                                 // --- 删除对比失败的信息 ---
                                 RemoveCCD2Valid();
                             }
-                        }
+                        } 
+                        #endregion
                     }
                     // 数据错误
                     else
@@ -2039,8 +2057,12 @@ namespace PrinterManagerProject
         #endregion
 
         #region 数据源加载绑定
-
+        /// <summary>
+        /// 以日期和批次改变时获取的医嘱数据
+        /// </summary>
         private ObservableCollection<tOrder> datasource = new ObservableCollection<tOrder>();
+
+        private bool ddlBinding = false;
         /// <summary>
         /// 
         /// </summary>
@@ -2073,6 +2095,8 @@ namespace PrinterManagerProject
             }
             autoPrintList = datasource;
 
+            ddlBinding = true;
+
             // 绑定药品分类下拉框
             BindDrugType(autoPrintList);
             // 绑定科室下拉框
@@ -2080,6 +2104,21 @@ namespace PrinterManagerProject
             // 绑定主药下拉框
             BindMainDrug(autoPrintList);
 
+            ddlBinding = false;
+
+            BindDgvs();
+        }
+
+        /// <summary>
+        /// 绑定列表
+        /// </summary>
+        private void BindDgvs()
+        {
+            if (ddlBinding)
+            {
+                return;
+            }
+            FilterOrder();
             // 绑定右边溶媒汇总列表
             BindDurgSummary(autoPrintList);
             // 绑定待贴签列表
@@ -2088,9 +2127,67 @@ namespace PrinterManagerProject
             GetSummaryLabels();
             //autoPrintList.Where(s => s.printing_model == PrintModelEnum.Manual)
             //BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual));
+            BindWarning();
         }
 
+        /// <summary>
+        /// 根据科室、药品分组、药品分类
+        /// </summary>
+        private void FilterOrder()
+        {
+            var hasCondition = false;
+            var query = datasource.AsQueryable();
+            // 科室
+            if (cb_dept.SelectedValue != null && string.IsNullOrEmpty(cb_dept.SelectedValue.ToString())==false)
+            {
+                query= query.Where(s => s.department_code == cb_dept.SelectedValue.ToString());
+                hasCondition = true;
+            }
+            // 主药分组
+            if (cb_drug.SelectedValue != null && string.IsNullOrEmpty(cb_drug.SelectedValue.ToString()) == false)
+            {
+                query = query.Where(s => s.ydrug_id == cb_drug.SelectedValue.ToString());
+                hasCondition = true;
+            }
+            // 药品分类
+            if (cb_drug_category.SelectedValue != null && string.IsNullOrEmpty(cb_drug_category.SelectedValue.ToString()) == false)
+            {
+                query = query.Where(s => s.ydrug_class_name == cb_drug_category.SelectedValue.ToString());
+                hasCondition = true;
+            }
+            if (hasCondition)
+            {
+                autoPrintList = new ObservableCollection<tOrder>();
 
+                foreach (var order in query.ToList())
+                {
+                    autoPrintList.Add(order);
+                }
+            }
+            else
+            {
+                autoPrintList = datasource;
+            }
+        }
+
+        /// <summary>
+        /// 绑定异常信息
+        /// </summary>
+        private void BindWarning()
+        {
+            var date = use_date.SelectedDate?.ToString("yyyy-MM-dd");
+            var batch = cb_batch.SelectedValue?.ToString() ?? "";
+            var dept = cb_dept.SelectedValue?.ToString() ?? "";
+            var drugClass = cb_drug_category.SelectedValue?.ToString() ?? "";
+            var mainDrug = cb_drug.SelectedValue?.ToString() ?? "";
+            
+            var list = warningManager.GetWarning(date, batch, dept, drugClass, mainDrug);
+            dgv_PrintError.ItemsSource = list;
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
         private void GetSummaryLabels()
         {
             countModel.TotalCount = autoPrintList.Count();
@@ -2107,6 +2204,7 @@ namespace PrinterManagerProject
 
             UpdateSummaryLabel();
         }
+
         /// <summary>
         /// 绑定统计数字
         /// </summary>
@@ -2128,6 +2226,7 @@ namespace PrinterManagerProject
                 //spcViewPanel.lbl_manual3.Content = manualNotPrintedCount;
             });
         }
+
         /// <summary>
         /// 绑定右边溶媒统计
         /// </summary>
@@ -2152,6 +2251,8 @@ namespace PrinterManagerProject
             int markNumber = solventlist.Sum(m => m.MarkNumber);
             lblMarkNumber.Content = markNumber;
         }
+
+        #region 绑定下拉框
         /// <summary>
         /// 绑定药品分类下拉框
         /// </summary>
@@ -2159,11 +2260,18 @@ namespace PrinterManagerProject
         private void BindDrugType(ObservableCollection<tOrder> dataSource)
         {
             // 绑定药品分类
-            var drugCategoryList = dataSource.GroupBy(m => new { m.ydrug_class_name }).Select(a => new { class_name = a.Key.ydrug_class_name }).ToList();
-            drugCategoryList.Insert(0, new { class_name = "全部" });
+            var drugCategoryList = dataSource
+                .GroupBy(m => new { m.ydrug_class_name })
+                .Select(a => new { class_name = a.Key.ydrug_class_name, ydrug_id= a.Key.ydrug_class_name })
+                .ToList()
+                .Select(a => new { class_name = a.class_name.Trim(), ydrug_id = a.ydrug_id.Trim() })
+                .Distinct()
+                .ToList();
+            drugCategoryList.Insert(0, new { class_name = "全部", ydrug_id =""});
             this.cb_drug_category.DisplayMemberPath = "class_name";
-            this.cb_drug_category.SelectedValuePath = "class_name";
+            this.cb_drug_category.SelectedValuePath = "ydrug_id";
             this.cb_drug_category.ItemsSource = drugCategoryList;
+            this.cb_drug_category.SelectedIndex = 0;
         }
         /// <summary>
         /// 绑定科室下拉框
@@ -2173,10 +2281,11 @@ namespace PrinterManagerProject
         {
             // 绑定科室
             var deptList = dataSource.GroupBy(m => new { m.departmengt_name, m.department_code }).Select(a => new { dept_name = a.Key.departmengt_name, dept_code = a.Key.department_code }).ToList();
-            deptList.Insert(0, new { dept_name = "全部", dept_code = "0" });
+            deptList.Insert(0, new { dept_name = "全部", dept_code = "" });
             this.cb_dept.DisplayMemberPath = "dept_name";
             this.cb_dept.SelectedValuePath = "dept_code";
             this.cb_dept.ItemsSource = deptList;
+            this.cb_dept.SelectedIndex = 0;
         }
         /// <summary>
         /// 绑定主药下拉框
@@ -2185,23 +2294,26 @@ namespace PrinterManagerProject
         private void BindMainDrug(ObservableCollection<tOrder> dataSource)
         {
             // 绑定主药
-            var drugIds = dataSource.Select(s=>s.ydrug_id).Distinct().ToList();
+            var drugIds = dataSource.Select(s => s.ydrug_id).Distinct().ToList();
             DrugManager drugManager = new DrugManager();
             var drugList = drugManager.GetAll(s => drugIds.Contains(s.drug_code))
-                .OrderBy(s=>s.drug_name)
-                .ThenBy(s=>s.drug_form)
-                .ThenBy(s=>s.drug_spec)
-                .Select(s=>new
+                .OrderBy(s => s.drug_name)
+                .ThenBy(s => s.drug_form)
+                .ThenBy(s => s.drug_spec)
+                .Select(s => new
                 {
                     ydrug_id = s.drug_code,
-                    ydrug_name=s.drug_name+" "+s.drug_spec +" "+s.drug_form
+                    ydrug_name = s.drug_name + " " + s.drug_spec + " " + s.drug_form
                 }).ToList();
             //var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
-            drugList.Insert(0, new { ydrug_id = "" , ydrug_name = "全部"});
+            drugList.Insert(0, new { ydrug_id = "", ydrug_name = "全部" });
             this.cb_drug.DisplayMemberPath = "ydrug_name";
             this.cb_drug.SelectedValuePath = "ydrug_id";
             this.cb_drug.ItemsSource = drugList;
-        }
+            this.cb_drug.SelectedIndex = 0;
+        } 
+        #endregion
+
         /// <summary>
         /// 待贴签列表绑定
         /// </summary>
@@ -2209,23 +2321,6 @@ namespace PrinterManagerProject
         private void BindAllList(ObservableCollection<tOrder> dataSource)
         {
             this.dgv_AllPrint.ItemsSource = dataSource;
-            //var query = dataSource.AsQueryable();
-            //// 科室
-            //if (cb_dept.SelectedItem!=null && string.IsNullOrEmpty(cb_dept.SelectedItem.ToString()))
-            //{
-            //    query.Where(s => s.department_code == cb_dept.SelectedItem.ToString());
-            //}
-            //// 主药分组
-            //if (cb_drug.SelectedItem != null && string.IsNullOrEmpty(cb_drug.SelectedItem.ToString()))
-            //{
-            //    query.Where(s => s.ydrug_name == cb_drug.SelectedItem.ToString());
-            //}
-            //// 药品分类
-            //if (cb_drug_category.SelectedItem != null && string.IsNullOrEmpty(cb_drug_category.SelectedItem.ToString()))
-            //{
-            //    query.Where(s => s.ydrug_class_name == cb_drug_category.SelectedItem.ToString());
-            //}
-            //this.dgv_AllPrint.ItemsSource = query.ToList();
         }
         private void BindManualList(ObservableCollection<tOrder> dataSource)
         {
@@ -2246,6 +2341,20 @@ namespace PrinterManagerProject
 
         #endregion
 
+        private void Cb_dept_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BindDgvs();
+        }
+
+        private void Cb_drug_category_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BindDgvs();
+        }
+
+        private void Cb_drug_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            BindDgvs();
+        }
     }
 
 }

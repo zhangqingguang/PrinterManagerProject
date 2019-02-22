@@ -364,17 +364,17 @@
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal">
                         <Label Content="科室" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
-                        <ComboBox x:Name="cb_dept" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
+                        <ComboBox x:Name="cb_dept" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}" SelectionChanged="Cb_dept_OnSelectionChanged">
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Row="1" Grid.Column="1" Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Content="药品分类" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
-                        <ComboBox x:Name="cb_drug_category" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
+                        <ComboBox x:Name="cb_drug_category" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}" SelectionChanged="Cb_drug_category_OnSelectionChanged">
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                         <Label Content="主药分组" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
-                        <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}">
+                        <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}" SelectionChanged="Cb_drug_OnSelectionChanged">
                         </ComboBox>
                     </StackPanel>
                     <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">

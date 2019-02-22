@@ -123,6 +123,83 @@
           <Property Name="type_name" Type="nvarchar" MaxLength="50" />
           <Property Name="createtime" Type="datetime" />
         </EntityType>
+        <EntityType Name="tWarning">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="int" StoreGeneratedPattern="Identity" Nullable="false" />
+          <Property Name="OrderId" Type="int" />
+          <Property Name="RowNumber" Type="int" Nullable="false" />
+          <Property Name="drug_id" Type="varchar" MaxLength="20" />
+          <Property Name="ydrug_id" Type="varchar" MaxLength="20" />
+          <Property Name="drug_number" Type="varchar" MaxLength="20" />
+          <Property Name="drug_name" Type="varchar" MaxLength="100" />
+          <Property Name="ydrug_name" Type="varchar" MaxLength="100" />
+          <Property Name="drug_weight" Type="varchar" MaxLength="20" />
+          <Property Name="drug_spmc" Type="varchar" MaxLength="100" />
+          <Property Name="drug_class_name" Type="varchar" MaxLength="50" />
+          <Property Name="ydrug_class_name" Type="varchar" MaxLength="50" />
+          <Property Name="drug_spec" Type="varchar" MaxLength="50" />
+          <Property Name="ydrug_spec" Type="varchar" MaxLength="50" />
+          <Property Name="usage_id" Type="varchar" MaxLength="50" />
+          <Property Name="use_org" Type="varchar" MaxLength="10" />
+          <Property Name="use_count" Type="varchar" MaxLength="20" />
+          <Property Name="durg_use_sp" Type="varchar" MaxLength="20" />
+          <Property Name="drug_use_units" Type="varchar" MaxLength="10" />
+          <Property Name="use_frequency" Type="varchar" MaxLength="20" />
+          <Property Name="use_date" Type="varchar" MaxLength="10" />
+          <Property Name="use_time" Type="varchar" MaxLength="10" />
+          <Property Name="stop_date_time" Type="varchar" MaxLength="23" />
+          <Property Name="start_date_time" Type="varchar" MaxLength="23" />
+          <Property Name="order_sub_no" Type="varchar" MaxLength="20" />
+          <Property Name="order_type" Type="varchar" MaxLength="10" />
+          <Property Name="icatrepeat_indorm" Type="varchar" MaxLength="4" />
+          <Property Name="new_orders" Type="int" />
+          <Property Name="yebz" Type="int" />
+          <Property Name="special_medicationtip" Type="varchar" MaxLength="100" />
+          <Property Name="size_specification" Type="int" />
+          <Property Name="pass_remark" Type="varchar" MaxLength="100" />
+          <Property Name="patient_id" Type="varchar" MaxLength="20" />
+          <Property Name="doctor_name" Type="varchar" MaxLength="30" />
+          <Property Name="patient_name" Type="varchar" MaxLength="50" />
+          <Property Name="batch" Type="varchar" MaxLength="20" />
+          <Property Name="departmengt_name" Type="varchar" MaxLength="50" />
+          <Property Name="department_code" Type="varchar" MaxLength="50" />
+          <Property Name="zone" Type="int" />
+          <Property Name="visit_id" Type="varchar" MaxLength="20" />
+          <Property Name="group_num" Type="varchar" MaxLength="20" />
+          <Property Name="sum_num" Type="varchar" MaxLength="20" />
+          <Property Name="ml_speed" Type="int" />
+          <Property Name="create_date" Type="varchar" MaxLength="23" />
+          <Property Name="order_status" Type="varchar" MaxLength="4" />
+          <Property Name="is_twice_print" Type="int" />
+          <Property Name="checker" Type="varchar" MaxLength="20" />
+          <Property Name="deliveryer" Type="varchar" MaxLength="20" />
+          <Property Name="config_person" Type="varchar" MaxLength="20" />
+          <Property Name="config_date" Type="varchar" MaxLength="23" />
+          <Property Name="usage_name" Type="varchar" MaxLength="50" />
+          <Property Name="bed_number" Type="varchar" MaxLength="20" />
+          <Property Name="basket_number" Type="int" />
+          <Property Name="printing_status" Type="int" />
+          <Property Name="printing_model" Type="int" />
+          <Property Name="printing_time" Type="datetime" />
+          <Property Name="sbatches" Type="varchar" MaxLength="20" />
+          <Property Name="electroni_signature" Type="int" />
+          <Property Name="is_cpfh" Type="varchar" MaxLength="2" />
+          <Property Name="is_sf" Type="varchar" MaxLength="2" />
+          <Property Name="age" Type="varchar" MaxLength="10" />
+          <Property Name="is_db" Type="varchar" MaxLength="2" />
+          <Property Name="config_name" Type="varchar" MaxLength="20" />
+          <Property Name="PrintUserId" Type="int" />
+          <Property Name="PrintUserName" Type="nvarchar" MaxLength="50" />
+          <Property Name="CheckUserId" Type="int" />
+          <Property Name="CheckUserName" Type="nvarchar" MaxLength="50" />
+          <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
+          <Property Name="WarningState" Type="varchar" MaxLength="50" />
+          <Property Name="detection_drug_name" Type="varchar" MaxLength="100" />
+          <Property Name="detection_drug_spec" Type="varchar" MaxLength="50" />
+          <Property Name="barcode" Type="varchar" MaxLength="100" />
+        </EntityType>
         <EntityType Name="tZHY">
           <Key>
             <PropertyRef Name="Id" />
@@ -191,6 +268,7 @@
           <EntitySet Name="tDrug" EntityType="Self.tDrug" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="tOrder" EntityType="Self.tOrder" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="tUser" EntityType="Self.tUser" Schema="dbo" store:Type="Tables" />
+          <EntitySet Name="tWarning" EntityType="Self.tWarning" Schema="dbo" store:Type="Tables" />
           <EntitySet Name="tZHY" EntityType="Self.tZHY" Schema="dbo" store:Type="Tables" />
         </EntityContainer>
       </Schema></edmx:StorageModels>
@@ -215,6 +293,7 @@
           <EntitySet Name="tZHies" EntityType="PrintTagDbModel.tZHY" />
           <EntitySet Name="tDepts" EntityType="PrintTagDbModel.tDept" />
           <EntitySet Name="tOrders" EntityType="PrintTagDbModel.tOrder" />
+          <EntitySet Name="tWarnings" EntityType="PrintTagDbModel.tWarning" />
         </EntityContainer>
         <EntityType Name="tBatch">
           <Key>
@@ -386,6 +465,83 @@
           <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ydrug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+        </EntityType>
+        <EntityType Name="tWarning">
+          <Key>
+            <PropertyRef Name="Id" />
+          </Key>
+          <Property Name="Id" Type="Int32" Nullable="false" annotation:StoreGeneratedPattern="Identity" />
+          <Property Name="OrderId" Type="Int32" />
+          <Property Name="RowNumber" Type="Int32" Nullable="false" />
+          <Property Name="drug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ydrug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="drug_number" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="drug_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="ydrug_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="drug_weight" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="drug_spmc" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="drug_class_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ydrug_class_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="ydrug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="usage_id" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="use_org" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="use_count" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="durg_use_sp" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="drug_use_units" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="use_frequency" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="use_date" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="use_time" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="stop_date_time" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
+          <Property Name="start_date_time" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
+          <Property Name="order_sub_no" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="order_type" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="icatrepeat_indorm" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="new_orders" Type="Int32" />
+          <Property Name="yebz" Type="Int32" />
+          <Property Name="special_medicationtip" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="size_specification" Type="Int32" />
+          <Property Name="pass_remark" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="patient_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="doctor_name" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="patient_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="batch" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="departmengt_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="department_code" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="zone" Type="Int32" />
+          <Property Name="visit_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="group_num" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="sum_num" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="ml_speed" Type="Int32" />
+          <Property Name="create_date" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
+          <Property Name="order_status" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="is_twice_print" Type="Int32" />
+          <Property Name="checker" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="deliveryer" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="config_person" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="config_date" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
+          <Property Name="usage_name" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="bed_number" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="basket_number" Type="Int32" />
+          <Property Name="printing_status" Type="Int32" />
+          <Property Name="printing_model" Type="Int32" />
+          <Property Name="printing_time" Type="DateTime" Precision="3" />
+          <Property Name="sbatches" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="electroni_signature" Type="Int32" />
+          <Property Name="is_cpfh" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="is_sf" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="age" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="is_db" Type="String" MaxLength="2" FixedLength="false" Unicode="false" />
+          <Property Name="config_name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="PrintUserId" Type="Int32" />
+          <Property Name="PrintUserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="CheckUserId" Type="Int32" />
+          <Property Name="CheckUserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
+          <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
+          <Property Name="WarningState" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="detection_drug_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="detection_drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -575,6 +731,84 @@
                 <ScalarProperty Name="drug_number" ColumnName="drug_number" />
                 <ScalarProperty Name="drug_id" ColumnName="drug_id" />
                 <ScalarProperty Name="RowNumber" ColumnName="RowNumber" />
+                <ScalarProperty Name="Id" ColumnName="Id" />
+              </MappingFragment>
+            </EntityTypeMapping>
+          </EntitySetMapping>
+          <EntitySetMapping Name="tWarnings">
+            <EntityTypeMapping TypeName="PrintTagDbModel.tWarning">
+              <MappingFragment StoreEntitySet="tWarning">
+                <ScalarProperty Name="barcode" ColumnName="barcode" />
+                <ScalarProperty Name="detection_drug_spec" ColumnName="detection_drug_spec" />
+                <ScalarProperty Name="detection_drug_name" ColumnName="detection_drug_name" />
+                <ScalarProperty Name="WarningState" ColumnName="WarningState" />
+                <ScalarProperty Name="is_print_snv" ColumnName="is_print_snv" />
+                <ScalarProperty Name="CheckUserName" ColumnName="CheckUserName" />
+                <ScalarProperty Name="CheckUserId" ColumnName="CheckUserId" />
+                <ScalarProperty Name="PrintUserName" ColumnName="PrintUserName" />
+                <ScalarProperty Name="PrintUserId" ColumnName="PrintUserId" />
+                <ScalarProperty Name="config_name" ColumnName="config_name" />
+                <ScalarProperty Name="is_db" ColumnName="is_db" />
+                <ScalarProperty Name="age" ColumnName="age" />
+                <ScalarProperty Name="is_sf" ColumnName="is_sf" />
+                <ScalarProperty Name="is_cpfh" ColumnName="is_cpfh" />
+                <ScalarProperty Name="electroni_signature" ColumnName="electroni_signature" />
+                <ScalarProperty Name="sbatches" ColumnName="sbatches" />
+                <ScalarProperty Name="printing_time" ColumnName="printing_time" />
+                <ScalarProperty Name="printing_model" ColumnName="printing_model" />
+                <ScalarProperty Name="printing_status" ColumnName="printing_status" />
+                <ScalarProperty Name="basket_number" ColumnName="basket_number" />
+                <ScalarProperty Name="bed_number" ColumnName="bed_number" />
+                <ScalarProperty Name="usage_name" ColumnName="usage_name" />
+                <ScalarProperty Name="config_date" ColumnName="config_date" />
+                <ScalarProperty Name="config_person" ColumnName="config_person" />
+                <ScalarProperty Name="deliveryer" ColumnName="deliveryer" />
+                <ScalarProperty Name="checker" ColumnName="checker" />
+                <ScalarProperty Name="is_twice_print" ColumnName="is_twice_print" />
+                <ScalarProperty Name="order_status" ColumnName="order_status" />
+                <ScalarProperty Name="create_date" ColumnName="create_date" />
+                <ScalarProperty Name="ml_speed" ColumnName="ml_speed" />
+                <ScalarProperty Name="sum_num" ColumnName="sum_num" />
+                <ScalarProperty Name="group_num" ColumnName="group_num" />
+                <ScalarProperty Name="visit_id" ColumnName="visit_id" />
+                <ScalarProperty Name="zone" ColumnName="zone" />
+                <ScalarProperty Name="department_code" ColumnName="department_code" />
+                <ScalarProperty Name="departmengt_name" ColumnName="departmengt_name" />
+                <ScalarProperty Name="batch" ColumnName="batch" />
+                <ScalarProperty Name="patient_name" ColumnName="patient_name" />
+                <ScalarProperty Name="doctor_name" ColumnName="doctor_name" />
+                <ScalarProperty Name="patient_id" ColumnName="patient_id" />
+                <ScalarProperty Name="pass_remark" ColumnName="pass_remark" />
+                <ScalarProperty Name="size_specification" ColumnName="size_specification" />
+                <ScalarProperty Name="special_medicationtip" ColumnName="special_medicationtip" />
+                <ScalarProperty Name="yebz" ColumnName="yebz" />
+                <ScalarProperty Name="new_orders" ColumnName="new_orders" />
+                <ScalarProperty Name="icatrepeat_indorm" ColumnName="icatrepeat_indorm" />
+                <ScalarProperty Name="order_type" ColumnName="order_type" />
+                <ScalarProperty Name="order_sub_no" ColumnName="order_sub_no" />
+                <ScalarProperty Name="start_date_time" ColumnName="start_date_time" />
+                <ScalarProperty Name="stop_date_time" ColumnName="stop_date_time" />
+                <ScalarProperty Name="use_time" ColumnName="use_time" />
+                <ScalarProperty Name="use_date" ColumnName="use_date" />
+                <ScalarProperty Name="use_frequency" ColumnName="use_frequency" />
+                <ScalarProperty Name="drug_use_units" ColumnName="drug_use_units" />
+                <ScalarProperty Name="durg_use_sp" ColumnName="durg_use_sp" />
+                <ScalarProperty Name="use_count" ColumnName="use_count" />
+                <ScalarProperty Name="use_org" ColumnName="use_org" />
+                <ScalarProperty Name="usage_id" ColumnName="usage_id" />
+                <ScalarProperty Name="ydrug_spec" ColumnName="ydrug_spec" />
+                <ScalarProperty Name="drug_spec" ColumnName="drug_spec" />
+                <ScalarProperty Name="ydrug_class_name" ColumnName="ydrug_class_name" />
+                <ScalarProperty Name="drug_class_name" ColumnName="drug_class_name" />
+                <ScalarProperty Name="drug_spmc" ColumnName="drug_spmc" />
+                <ScalarProperty Name="drug_weight" ColumnName="drug_weight" />
+                <ScalarProperty Name="ydrug_name" ColumnName="ydrug_name" />
+                <ScalarProperty Name="drug_name" ColumnName="drug_name" />
+                <ScalarProperty Name="drug_number" ColumnName="drug_number" />
+                <ScalarProperty Name="ydrug_id" ColumnName="ydrug_id" />
+                <ScalarProperty Name="drug_id" ColumnName="drug_id" />
+                <ScalarProperty Name="RowNumber" ColumnName="RowNumber" />
+                <ScalarProperty Name="OrderId" ColumnName="OrderId" />
                 <ScalarProperty Name="Id" ColumnName="Id" />
               </MappingFragment>
             </EntityTypeMapping>

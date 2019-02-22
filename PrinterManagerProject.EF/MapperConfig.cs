@@ -16,6 +16,7 @@ namespace PrinterManagerProject.EF
             {
                 x.CreateMap<tZHY, tOrder>().ForMember(dto => dto.Id, opt => opt.Ignore());
                 x.CreateMap<tOrder, OrderModel>();
+                x.CreateMap<tOrder, tWarning>().ForMember(dto=>dto.OrderId,opt=>opt.MapFrom(s=>s.Id));
             });
         }
     }

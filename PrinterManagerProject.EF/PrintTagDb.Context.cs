@@ -31,5 +31,6 @@ namespace PrinterManagerProject.EF
         public virtual DbSet<tZHY> tZHies { get; set; }
         public virtual DbSet<tDept> tDepts { get; set; }
         public virtual DbSet<tOrder> tOrders { get; set; }
+        public virtual DbSet<tWarning> tWarnings { get; set; }
     }
 }
