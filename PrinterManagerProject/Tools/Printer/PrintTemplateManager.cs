@@ -46,7 +46,7 @@ namespace PrinterManagerProject.Tools
             //g.DrawImage(bmp, ConvertInt(tempConfig.BarCodeX), ConvertInt(tempConfig.BarCodeY), ConvertInt(tempConfig.BarCodeWidth), ConvertInt(tempConfig.BarCodeHeight));
             sb.Append(GetLabelCommand(order.patient_name, tempConfig.AreaFontSize, tempConfig.AreaFontX, tempConfig.AreaFontY));
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
-            sb.Append(GetLabelCommand("1/1", tempConfig.PageNumFontSize, tempConfig.PageNumFontX, tempConfig.PageNumFontY));
+            sb.Append(GetLabelCommand(order.is_print_snv, tempConfig.PageNumFontSize, tempConfig.PageNumFontX, tempConfig.PageNumFontY));
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));
             sb.Append(GetLabelCommand(order.group_num, tempConfig.DoctorAdviceFontSize, tempConfig.DoctorAdviceFontX, tempConfig.DoctorAdviceFontY));
             sb.Append(GetLabelCommand(order.bed_number, tempConfig.BedFontSize, tempConfig.BedFontX, tempConfig.BedFontY));
@@ -115,25 +115,21 @@ namespace PrinterManagerProject.Tools
 
         private string GetLabelCommand(string content, int fontSize, int x, int y)
         {
-            x = x * 3;
-            y = y * 3;
+            x = x * printMultiple;
+            y = y * printMultiple;
+
             int width = Convert.ToInt32(fontSize * 2.5);
             int height = Convert.ToInt32(fontSize * 2.5);
-            string fontName = "E:000.FNT";
-            //return $"^A@N,{height},{width},{fontName}^F8^FD{content}^FS";
+
             return $"^FO{x},{y}^AJN,{width},{height}^CI17^F8^FD{content}^FS";
         }
 
         private string GetBarCodeCommand(string content, int x, int y)
         {
-            x = x * 3;
-            y = y * 3;
+            x = x * printMultiple;
+            y = y * printMultiple;
 
-            return $@"
-^By3,3
-^FO{x},{y},^B7N,7,4,4,13,N
-^FDZebraZebraZebraZebraZebraZebra
-^FS";
+            return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
         }
 
 

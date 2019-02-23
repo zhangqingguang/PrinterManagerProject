@@ -78,6 +78,7 @@
     <Compile Include="Models\PrintStatusEnum.cs" />
     <Compile Include="Models\tOrder.cs" />
     <Compile Include="Models\WarningStateEnum.cs" />
+    <Compile Include="OrderConfig.cs" />
     <Compile Include="PrintTagDb.Context.cs">
       <AutoGen>True</AutoGen>
       <DesignTime>True</DesignTime>
