@@ -198,6 +198,7 @@
     <Compile Include="Tools\Printer\IPrinterManager.cs" />
     <Compile Include="Tools\Printer\PrintTemplateHelper.cs" />
     <Compile Include="Tools\Printer\DriveConnectionManager.cs" />
+    <Compile Include="Tools\Printer\PrintTemplateManager.cs" />
     <Compile Include="Tools\Printer\UsbConnectionManager.cs" />
     <Compile Include="Tools\Serial\PLCTest.cs" />
     <Compile Include="Tools\Serial\PLCReader.cs" />

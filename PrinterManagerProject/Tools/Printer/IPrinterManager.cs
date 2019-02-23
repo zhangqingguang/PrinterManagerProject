@@ -150,5 +150,18 @@ namespace PrinterManagerProject.Tools
             }
             return 0;
         }
+
+        internal void ResetPrinter()
+        {
+            if (TryOpenPrinterConnection())
+            {
+                if(printer != null)
+                {
+                    printer.Reset();
+
+                    printer = GetPrinter();
+                }
+            }
+        }
     }
 }

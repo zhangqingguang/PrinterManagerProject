@@ -13,6 +13,10 @@ namespace PrinterManagerProject.Models
     /// </summary>
     public class DrugsQueueModel
     {
+        /// <summary>
+        /// 插入队列中的顺序号
+        /// </summary>
+        public int Index = 1;
         #region 识别出的溶媒基本信息
         /// <summary>
         /// CCD1命令内容

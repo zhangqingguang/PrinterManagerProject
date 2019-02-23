@@ -15,6 +15,8 @@ using System.Windows.Input;
 using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Shapes;
+using PrinterManagerProject.EF;
+using PrinterManagerProject.EF.Models;
 using Zebra.Sdk.Comm;
 using Zebra.Sdk.Graphics;
 using Zebra.Sdk.Printer;
@@ -37,7 +39,8 @@ namespace PrinterManagerProject
             //ViewCard();
             //commandPrint();
             //PLCCommandTest();
-            ViewCard();
+            //ViewCard();
+            commandPrint();
         }
 
         private void PLCCommandTest()
@@ -130,19 +133,130 @@ namespace PrinterManagerProject
                 connection.Open();
                 var printer = ZebraPrinterFactory.GetInstance(connection);
 
-                var command = "^XAA@N,25,25,B:CYRILLIC.FNT^FO100,20^FS"
-                    + "^FDThis is a test.^FS"
-                    + "^A@N,50,50^FO200,40^FS"
-                    + "^FDThis string uses the B:Cyrillic.FNT^FS"
-                    + "^XZ";
+                var startTime = DateTime.Now;
+                var command = GetCommand();
+                Console.WriteLine($"生成打印命令花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
+                startTime = DateTime.Now;
 
                 printer.SendCommand(command);
+                Console.WriteLine($"打印内容发送成功！花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 connection.Close();
             }
             
+        }
+
+        private string GetCommand()
+        {
+            PrintTemplateModel model = new PrintTemplateHelper().GetConfig();
+
+            StringBuilder sb = new StringBuilder();
+            var orderManager = new OrderManager();
+            var order = orderManager.FirstOrDefault(s => true);
+            List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(order.Id);
+
+
+            //            var command = $@"^XA
+            //^CI17
+            //^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS
+            //^XZ";
+            sb.Append("^XA");
+            sb.Append("^CWJ,E:001.FNT^FS");
+            //sb.Append("^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS");
+            sb.Append(GetBarCodeCommand(order.barcode,model.BarCodeX,model.BarCodeY));
+            //g.DrawImage(bmp, ConvertInt(model.BarCodeX), ConvertInt(model.BarCodeY), ConvertInt(model.BarCodeWidth), ConvertInt(model.BarCodeHeight));
+            sb.Append(GetLabelCommand(order.patient_name, model.AreaFontSize, model.AreaFontX, model.AreaFontY));
+            sb.Append(GetLabelCommand(order.use_date, model.DateFontSize, model.DateFontX, model.DateFontY));
+            sb.Append(GetLabelCommand("1/1", model.PageNumFontSize, model.PageNumFontX, model.PageNumFontY));
+            sb.Append(GetLabelCommand("——————————————————————————", model.DrugsTitleFontSize, 0, model.SplitY-5));
+            sb.Append(GetLabelCommand(order.group_num, model.DoctorAdviceFontSize, model.DoctorAdviceFontX, model.DoctorAdviceFontY));
+            sb.Append(GetLabelCommand(order.bed_number, model.BedFontSize, model.BedFontX, model.BedFontY));
+            sb.Append(GetLabelCommand(order.patient_name, model.PatientFontSize, model.PatientFontX, model.PatientFontY));
+            sb.Append(GetLabelCommand("男", model.GenderFontSize, model.GenderFontX, model.GenderFontY));
+            sb.Append(GetLabelCommand(order.batch, model.BatchNumberFontSize, model.BatchNumberFontX, model.BatchNumberFontY));
+            sb.Append(GetLabelCommand(order.zone?.ToString(), model.SerialNumberFontSize, model.SerialNumberFontX, model.SerialNumberFontY));
+            //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.Split2X), ConvertInt(model.Split2Y)), new System.Drawing.Point(ConvertInt(model.Split2X + model.Split2Width), ConvertInt(model.Split2Y)));
+            sb.Append(GetLabelCommand("——————————————————————————", model.DrugsTitleFontSize, 0, model.Split2Y - 5));
+            sb.Append(GetLabelCommand("药品名称", model.DrugsTitleFontSize, model.DrugsTitleFontX, model.DrugsTitleFontY));
+            sb.Append(GetLabelCommand("用量", model.UseTitleFontSize, model.UseTitleFontX, model.UseTitleFontY));
+
+            //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.SplitX), ConvertInt(model.SplitY)), new System.Drawing.Point(ConvertInt(model.SplitX + model.SplitWidth), ConvertInt(model.SplitY)));
+            int x = model.DrugsContentFontX;
+            int y = model.DrugsContentFontY;
+            int u_x = model.UseValueFontX;
+            int u_y = model.UseValueFontY;
+
+            var paperWidth = model.PageWidth ;
+            var paperHeight = model.PageHeight ;
+
+            #region 药品列表
+            // 药品信息
+            for (int i = 0; i < drugs.Count; i++)
+            {
+                int fontHeight = model.DrugsContentFontSize;
+                int margin = 10;
+                float width = paperWidth - ConvertInt(80);
+                float height = fontHeight;
+                int row = (int)Math.Ceiling(height * order.drug_name.Length / width);
+                for (int j = 0; j < row; j++)
+                {
+                    height += j * fontHeight + margin;
+                }
+
+                // 药名
+                //g.DrawString(drug.drug_name, new Font(fontName, ConvertFontInt(model.DrugsContentFontSize)), bush, x, y);
+                sb.Append(GetLabelCommand(drugs[i].drug_name, model.DrugsContentFontSize, x, y));
+                //用量
+                //g.DrawString(drugs[i].use_count, new Font(fontName, ConvertFontInt(model.UseValueFontSize)), bush, u_x, u_y);
+                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), model.DrugsContentFontSize, u_x, u_y));
+
+                // 只修改Y轴，向下平铺
+                y += (int)height + margin;
+                u_y += (int)height + margin;
+            }
+            #endregion
+
+            sb.Append(GetLabelCommand($"处方医生：{order.doctor_name}", model.DoctorFontSize, model.DoctorFontX, model.DoctorFontY));
+            sb.Append(GetLabelCommand($"备注：{order.pass_remark}", model.RemarkFontSize, model.RemarkFontX, model.RemarkFontY));
+            sb.Append(GetLabelCommand($"滴速：{order.ml_speed}   {order.usage_name}   {order.use_frequency}({order.use_time})", model.SpeedFontSize, model.SpeedFontX, model.SpeedFontY));
+
+            //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.Split3X), ConvertInt(model.Split3Y)), new System.Drawing.Point(ConvertInt(model.Split3X + model.Split3Width), ConvertInt(model.Split3Y)));
+
+            sb.Append(GetLabelCommand("——————————————————————————", model.DrugsTitleFontSize, 0, model.Split3Y - 5));
+            sb.Append(GetLabelCommand($"审核：{order.checker}", model.ExamineFontSize, model.ExamineFontX, model.ExamineFontY));
+            sb.Append(GetLabelCommand($"复审：", model.ReviewFontSize, model.ReviewFontX, model.ReviewFontY));
+            sb.Append(GetLabelCommand($"排药：{order.deliveryer}", model.SortFontSize, model.SortFontX, model.SortFontY));
+            sb.Append(GetLabelCommand($"配液：{order.config_person}", model.DispensingFontSize, model.DispensingFontX, model.DispensingFontY));
+            sb.Append(GetLabelCommand($"配液：___时___分", model.DispensingDateFontSize, model.DispensingDateFontX, model.DispensingDateFontY));
+
+            sb.Append("^XZ");
+
+            return sb.ToString();
+        }
+
+        private string GetLabelCommand(string content,int fontSize,int x,int y)
+        {
+            x = x * 3;
+            y = y * 3;
+            int width =Convert.ToInt32( fontSize * 2.5);
+            int height = Convert.ToInt32(fontSize * 2.5);
+            string fontName = "E:000.FNT";
+            //return $"^A@N,{height},{width},{fontName}^F8^FD{content}^FS";
+            return $"^FO{x},{y}^AJN,{width},{height}^CI17^F8^FD{content}^FS";
+        }
+
+        private string GetBarCodeCommand(string content,int x,int y)
+        {
+            x = x * 3;
+            y = y * 3;
+
+            return $@"
+^By3,3
+^FO{x},{y},^B7N,7,4,4,13,N
+^FDZebraZebraZebraZebraZebraZebra
+^FS";
         }
 
 
@@ -281,7 +395,7 @@ namespace PrinterManagerProject
 
         private void Window_Closed(object sender, EventArgs e)
         {
-            this.Owner.Show();
+            this.Owner?.Show();
         }
     }
 }
