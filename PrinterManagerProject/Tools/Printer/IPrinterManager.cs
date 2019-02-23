@@ -21,6 +21,10 @@ namespace PrinterManagerProject.Tools
                 if(connection == null)
                 {
                     connection = GetConnection();
+                    if(connection == null)
+                    {
+                        return false;
+                    }
                 }
                 var startTime = DateTime.Now;
                 if (connection.Connected == false)
@@ -158,8 +162,10 @@ namespace PrinterManagerProject.Tools
                 if(printer != null)
                 {
                     printer.Reset();
+                    printer = null;
+                    connection = null;
 
-                    printer = GetPrinter();
+                    //printer = GetPrinter();
                 }
             }
         }

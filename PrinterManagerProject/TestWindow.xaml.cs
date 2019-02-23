@@ -183,11 +183,12 @@ namespace PrinterManagerProject
             sb.Append(GetLabelCommand("用量", model.UseTitleFontSize, model.UseTitleFontX, model.UseTitleFontY));
 
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.SplitX), ConvertInt(model.SplitY)), new System.Drawing.Point(ConvertInt(model.SplitX + model.SplitWidth), ConvertInt(model.SplitY)));
-            int x = model.DrugsContentFontX;
-            int y = model.DrugsContentFontY;
-            int u_x = model.UseValueFontX;
-            int u_y = model.UseValueFontY;
-
+            //int x = model.DrugsContentFontX;
+            //int y = model.DrugsContentFontY;
+            //int u_x = model.UseValueFontX;
+            //int u_y = model.UseValueFontY;
+            var margin = 10;
+            var height = model.DrugsContentFontY + margin;
             var paperWidth = model.PageWidth ;
             var paperHeight = model.PageHeight ;
 
@@ -196,25 +197,13 @@ namespace PrinterManagerProject
             for (int i = 0; i < drugs.Count; i++)
             {
                 int fontHeight = model.DrugsContentFontSize;
-                int margin = 10;
-                float width = paperWidth - ConvertInt(80);
-                float height = fontHeight;
-                int row = (int)Math.Ceiling(height * order.drug_name.Length / width);
-                for (int j = 0; j < row; j++)
-                {
-                    height += j * fontHeight + margin;
-                }
-
                 // 药名
-                //g.DrawString(drug.drug_name, new Font(fontName, ConvertFontInt(model.DrugsContentFontSize)), bush, x, y);
-                sb.Append(GetLabelCommand(drugs[i].drug_name, model.DrugsContentFontSize, x, y));
+                sb.Append(GetLabelCommand(drugs[i].drug_name, model.DrugsContentFontSize, model.DrugsContentFontX, height));
                 //用量
-                //g.DrawString(drugs[i].use_count, new Font(fontName, ConvertFontInt(model.UseValueFontSize)), bush, u_x, u_y);
-                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), model.DrugsContentFontSize, u_x, u_y));
+                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), model.DrugsContentFontSize, model.PageWidth-80, height));
 
                 // 只修改Y轴，向下平铺
-                y += (int)height + margin;
-                u_y += (int)height + margin;
+                height += model.DrugsContentFontSize + margin;
             }
             #endregion
 

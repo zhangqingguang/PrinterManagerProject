@@ -34,7 +34,8 @@ namespace PrinterManagerProject.Tools
             var orderManager = new OrderManager();
             List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(order.Id);
 
-
+            var startTime = DateTime.Now;
+            
             //            var command = $@"^XA
             //^CI17
             //^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS
@@ -60,11 +61,8 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand("用量", tempConfig.UseTitleFontSize, tempConfig.UseTitleFontX, tempConfig.UseTitleFontY));
 
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.SplitX), ConvertInt(tempConfig.SplitY)), new System.Drawing.Point(ConvertInt(tempConfig.SplitX + tempConfig.SplitWidth), ConvertInt(tempConfig.SplitY)));
-            int x = tempConfig.DrugsContentFontX;
-            int y = tempConfig.DrugsContentFontY;
-            int u_x = tempConfig.UseValueFontX;
-            int u_y = tempConfig.UseValueFontY;
-
+            var margin = 5;
+            var height = tempConfig.DrugsContentFontY + margin;
             var paperWidth = tempConfig.PageWidth;
             var paperHeight = tempConfig.PageHeight;
 
@@ -73,25 +71,13 @@ namespace PrinterManagerProject.Tools
             for (int i = 0; i < drugs.Count; i++)
             {
                 int fontHeight = tempConfig.DrugsContentFontSize;
-                int margin = 10;
-                float width = paperWidth - 240;
-                float height = fontHeight;
-                int row = (int)Math.Ceiling(height * order.drug_name.Length / width);
-                for (int j = 0; j < row; j++)
-                {
-                    height += j * fontHeight + margin;
-                }
-
                 // 药名
-                //g.DrawString(drug.drug_name, new Font(fontName, ConvertFontInt(tempConfig.DrugsContentFontSize)), bush, x, y);
-                sb.Append(GetLabelCommand(drugs[i].drug_name, tempConfig.DrugsContentFontSize, x, y));
+                sb.Append(GetLabelCommand(drugs[i].drug_name, tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
                 //用量
-                //g.DrawString(drugs[i].use_count, new Font(fontName, ConvertFontInt(tempConfig.UseValueFontSize)), bush, u_x, u_y);
-                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), tempConfig.DrugsContentFontSize, u_x, u_y));
+                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), tempConfig.DrugsContentFontSize, tempConfig.PageWidth - 80, height));
 
                 // 只修改Y轴，向下平铺
-                y += (int)height + margin;
-                u_y += (int)height + margin;
+                height += tempConfig.DrugsContentFontSize + margin;
             }
             #endregion
 
@@ -109,6 +95,7 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand($"配液：___时___分", tempConfig.DispensingDateFontSize, tempConfig.DispensingDateFontX, tempConfig.DispensingDateFontY));
 
             sb.Append("^XZ");
+            myEventLog.LogInfo($"生成打印模板命令时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
             return sb.ToString();
         }

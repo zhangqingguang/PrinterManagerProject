@@ -18,11 +18,11 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 收到拍照命令后CCD拍照等待时间
         /// </summary>
-        public static int CcdTakePhotoSleepTime = 10;
+        public static int CcdTakePhotoSleepTime = 75;
         /// <summary>
         /// CCD拍照结果超时时间
         /// </summary>
-        public static int CcdTakePhotoExpireTime = 1500;
+        public static int CcdTakePhotoExpireTime = 1000;
         /// <summary>
         /// CCD1拍照最大次数
         /// </summary>
@@ -30,7 +30,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 读取光幕信号间隔时间
         /// </summary>
-        public static int LightReaderIntervalTime = 100;
+        public static int LightReaderIntervalTime = 50;
         /// <summary>
         /// 读取警告信号间隔时间
         /// </summary>
