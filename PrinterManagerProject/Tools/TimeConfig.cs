@@ -12,6 +12,11 @@ namespace PrinterManagerProject.Tools
     public class AppConfig
     {
         /// <summary>
+        /// 收到光幕最小有效间隔时间，超过这个时间的光幕忽略
+        /// </summary>
+        internal static int LightTimeInterval=200;
+
+        /// <summary>
         /// 将CCD设为空闲状态等待时间
         /// </summary>
         public static int FreeCCDBusyState = 160;

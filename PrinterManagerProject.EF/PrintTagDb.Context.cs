@@ -12,6 +12,8 @@ namespace PrinterManagerProject.EF
     using System;
     using System.Data.Entity;
     using System.Data.Entity.Infrastructure;
+    using System.Data.Entity.Core.Objects;
+    using System.Linq;
     
     public partial class PrintTagDbEntities : DbContext
     {
@@ -32,5 +34,34 @@ namespace PrinterManagerProject.EF
         public virtual DbSet<tDept> tDepts { get; set; }
         public virtual DbSet<tOrder> tOrders { get; set; }
         public virtual DbSet<tWarning> tWarnings { get; set; }
+        public virtual DbSet<tOrderBak> tOrderBaks { get; set; }
+        public virtual DbSet<tWarningBak> tWarningBaks { get; set; }
+    
+        public virtual int P_BakHistoryData(string use_date)
+        {
+            var use_dateParameter = use_date != null ?
+                new ObjectParameter("use_date", use_date) :
+                new ObjectParameter("use_date", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_BakHistoryData", use_dateParameter);
+        }
+    
+        public virtual int P_InsertIntotOrderSelecttZHY(string use_date)
+        {
+            var use_dateParameter = use_date != null ?
+                new ObjectParameter("use_date", use_date) :
+                new ObjectParameter("use_date", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_InsertIntotOrderSelecttZHY", use_dateParameter);
+        }
+    
+        public virtual int P_UpdatetOrderFromtZHY(string use_date)
+        {
+            var use_dateParameter = use_date != null ?
+                new ObjectParameter("use_date", use_date) :
+                new ObjectParameter("use_date", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_UpdatetOrderFromtZHY", use_dateParameter);
+        }
     }
 }

@@ -74,7 +74,7 @@ namespace PrinterManagerProject.Tools
                 // 药名
                 sb.Append(GetLabelCommand(drugs[i].drug_name, tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
                 //用量
-                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0').TrimEnd('.'), tempConfig.DrugsContentFontSize, tempConfig.PageWidth - 80, height));
+                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0').TrimEnd('.'), tempConfig.DrugsContentFontSize, tempConfig.UseValueFontX, height));
 
                 // 只修改Y轴，向下平铺
                 height += tempConfig.DrugsContentFontSize + margin;

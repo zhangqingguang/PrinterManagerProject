@@ -22,23 +22,32 @@ namespace PrinterManagerProject.EF
         public ObservableCollection<tOrder> GetAllOrderByDateTime(DateTime dateTime,string batch)
         {
             var date = dateTime.ToString("yyyy-MM-dd");
-
-            var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date);
-            if (string.IsNullOrEmpty(batch) == false)
-            {
-                query = query.Where(s => s.batch == batch);
-            }
-
-            if (dateTime.Date >= DateTime.Now.Date)
-            {
-                if (DBContext.tOrders.Any(s => s.use_date == date)==false)
-                {
-                    new DataSync().SyncOrder(dateTime);
-                }
-            }
-            // 列表按照医嘱组号、用药时间排序
-            var list =  query.OrderBy(s=>s.group_num).ThenBy(s=>s.use_time).ToList();
+            List<tOrder> list = new List<tOrder>();
             ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
+            if (DateTime.Now.Date< DateTime.Now.AddDays(-1).Date)
+            {
+                // 从备份中获取数据
+                list = new OrderBakManager().GetAllOrderByDateTime(dateTime, batch);
+            }
+            else
+            {
+                var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date);
+                if (string.IsNullOrEmpty(batch) == false)
+                {
+                    query = query.Where(s => s.batch == batch);
+                }
+
+                if (dateTime.Date >= DateTime.Now.Date)
+                {
+                    if (DBContext.tOrders.Any(s => s.use_date == date) == false)
+                    {
+                        new DataSync().SyncOrder(dateTime);
+                    }
+                }
+                // 列表按照医嘱组号、用药时间排序
+                list = query.OrderBy(s => s.group_num).ThenBy(s => s.use_time).ToList();
+            }
+
             foreach (var order in list)
             {
                 oList.Add(order);

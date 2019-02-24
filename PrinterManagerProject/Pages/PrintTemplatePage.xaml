@@ -603,7 +603,7 @@
                         <Label Content="5%葡萄糖注射液[100ml](非PVC双阀)" FontSize="{Binding ElementName=sliderDrugsContentFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderUseValue" Canvas.Left="{Binding ElementName=txtUseValueFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtUseValueFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="100ml" FontWeight="Bold" FontSize="{Binding ElementName=sliderPageNumFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="1" FontWeight="Bold" FontSize="{Binding ElementName=sliderPageNumFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderDoctor" Canvas.Left="{Binding ElementName=txtDoctorFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDoctorFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="处方医生：张医生" FontSize="{Binding ElementName=sliderDoctorFontSize,Path=Value}" Padding="0"/>

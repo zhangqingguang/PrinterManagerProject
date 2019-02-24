@@ -86,7 +86,7 @@ namespace PrinterManagerProject
         /// <summary>
         /// 扫码枪光幕
         /// </summary>
-        private PLCReader scannerLightListener;
+        //private PLCReader scannerLightListener;
         //private PLCReader ccd2LightListener;
         //private PLCReader printLightListener; 
         #endregion
@@ -384,6 +384,7 @@ namespace PrinterManagerProject
             {
                 if (IsConnectDevices)
                 {
+#warning 需要添加Loading检测打印机状态
                     var printer = printerManager.GetPrinter();
                     if (printer == null)
                     {
@@ -409,13 +410,13 @@ namespace PrinterManagerProject
                     plcUtils.SendData("%01#WCSR00201**"); // 开始打印
                     myEventLog.LogInfo($"发送开始命令");
 
-                    if (lightListener == null || scannerLightListener == null)
+                    if (lightListener == null)
                     {
                         CreatePLCReader();
                     }
 
-                    lightListener.Start();
-                    scannerLightListener.Start();
+                    lightListener?.Start();
+                    //scannerLightListener.Start();
                 }
 
                 // 这里设置显示串口正常
@@ -442,18 +443,27 @@ namespace PrinterManagerProject
             StopUpdateControlState();
             if (IsConnectDevices)
             {
-                lightListener.Stop();
-                scannerLightListener.Stop();
+                lightListener?.Stop();
+                //scannerLightListener.Stop();
                 //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
                 PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00291**"); // 停止打印
                 myEventLog.LogInfo($"发送停止命令");
 
                 Task.Run(() => {
-                    var status = printerManager.GetPrinterStatus();
-                    if (status.labelsRemainingInBatch > 0)
+                    try
                     {
-                        printerManager.ResetPrinter();
-                        myEventLog.LogInfo($"停止时，打印机中有打印任务，重置打印机！");
+
+                        var status = printerManager.GetPrinterStatus();
+                        if (status.labelsRemainingInBatch > 0)
+                        {
+                            printerManager.ResetPrinter();
+                            myEventLog.LogInfo($"停止时，打印机中有打印任务，重置打印机！");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        myEventLog.LogError($"停止打印时，检测打印机任务数出错！",ex);
+
                     }
                 });
             }
@@ -1198,8 +1208,8 @@ namespace PrinterManagerProject
             //            }
             //return autoPrintCurrentList.Find(m => queueIds.Contains(m.Id) == false && m.drug_name.Contains(spec[0]) && m.drug_spec.Contains(spec[1]));
         }
-        int scannerLightCount = 0;
-        object scannerLightCountHelper = new object();
+        //int scannerLightCount = 0;
+        //object scannerLightCountHelper = new object();
 
         bool IsWarningShowing = false;
 
@@ -1211,7 +1221,7 @@ namespace PrinterManagerProject
         {
             try
             {
-                if (data.StartsWith("!") || data.StartsWith("%")==false)
+                if (data.StartsWith("%01!") || data.Contains("!") || data.StartsWith("%")==false)
                 {
                     // 异常信号
                     //myEventLog.LogInfo($"收到PLC异常信号:{data}。");
@@ -1226,15 +1236,17 @@ namespace PrinterManagerProject
                         var warning = dataArray[6];
                         var blockWarning = dataArray[7];
                         var printCardOutOfWarning = dataArray[8];
-                        var colorTapeOutOfWarning = dataArray[9];
+                        //var colorTapeOutOfWarning = dataArray[9];
                         var emptyWarning = dataArray[10];
                         var ccd1Status = dataArray[11];
                         var printStatus = dataArray[12];
                         var ccd2Status = dataArray[13];
+                        var scannerStatus = dataArray[9];
 
                         if (ccd1Status == '1' && ccd1IsBusy == false)
                         {
-                            if (AppConfig.MaxQueueCount!=0 && queue.Count() >= AppConfig.MaxQueueCount)
+                            prevCCD1Time = DateTime.Now;
+                            if (AppConfig.MaxQueueCount != 0 && queue.Count() >= AppConfig.MaxQueueCount)
                             {
                                 myEventLog.LogInfo($"PLC接收81信号，队列数量超过{AppConfig.MaxQueueCount}，不识别，剔除");
 
@@ -1260,6 +1272,7 @@ namespace PrinterManagerProject
 
                         if (ccd2Status == '1' && ccd2IsBusy == false)
                         {
+                            prevCCD2Time = DateTime.Now;
                             myEventLog.LogInfo($"PLC接收84信号，CCD2开始拍照");
                             ccd2IsBusy = true;
 
@@ -1279,6 +1292,11 @@ namespace PrinterManagerProject
                             GoToPrinterLight();
                         }
 
+                        if(scannerStatus == '1')
+                        {
+                            GoToScannerLight();
+                        }
+
                         if (IsWarningShowing == false &&(warning == '1' || blockWarning == '1'))
                         {
                             IsWarningShowing = true;
@@ -1294,14 +1312,14 @@ namespace PrinterManagerProject
                             IsWarningShowing = false;
                             //printerManager.ResetPrinter();
                         }
-                        else
-                        if (IsWarningShowing == false && colorTapeOutOfWarning == '1')
-                        {
-                            IsWarningShowing = true;
-                            MessageBox.Show("设备的打印机缺少色带，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                            //printerManager.ResetPrinter();
-                            IsWarningShowing = false;
-                        }
+                        //else
+                        //if (IsWarningShowing == false && colorTapeOutOfWarning == '1')
+                        //{
+                        //    IsWarningShowing = true;
+                        //    MessageBox.Show("设备的打印机缺少色带，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                        //    //printerManager.ResetPrinter();
+                        //    IsWarningShowing = false;
+                        //}
                         else
                         if (IsWarningShowing == false && emptyWarning == '1')
                         {
@@ -1313,7 +1331,7 @@ namespace PrinterManagerProject
                             || blockWarning == '1'
                             || printCardOutOfWarning == '1'
                             || printCardOutOfWarning == '1'
-                            || colorTapeOutOfWarning == '1'
+                            //|| colorTapeOutOfWarning == '1'
                             || emptyWarning == '1')
                         {
                             Stop();
@@ -1323,12 +1341,12 @@ namespace PrinterManagerProject
                 }
                 else if (data.Contains("$RD") && data.Length == "%01$RD000016".Length)
                 {
-                    // 读取扫码枪光幕计数器指令返回结果
-                    // 16进制数字
-                    var str = data.Substring(6, 4);
-                    // 0、1是低位，2、3是高位，转换成10进制数字
-                    int count = Convert.ToInt32(data.Substring(8, 2)+data.Substring(6, 2), 16);
-                    GoToScannerLight(count);
+                    //// 读取扫码枪光幕计数器指令返回结果
+                    //// 16进制数字
+                    //var str = data.Substring(6, 4);
+                    //// 0、1是低位，2、3是高位，转换成10进制数字
+                    //int count = Convert.ToInt32(data.Substring(8, 2)+data.Substring(6, 2), 16);
+                    //GoToScannerLight();
 
                 }
                 else if (data.Contains("$WC"))
@@ -1634,6 +1652,13 @@ namespace PrinterManagerProject
         /// </summary>
         private void GoToPrinterLight()
         {
+            if ((DateTime.Now - prevPrinterLightTime).TotalMilliseconds < AppConfig.LightTimeInterval)
+            {
+                myEventLog.LogInfo($"PLC接收82信号，信号重复，不做处理");
+                prevPrinterLightTime = DateTime.Now;
+                return;
+            }
+            prevPrinterLightTime = DateTime.Now;
             // 找到最后一个没有记录的进行记录
             lock (queueHelper)
             {
@@ -1649,45 +1674,34 @@ namespace PrinterManagerProject
                 }
             }
         }
+        DateTime prevScannerLightTime = DateTime.Now;
+        DateTime prevPrinterLightTime = DateTime.Now;
+        DateTime prevCCD1Time = DateTime.Now;
+        DateTime prevCCD2Time = DateTime.Now;
         /// <summary>
         /// 扫码枪光幕
         /// </summary>
-        private void GoToScannerLight(int count)
+        private void GoToScannerLight()
         {
-            // 找到最后一个没有记录的进行记录
+            if ((DateTime.Now- prevScannerLightTime).TotalMilliseconds < AppConfig.LightTimeInterval)
+            {
+                prevScannerLightTime = DateTime.Now;
+                return;
+            }
+            prevScannerLightTime = DateTime.Now;
             lock (queueHelper)
             {
-                if (scannerLightCount != count)
-                {
-                    myEventLog.LogInfo($"收到扫码枪光幕：{scannerLightCount}=>{count}");
-                }
-                else
-                {
-                    return;
-                }
                 if (queue.Any() == false)
                 {
-                    scannerLightCount = count;
-                    myEventLog.LogInfo($"队列中无数据，同步计数器：{scannerLightCount}=>{count}");
+                    myEventLog.LogInfo($"队列中无数据，不修改扫码枪计数！");
                     return;
                 }
-                foreach (var item in queue)
+                var model = queue.FirstOrDefault(s => s.ScannerLightScan == false);
+                if (model != null)
                 {
-                    if (item.ScannerLightScan)
-                    {
-                        continue;
-                    }
-                    item.ScannerLightScan = true;
-
-                    myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，记录过光幕状态，");
-
-                    scannerLightCount++;
-                    if (scannerLightCount == count)
-                    {
-                        break;
-                    }
+                    model.PrinterLightScan = true;
+                    myEventLog.LogInfo($"Index:{model.Index},过扫码枪光幕，记录过光幕状态，");
                 }
-                scannerLightCount = count;
                 //OrderQueueModel model = queue.Find(m => m.ScannerLightScan==false);
                 //if (model != null)
                 //{
@@ -1699,6 +1713,51 @@ namespace PrinterManagerProject
                 //    myEventLog.LogInfo($"过扫码枪光幕，队列中未找到扫码液体");
                 //}
             }
+            // 找到最后一个没有记录的进行记录
+            //lock (queueHelper)
+            //{
+            //    if (scannerLightCount != count)
+            //    {
+            //        myEventLog.LogInfo($"收到扫码枪光幕：{scannerLightCount}=>{count}");
+            //    }
+            //    else
+            //    {
+            //        return;
+            //    }
+            //    if (queue.Any() == false)
+            //    {
+            //        scannerLightCount = count;
+            //        myEventLog.LogInfo($"队列中无数据，同步计数器：{scannerLightCount}=>{count}");
+            //        return;
+            //    }
+            //    foreach (var item in queue)
+            //    {
+            //        if (item.ScannerLightScan)
+            //        {
+            //            continue;
+            //        }
+            //        item.ScannerLightScan = true;
+
+            //        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，记录过光幕状态，");
+
+            //        scannerLightCount++;
+            //        if (scannerLightCount == count)
+            //        {
+            //            break;
+            //        }
+            //    }
+            //    scannerLightCount = count;
+            //    //OrderQueueModel model = queue.Find(m => m.ScannerLightScan==false);
+            //    //if (model != null)
+            //    //{
+            //    //    myEventLog.LogInfo($"过扫码枪光幕，记录过光幕状态");
+            //    //    model.ScannerLightScan = true;
+            //    //}
+            //    //else
+            //    //{
+            //    //    myEventLog.LogInfo($"过扫码枪光幕，队列中未找到扫码液体");
+            //    //}
+            //}
         }
 
         #endregion
@@ -1788,8 +1847,8 @@ namespace PrinterManagerProject
             else
             {
                 PCLConnected = false;
-                lightListener.Stop();
-                scannerLightListener.Stop();
+                lightListener?.Stop();
+                //scannerLightListener.Stop();
             }
 
             // 这里设置显示串口连接成功
@@ -1804,9 +1863,9 @@ namespace PrinterManagerProject
 
         private void CreatePLCReader()
         {
-            lightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RCP8R0090R0095R0096R0097R0098R0170R0171R0173**");
+            lightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RCP8R0090R0095R0096R0007R0098R0170R0171R0173**");
             //warningListener = new PLCReader(this, AppConfig.WarningReaderIntervalTime, "%01#RCP5R0090R0095R0096R0097R0098**");
-            scannerLightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RDD0080400804**");
+            //scannerLightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RDD0071400714**");
         }
 
         public void OnScannerError(string msg)

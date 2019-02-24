@@ -59,6 +59,7 @@
     <Reference Include="System.Xml" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Bll\OrderBakManager.cs" />
     <Compile Include="Bll\WarningManager.cs" />
     <Compile Include="Bll\BatchManager.cs" />
     <Compile Include="Bll\ConnectionManager.cs" />
@@ -107,10 +108,16 @@
     <Compile Include="tOrder.cs">
       <DependentUpon>PrintTagDb.tt</DependentUpon>
     </Compile>
+    <Compile Include="tOrderBak.cs">
+      <DependentUpon>PrintTagDb.tt</DependentUpon>
+    </Compile>
     <Compile Include="tUser.cs">
       <DependentUpon>PrintTagDb.tt</DependentUpon>
     </Compile>
     <Compile Include="tWarning.cs">
+      <DependentUpon>PrintTagDb.tt</DependentUpon>
+    </Compile>
+    <Compile Include="tWarningBak.cs">
       <DependentUpon>PrintTagDb.tt</DependentUpon>
     </Compile>
     <Compile Include="tZHY.cs">
