@@ -11,7 +11,7 @@ namespace PrinterManagerProject.Models
     /// <summary>
     /// 药品队列模型
     /// </summary>
-    public class DrugsQueueModel
+    public class OrderQueueModel
     {
         /// <summary>
         /// 插入队列中的顺序号
@@ -47,11 +47,14 @@ namespace PrinterManagerProject.Models
         /// 二维码扫描到的数据
         /// </summary>
         public string ScanData { get; set; }
-
         /// <summary>
-        /// 去扫描扫码：过打印光幕时设置为true，
+        /// 打印机光幕扫描，
         /// </summary>
-        public bool GoToScan { get; set; }
+        public bool PrinterLightScan { get; set; }
+        /// <summary>
+        /// 扫码枪光幕扫描
+        /// </summary>
+        public bool ScannerLightScan { get; set; }
 
         /// <summary>
         /// CCD1拍照次数，CCD2的拍照次数不能超过CCD1的拍照次数

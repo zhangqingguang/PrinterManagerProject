@@ -35,68 +35,68 @@ namespace PrinterManagerProject
             //PLCSerialPortUtils.GetInstance(this).Open();
 
 
-            #region 读取打印机状态
+            //#region 读取打印机状态
 
-            if (ConnectionManager.CheckConnetionStatus()==false)
-            {
-                MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
+            //if (ConnectionManager.CheckConnetionStatus()==false)
+            //{
+            //    MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //}
 
 
-            if (PrintWindow.IsConnectDevices)
-            {
-                DiscoveredUsbPrinter usbPrinter = null;
-                List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
-                if (printers == null || printers.Count <= 0)
-                {
-                    MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
-                    return;
-                }
-                usbPrinter = printers[0];
+            //if (PrintWindow.IsConnectDevices)
+            //{
+            //    DiscoveredUsbPrinter usbPrinter = null;
+            //    List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
+            //    if (printers == null || printers.Count <= 0)
+            //    {
+            //        MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
+            //        return;
+            //    }
+            //    usbPrinter = printers[0];
 
-                connection = new UsbConnection(usbPrinter.Address);
-                try
-                {
-                    connection.Open();
-                    ZebraPrinter printer = ZebraPrinterFactory.GetInstance(connection);
+            //    connection = new UsbConnection(usbPrinter.Address);
+            //    try
+            //    {
+            //        connection.Open();
+            //        ZebraPrinter printer = ZebraPrinterFactory.GetInstance(connection);
 
-                    PrinterStatus printerStatus = printer.GetCurrentStatus();
-                    if (printerStatus.isReadyToPrint)
-                    {
-                        Console.WriteLine("Ready To Print");
-                    }
-                    else if (printerStatus.isPaused)
-                    {
-                        Console.WriteLine("Cannot Print because the printer is paused.");
-                    }
-                    else if (printerStatus.isHeadOpen)
-                    {
-                        Console.WriteLine("Cannot Print because the printer head is open.");
-                    }
-                    else if (printerStatus.isPaperOut)
-                    {
-                        Console.WriteLine("Cannot Print because the paper is out.");
-                    }
-                    else
-                    {
-                        Console.WriteLine("Cannot Print.");
-                    }
-                }
-                catch (ConnectionException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-                catch (ZebraPrinterLanguageUnknownException ex)
-                {
-                    Console.WriteLine(ex.ToString());
-                }
-                finally
-                {
-                    connection.Close();
-                }
-            }
+            //        PrinterStatus printerStatus = printer.GetCurrentStatus();
+            //        if (printerStatus.isReadyToPrint)
+            //        {
+            //            Console.WriteLine("Ready To Print");
+            //        }
+            //        else if (printerStatus.isPaused)
+            //        {
+            //            Console.WriteLine("Cannot Print because the printer is paused.");
+            //        }
+            //        else if (printerStatus.isHeadOpen)
+            //        {
+            //            Console.WriteLine("Cannot Print because the printer head is open.");
+            //        }
+            //        else if (printerStatus.isPaperOut)
+            //        {
+            //            Console.WriteLine("Cannot Print because the paper is out.");
+            //        }
+            //        else
+            //        {
+            //            Console.WriteLine("Cannot Print.");
+            //        }
+            //    }
+            //    catch (ConnectionException ex)
+            //    {
+            //        Console.WriteLine(ex.ToString());
+            //    }
+            //    catch (ZebraPrinterLanguageUnknownException ex)
+            //    {
+            //        Console.WriteLine(ex.ToString());
+            //    }
+            //    finally
+            //    {
+            //        connection.Close();
+            //    }
+            //}
 
-            #endregion
+            //#endregion
 
         }
 

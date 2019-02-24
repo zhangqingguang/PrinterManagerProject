@@ -273,16 +273,18 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            //myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
-            byte[] ReDatas = new byte[sp.BytesToRead];
-            sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
-            string result = Encoding.UTF8.GetString(ReDatas);
+            Task.Run(() => {
+                //myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+                byte[] ReDatas = new byte[sp.BytesToRead];
+                sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
+                string result = Encoding.UTF8.GetString(ReDatas);
 
-            //myEventLog.LogInfo($"PLC接收数据：{result},{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+                //myEventLog.LogInfo($"PLC接收数据：{result},{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
 
-            result = result.Replace("\r", "");
+                result = result.Replace("\r", "");
 
-            mSerialPortInterface.OnPLCDataReceived(result);
+                mSerialPortInterface.OnPLCDataReceived(result);
+            });
         }
 
         /// <summary>

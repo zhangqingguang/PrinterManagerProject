@@ -11,6 +11,8 @@ namespace PrinterManagerProject.Tools
 {
     public abstract class IPrinterManager
     {
+        object connectionHelper = new object();
+        object printerHelper = new object();
         private ConnectionA connection = null;
         private ZebraPrinter printer = null;
         public abstract ConnectionA GetConnection();
@@ -18,20 +20,23 @@ namespace PrinterManagerProject.Tools
         {
             try
             {
-                if(connection == null)
+                lock (connectionHelper)
                 {
-                    connection = GetConnection();
-                    if(connection == null)
+                    if (connection == null)
                     {
-                        return false;
+                        connection = GetConnection();
+                        if (connection == null)
+                        {
+                            return false;
+                        }
                     }
-                }
-                var startTime = DateTime.Now;
-                if (connection.Connected == false)
-                {
-                    connection.Open();
-                    myEventLog.LogInfo($"打开打印机连接花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                    myEventLog.LogInfo("成功打开打印机连接！");
+                    var startTime = DateTime.Now;
+                    if (connection.Connected == false)
+                    {
+                        connection.Open();
+                        myEventLog.LogInfo($"打开打印机连接花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                        myEventLog.LogInfo("成功打开打印机连接！");
+                    }
                 }
                 return true;
             }
@@ -53,12 +58,18 @@ namespace PrinterManagerProject.Tools
                 if (printer != null && printer.Connection.Connected == false)
                 {
                     myEventLog.LogInfo("Printer连接失败，重置Printer！");
-                    printer = null;
+
+                    lock (printerHelper)
+                    {
+                        printer = null;
+                    }
                 }
                 if (printer == null)
                 {
-                    printer = ZebraPrinterFactory.GetInstance(connection);
-
+                    lock (connectionHelper)
+                    {
+                        printer = ZebraPrinterFactory.GetInstance(connection);
+                    }
                 }
             }
             return printer;
@@ -67,18 +78,43 @@ namespace PrinterManagerProject.Tools
         /// 获取打印机状态
         /// </summary>
         /// <returns></returns>
-        public PrinterStatus GetPrinterStatus(ZebraPrinter printer)
+        public PrinterStatus GetPrinterStatus()
         {
-            if (printer == null)
+            lock (connectionHelper)
             {
-                printer = GetPrinter();
+                connection = null;
             }
 
-            if (printer != null)
+            lock (printerHelper)
             {
-                return printer.GetCurrentStatus();
+                printer = null;
             }
-            return null;
+            PrinterStatus printerStatus = null;
+            if (TryOpenPrinterConnection())
+            {
+                printer = GetPrinter();
+                if (printer != null)
+                {
+                    try
+                    {
+                        ZebraPrinterLinkOs linkOsPrinter = ZebraPrinterFactory.CreateLinkOsPrinter(printer);
+
+                        printerStatus = (linkOsPrinter != null) ? linkOsPrinter.GetCurrentStatus() : printer.GetCurrentStatus();
+
+                    }
+                    catch (Exception ex)
+                    {
+
+                        myEventLog.LogError("获取打印机状态出错！",ex);
+                    }
+                    finally
+                    {
+
+                    }
+                }
+            }
+
+            return printerStatus;
         }
         /// <summary>
         /// 初始化打印机并检测状态
@@ -90,7 +126,7 @@ namespace PrinterManagerProject.Tools
             try
             {
 
-                PrinterStatus printerStatus = GetPrinterStatus(null);
+                PrinterStatus printerStatus = GetPrinterStatus();
                 if (printerStatus == null)
                 {
                     return "打印机连接失败，请检查打印机是否连接到上位机";
@@ -137,7 +173,13 @@ namespace PrinterManagerProject.Tools
             }
             finally
             {
-                connection.Close();
+                if(connection!=null && connection.Connected)
+                {
+            lock (connectionHelper)
+                    {
+                        connection.Close();
+                    }
+                }
             }
             return errorMsg;
         }
@@ -147,11 +189,13 @@ namespace PrinterManagerProject.Tools
         /// <returns></returns>
         public int GetLabelsRemainingInBatch(ZebraPrinter printer)
         {
-            var status = GetPrinterStatus(printer);
+            var status = GetPrinterStatus();
             if (status != null)
             {
+                myEventLog.Log.Warn($"打印机中打印内容数量:{status.labelsRemainingInBatch}！");
                 return status.labelsRemainingInBatch;
             }
+            myEventLog.Log.Warn($"未获取到打印机中打印内容数量！");
             return 0;
         }
 
@@ -161,11 +205,18 @@ namespace PrinterManagerProject.Tools
             {
                 if(printer != null)
                 {
-                    printer.Reset();
-                    printer = null;
-                    connection = null;
+                    lock (printerHelper)
+                    {
+                        printer.Reset();
+                        printer = null;
+                    }
+            lock (connectionHelper)
+                    {
+                        connection = null;
+                    }
 
                     //printer = GetPrinter();
+                    myEventLog.Log.Warn("正在重置打印机状态！");
                 }
             }
         }
