@@ -344,6 +344,10 @@
     <Resource Include="Images\bg.jpg" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\Loading\Loading.csproj">
+      <Project>{4f01555f-f42b-4975-8cf1-e019db1c91f9}</Project>
+      <Name>Loading</Name>
+    </ProjectReference>
     <ProjectReference Include="..\PrinterManagerProject.EF\PrinterManagerProject.EF.csproj">
       <Project>{928e6d65-6fe4-429a-a587-a23d4e17d69d}</Project>
       <Name>PrinterManagerProject.EF</Name>

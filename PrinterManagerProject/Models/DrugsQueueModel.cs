@@ -60,5 +60,9 @@ namespace PrinterManagerProject.Models
         /// CCD1拍照次数，CCD2的拍照次数不能超过CCD1的拍照次数
         /// </summary>
         public int CCD1TakePhotoCount { get; set; }
+        /// <summary>
+        /// 发给PLC的规格代码
+        /// </summary>
+        public string SpecCmd { get; internal set; }
     }
 }

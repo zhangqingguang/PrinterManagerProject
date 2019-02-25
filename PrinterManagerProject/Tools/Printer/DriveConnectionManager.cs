@@ -23,7 +23,7 @@ namespace PrinterManagerProject.Tools
             List<DiscoveredPrinterDriver> printers = UsbDiscoverer.GetZebraDriverPrinters();
             if (printers == null || printers.Count <= 0)
             {
-                MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
+                //MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
                 myEventLog.LogInfo("没有检测到打印机，请检查打印机是否开启！");
                 return null;
             }

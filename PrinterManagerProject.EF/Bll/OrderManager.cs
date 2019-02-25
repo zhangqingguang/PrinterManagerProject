@@ -24,7 +24,7 @@ namespace PrinterManagerProject.EF
             var date = dateTime.ToString("yyyy-MM-dd");
             List<tOrder> list = new List<tOrder>();
             ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
-            if (DateTime.Now.Date< DateTime.Now.AddDays(-1).Date)
+            if (dateTime < DateTime.Now.AddDays(-1).Date)
             {
                 // 从备份中获取数据
                 list = new OrderBakManager().GetAllOrderByDateTime(dateTime, batch);
@@ -93,30 +93,22 @@ namespace PrinterManagerProject.EF
         /// <param name="id"></param>
         /// <param name="printModel"></param>
         /// <param name="sbatches"></param>
-        public bool PrintSuccess(int id, PrintModelEnum printModel, string sbatches,int czrUserId,string czrUserName,int shrUserId,string shrUserName)
+        public bool PrintSuccess(int id, PrintModelEnum printModel, string sbatches, int czrUserId, string czrUserName, int shrUserId, string shrUserName)
         {
-            try
-            {
-                var item = DBContext.tOrders.FirstOrDefault(s => s.Id == id);
-                item.printing_status = PrintStatusEnum.Success;
-                item.printing_model = printModel;
-                item.printing_time = DateTime.Now;
-                item.sbatches = "";
+            var item = DBContext.tOrders.FirstOrDefault(s => s.Id == id);
+            item.printing_status = PrintStatusEnum.Success;
+            item.printing_model = printModel;
+            item.printing_time = DateTime.Now;
+            item.sbatches = "";
 
-                item.PrintUserId = czrUserId;
-                item.PrintUserName = czrUserName;
-                item.CheckUserId = shrUserId;
-                item.CheckUserName = shrUserName;
-                
-                DBContext.SaveChanges();
+            item.PrintUserId = czrUserId;
+            item.PrintUserName = czrUserName;
+            item.CheckUserId = shrUserId;
+            item.CheckUserName = shrUserName;
 
-                return true;
-            }
-            catch (Exception e)
-            {
-                System.Console.WriteLine(e);
-                return false;
-            }
+            DBContext.SaveChanges();
+
+            return true;
         }
     }
 }

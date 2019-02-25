@@ -6,6 +6,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
+using AutoMapper;
 using PrinterManagerProject.EF.Models;
 
 namespace PrinterManagerProject.EF
@@ -21,8 +22,8 @@ namespace PrinterManagerProject.EF
         public List<tOrder> GetAllOrderByDateTime(DateTime dateTime, string batch)
         {
             var date = dateTime.ToString("yyyy-MM-dd");
-            List<tOrder> list = new List<tOrder>();
-            var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date);
+            List<tOrderBak> list = new List<tOrderBak>();
+            var query = DBContext.tOrderBaks.AsNoTracking().Where(s => s.use_date == date);
             if (string.IsNullOrEmpty(batch) == false)
             {
                 query = query.Where(s => s.batch == batch);
@@ -31,7 +32,7 @@ namespace PrinterManagerProject.EF
             // 列表按照医嘱组号、用药时间排序
             list = query.OrderBy(s => s.group_num).ThenBy(s => s.use_time).ToList();
 
-            return list;
+            return Mapper.Map<List<tOrder>>(list);
         }
     }
 }

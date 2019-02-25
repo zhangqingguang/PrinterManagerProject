@@ -42,7 +42,7 @@ namespace PrinterManagerProject.Tools
             }
             catch (Exception ex)
             {
-                MessageBox.Show("与打印机连接出错！");
+                //MessageBox.Show("与打印机连接出错！");
                 myEventLog.LogError("打开打印机连接出错！", ex);
                 return false;
             }

@@ -49,6 +49,10 @@ namespace PrinterManagerProject.Tools
         /// 队列中最大液体数
         /// </summary>
         public static int MaxQueueCount = 3;
+        /// <summary>
+        /// 队列中最大未打印液体数
+        /// </summary>
+        public static int MaxNotPrintQueueCount = 2;
 
     }
 }

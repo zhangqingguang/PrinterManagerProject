@@ -137,42 +137,35 @@ namespace PrinterManagerProject.EF
         {
             var useDateParam = new SqlParameter("@usedate", dateTime.ToString("yyyy-MM-dd"));
             var dataset = PivasDbHelperSQL.Query("select * from v_for_ydwl where use_date=@usedate", useDateParam);
-            try
+
+            var dt = dataset.Tables[0];
+            dt.Columns.Remove(dt.Columns["id"]);
+
+            dt.Columns.Add(new DataColumn("Id", typeof(Guid)));
+            foreach (DataRow dataRow in dt.Rows)
             {
-                var dt = dataset.Tables[0];
-                dt.Columns.Remove(dt.Columns["id"]);
-
-                dt.Columns.Add(new DataColumn("Id", typeof(Guid)));
-                foreach (DataRow dataRow in dt.Rows)
-                {
-                    dataRow["Id"] = Guid.NewGuid();
-                }
-
-                // tZHY:Pivas医嘱缓存表
-                // tOrder:待贴签医嘱表
-
-                // 删除原有数据
-                DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate", useDateParam);
-
-                // 添加新数据
-                DbHelperSQL.SqlBulkCopyByDataTable("tZHY", dataset.Tables[0]);
-
-                // 对比医嘱数据，将需要增加的医嘱信息添加到tOrder表中
-                DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate", useDateParam);
-
-                var bakDateParam = new SqlParameter("@usedate", OrderConfig.GetBakDate());
-
-                // 更新医嘱信息
-                DbHelperSQL.ExecuteSql("exec P_UpdatetOrderFromtZHY @usedate", bakDateParam);
-
-                // 备份历史数据
-                DbHelperSQL.ExecuteSql("exec P_BakHistoryData @usedate", bakDateParam);
-                #warning 需要判断是否新增医嘱、是否停药等
+                dataRow["Id"] = Guid.NewGuid();
             }
-            catch (Exception e)
-            {
-                System.Console.Write(e);
-            }
+
+            // tZHY:Pivas医嘱缓存表
+            // tOrder:待贴签医嘱表
+
+            // 删除原有数据
+            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate", useDateParam);
+
+            // 添加新数据
+            DbHelperSQL.SqlBulkCopyByDataTable("tZHY", dataset.Tables[0]);
+
+            // 对比医嘱数据，将需要增加的医嘱信息添加到tOrder表中
+            DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate", useDateParam);
+
+            var bakDateParam = new SqlParameter("@usedate", OrderConfig.GetBakDate());
+
+            // 更新医嘱信息
+            DbHelperSQL.ExecuteSql("exec P_UpdatetOrderFromtZHY @usedate", bakDateParam);
+
+            // 备份历史数据
+            DbHelperSQL.ExecuteSql("exec P_BakHistoryData @usedate", bakDateParam);
         }
     }
 }

@@ -382,55 +382,109 @@ namespace PrinterManagerProject
 
             if (tabMain.SelectedIndex == 0)
             {
-                if (IsConnectDevices)
-                {
-#warning 需要添加Loading检测打印机状态
-                    var printer = printerManager.GetPrinter();
-                    if (printer == null)
+                Task.Run(() => {
+
+                    Dispatcher.Invoke(() => {
+                        loadMask.LoadingText = "正在检测打印机...";
+                        loadMask.Visibility = Visibility.Visible;
+                    });
+                    if (IsConnectDevices == false || CheckPrinterStatus())
                     {
-                        myEventLog.LogInfo("Printer连接失败！");
-                        //MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
-                        return;
+                        Dispatcher.Invoke(() => {
+                            loadMask.Visibility = Visibility.Hidden;
+                        });
+                        var printer = printerManager.GetPrinter();
+                        var status = printer.GetCurrentStatus();
+                        if (status.labelsRemainingInBatch > 0)
+                        {
+                            myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
+                            // 打印机中有打印任务的，重置打印机
+                            printerManager.ResetPrinter();
+                            MessageBox.Show("打印机正在启动，请稍后再试！");
+                            return;
+                        }
+                        // 先关再开
+                        PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
+                        //plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
+                        //plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                        plcUtils.SendData("%01#WCSR00291**"); // 停止打印
+                        myEventLog.LogInfo($"发送停止命令");
+
+                        plcUtils.SendData("%01#WCSR00201**"); // 开始打印
+                        myEventLog.LogInfo($"发送开始命令");
+
+                        if (lightListener == null)
+                        {
+                            CreatePLCReader();
+                        }
+
+                        lightListener?.Start();
+
+                        StartUpdateControlState();
+
+                        SetCCD1IsNotBusy();
+                        SetCCD2IsNotBusy();
                     }
-                    var status = printer.GetCurrentStatus();
-                    if (status.labelsRemainingInBatch > 0)
+                    else
                     {
-                        myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
-                        // 打印机中有打印任务的，重置打印机
-                        printerManager.ResetPrinter();
+                        Dispatcher.Invoke(() => {
+                            loadMask.Visibility = Visibility.Hidden;
+                        });
+                        MessageBox.Show("无法连接到打印机，请检查打印机是否开启！");
                     }
-
-                    // 先关再开
-                    PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
-                    //plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
-                    //plcUtils.SendData(PLCSerialPortData.MACHINE_START);
-                    plcUtils.SendData("%01#WCSR00291**"); // 停止打印
-                    myEventLog.LogInfo($"发送停止命令");
-
-                    plcUtils.SendData("%01#WCSR00201**"); // 开始打印
-                    myEventLog.LogInfo($"发送开始命令");
-
-                    if (lightListener == null)
-                    {
-                        CreatePLCReader();
-                    }
-
-                    lightListener?.Start();
-                    //scannerLightListener.Start();
-                }
-
+                });
+                //scannerLightListener.Start();
                 // 这里设置显示串口正常
-
-                StartUpdateControlState();
-
-                SetCCD1IsNotBusy();
-                SetCCD2IsNotBusy();
-                
             }
             else
             {
                 MessageBox.Show("当前标签页面不能自动打印！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
             }
+        }
+        /// <summary>
+        /// 检查打印机状态
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckPrinterStatus()
+        {
+            var printerConnected = true;
+            try
+            {
+                var tryConnectionTimes = 0;
+
+                while (printerManager.TryOpenPrinterConnection() == false)
+                {
+                    tryConnectionTimes++;
+                    if (tryConnectionTimes >= 5)
+                    {
+                        printerConnected = false;
+                        break;
+                    }
+
+                    Thread.Sleep(1000);
+                }
+                tryConnectionTimes = 0;
+
+                while (printerConnected == true && printerManager.GetPrinter() == null)
+                {
+                    tryConnectionTimes++;
+                    if (tryConnectionTimes >= 5)
+                    {
+                        printerConnected = false;
+                        break;
+                    }
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                myEventLog.LogError("尝试连接打印机出错", ex);
+            }
+            finally
+            {
+            }
+            
+            return printerConnected;
         }
 
         private void ButtonStopPrint_Click(object sender, RoutedEventArgs e)
@@ -675,7 +729,6 @@ namespace PrinterManagerProject
             myEventLog.LogInfo($"CCD1开始计时");
             CCDSerialPortUtils.GetInstance(this).SendData(CCDSerialPortData.TAKE_PICTURE1);
             ccd1StartTime = DateTime.Now;
-
         }
         /// <summary>
         /// 停止CCD1计时
@@ -744,7 +797,7 @@ namespace PrinterManagerProject
         {
 
             //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT1_OUT);
-            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090000900324E**");  // 1N:CCD1剔除
+            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090100901324E**");  // 1N:CCD1剔除
             myEventLog.LogInfo($"发送CCD1剔除命令");
             SetCCD1IsNotBusy();
         }
@@ -761,7 +814,7 @@ namespace PrinterManagerProject
         {
 
             //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.DOT2_OUT);DOT2_PASS
-            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090100901344E**"); //4N：CCD2剔除
+            PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD0090000900344E**"); //4N：CCD2剔除
             myEventLog.LogInfo($"发送CCD2剔除命令");
             SetCCD2IsNotBusy();
         }
@@ -1014,7 +1067,10 @@ namespace PrinterManagerProject
                                 startTime = DateTime.Now;
 
                                 myEventLog.LogInfo($"发送CCD1继续命令");
-                                if (PLCSerialPortUtils.GetInstance(this).SendData($"%01#WDD00900009003{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}**")) // 71-78
+                                var currentCmdData = $"3{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}";
+                                var specCmdData = GetSepcData(currentCmdData);
+
+                                if (PLCSerialPortUtils.GetInstance(this).SendData($"%01#WDD0090100903{specCmdData}**")) // 71-78
                                 {
                                     myEventLog.LogInfo($"CCD1命令发送成功花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     startTime = DateTime.Now;
@@ -1026,7 +1082,7 @@ namespace PrinterManagerProject
                                     startTime = DateTime.Now;
 
                                     //插入到队列中
-                                    AddQueue(currentOrder, data, spec[0], spec[1]);
+                                    AddQueue(currentOrder, data, spec[0], spec[1], currentCmdData);
                                     myEventLog.LogInfo($"插入队列花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     b.AppendLine(string.Format("{0}：打印过程完成",
                                         DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
@@ -1037,7 +1093,7 @@ namespace PrinterManagerProject
                                     myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
 
                                     // 入队空信息，占位
-                                    AddQueue(null, null, null, null);
+                                    AddQueue(null, null, null, null,"");
                                 }
 
                                 //}
@@ -1118,8 +1174,17 @@ namespace PrinterManagerProject
                                 if (success == true)
                                 {
                                     // 修改到数据库，修改失败则判为失败
-
-                                    if (orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name))
+                                    bool updateDataSuccess = false;
+                                    try
+                                    {
+                                        orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                        updateDataSuccess = true;
+                                    }
+                                    catch (Exception ex)
+                                    {
+                                        myEventLog.LogError($"更新到数据库出错",ex);
+                                    }
+                                    if (updateDataSuccess)
                                     {
                                         myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
                                         countModel.AutoCount++;
@@ -1131,7 +1196,7 @@ namespace PrinterManagerProject
                                         tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
                                         // 2#位通过
                                         myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
-                                        PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00901009013459**");  //1Y:CCD2继续
+                                        PLCSerialPortUtils.GetInstance(this).SendData("%01#WDD00900009003459**");  //1Y:CCD2继续
                                         SetCCD2IsNotBusy();
 
                                         // 回写数据
@@ -1191,6 +1256,44 @@ namespace PrinterManagerProject
             }
         }
         /// <summary>
+        /// 拼接CCD1成功发送的命令
+        /// </summary>
+        /// <param name="specCmd"></param>
+        /// <returns></returns>
+        private string GetSepcData(string newCmd)
+        {
+            /***
+             * 901:拨板成功指令+挡板移动指令
+             * 902:缓存下一个要打印液体的规格
+             * 903:打印机高低+打印纸出纸时间，过打印光幕一段时间后，会将902的值拷贝到903
+             */
+            // 901
+            string specCmd = newCmd;
+            lock (queueHelper)
+            {
+                foreach (var item in queue)
+                {
+                    myEventLog.LogInfo($"Index:{item.Index}，Cmd：{item.SpecCmd}");
+                }
+                var cmd = queue.Where(s => s.PrinterLightScan == false).Select(s => s.SpecCmd).FirstOrDefault();
+                if(cmd==null)
+                {
+                    // 902
+                    specCmd += newCmd;
+                    //903
+                    specCmd += "0000";
+                }else
+                {
+                    // 902
+                    specCmd += cmd;
+                    // 903
+                    specCmd += newCmd;
+                }
+            }
+            return specCmd;
+        }
+
+        /// <summary>
         /// 根据品规挑选一个液体，入队
         /// </summary>
         /// <param name="spec"></param>
@@ -1247,29 +1350,34 @@ namespace PrinterManagerProject
 
                         if (ccd1Status == '1' && ccd1IsBusy == false)
                         {
-                            prevCCD1Time = DateTime.Now;
-                            if (AppConfig.MaxQueueCount != 0 && queue.Count() >= AppConfig.MaxQueueCount)
+                            if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count() < AppConfig.MaxQueueCount)
                             {
-                                myEventLog.LogInfo($"PLC接收81信号，队列数量超过{AppConfig.MaxQueueCount}，不识别，剔除");
+                                // 收到光幕信号，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，继续拍照
 
-                                SendCCD1Out();
-                                return;
+                                prevCCD1Time = DateTime.Now;
+                                if (AppConfig.MaxQueueCount != 0 && queue.Count() >= AppConfig.MaxQueueCount)
+                                {
+                                    myEventLog.LogInfo($"PLC接收81信号，队列数量超过{AppConfig.MaxQueueCount}，不识别，剔除");
+
+                                    SendCCD1Out();
+                                    return;
+                                }
+                                myEventLog.LogInfo($"PLC接收81信号，CCD1开始拍照");
+
+                                myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+
+                                ccd1IsBusy = true;
+
+                                // 停一段时间稳定液体
+                                Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
+
+                                // 开始拍照
+                                lock (ccd1LockHelper)
+                                {
+                                    ccd1ErrorCount = 0;
+                                }
+                                CCD1TakePicture();
                             }
-                            myEventLog.LogInfo($"PLC接收81信号，CCD1开始拍照");
-
-                            myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
-
-                            ccd1IsBusy = true;
-
-                            // 停一段时间稳定液体
-                            Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
-
-                            // 开始拍照
-                            lock (ccd1LockHelper)
-                            {
-                                ccd1ErrorCount = 0;
-                            }
-                            CCD1TakePicture();
                         }
 
                         if (ccd2Status == '1' && ccd2IsBusy == false)
@@ -1517,6 +1625,7 @@ namespace PrinterManagerProject
         private void StartConveryorBelt()
         {
             // 启动传送带
+            myEventLog.LogInfo($"发送启动传送带命令");
             PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00050**");
         }
         /// <summary>
@@ -1524,6 +1633,7 @@ namespace PrinterManagerProject
         /// </summary>
         private void StopConveryorBelt()
         {
+            myEventLog.LogInfo($"发送停止传送单命令");
             // 停止传送带
             PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00051**");
         }
@@ -1551,9 +1661,16 @@ namespace PrinterManagerProject
                 {
                     // CCD2是流程最后一步，取出第一个
                     var qModel = queue.FirstOrDefault();
-                    myEventLog.LogInfo($"Index:{qModel.Index},将液体信息从队列移除:Id={qModel.Drug.Id}，Code={qModel.QRData}");
+                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}");
                 
                     queue.Remove(qModel);
+
+                    if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count()<AppConfig.MaxQueueCount)
+                    {
+                        // 出队后，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，第一个传送带继续
+                        myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                        StartConveryorBelt();
+                    }
                 }
             }
         }
@@ -1568,7 +1685,7 @@ namespace PrinterManagerProject
         /// <param name="spec">规格</param>
         /// <param name="ml">液体毫升数</param>
         /// <param name="ccd1TakePhotoTimes">CCD1拍照次数</param>
-        private void AddQueue(tOrder drug, string cmd, string spec, string ml)
+        private void AddQueue(tOrder drug, string cmd, string spec, string ml,string specCmd)
         {
             // 保存溶媒信息到队列
             OrderQueueModel qModel = new OrderQueueModel();
@@ -1589,6 +1706,7 @@ namespace PrinterManagerProject
                 qModel.PrinterLightScan = false;
                 qModel.ScannerLightScan = false;
                 qModel.Index = queueIndex++;
+                qModel.SpecCmd = specCmd;
 
                 myEventLog.LogInfo($"将Index:{qModel.Index},液体信息插入队列:Id={qModel.Drug.Id}，Code={qModel.QRData}");
             }
@@ -1603,7 +1721,14 @@ namespace PrinterManagerProject
             {
                 // 入队时添加到队尾
                 queue.Add(qModel);
+                if(queue.Count(s=>s.PrinterLightScan==false)>= AppConfig.MaxNotPrintQueueCount || queue.Count() >= AppConfig.MaxQueueCount)
+                {
+                    // 入队后，队列中液体数量大于队列中液体最大数，或未打印液体数量大于队列中允许的最大未打印数量，停止第一个传送带
+                    myEventLog.LogInfo($"停止传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                    StopConveryorBelt();
+                }
             }
+
         }
         /// <summary>
         /// CCD2错误时删除对象
@@ -1617,8 +1742,14 @@ namespace PrinterManagerProject
                 {
                     // CCD2是流程最后一步，取出第一个
                     var qModel = queue.FirstOrDefault();
-                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项");
+                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}");
                     queue.Remove(qModel);
+
+                    if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count() < AppConfig.MaxQueueCount)
+                    {
+                        myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                        StartConveryorBelt();
+                    }
                 }
             }
             SetCCD2IsNotBusy();

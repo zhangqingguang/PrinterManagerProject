@@ -7,6 +7,7 @@ using System.Text;
 using System.Threading.Tasks;
 using AutoMapper;
 using PrinterManagerProject.DBUtility;
+using PrinterManagerProject.EF.Models;
 
 namespace PrinterManagerProject.EF
 {
@@ -26,27 +27,36 @@ namespace PrinterManagerProject.EF
         /// <returns></returns>
         public ObservableCollection<tWarning> GetWarning(string date, string batch, string dept, string drugClass, string mainDrug)
         {
-            var result = new ObservableCollection<tWarning>(); ;
-            if (string.IsNullOrEmpty(date)|| string.IsNullOrEmpty(batch))
+            var result = new ObservableCollection<tWarning>();
+            var list = new List<tWarning>();
+            if (string.IsNullOrEmpty(date) || string.IsNullOrEmpty(batch))
             {
                 return result;
             }
-            var query = DBContext.tWarnings
-                .AsNoTracking()
-                .Where(s=>s.use_date == date && s.batch == batch);
-            if (string.IsNullOrEmpty(dept) == false)
+
+            if (Convert.ToDateTime(date) < DateTime.Now.AddDays(-1))
             {
-                query = query.Where(s => s.department_code == dept);
+                list = new WarningBakManager().GetWarning(date, batch, dept, drugClass, mainDrug);
             }
-            if (string.IsNullOrEmpty(drugClass) == false)
+            else
             {
-                query = query.Where(s => s.ydrug_class_name == drugClass);
+                var query = DBContext.tWarnings
+                    .AsNoTracking()
+                    .Where(s => s.use_date == date && s.batch == batch && s.WarningState == WarningStateEnum.Expire);
+                if (string.IsNullOrEmpty(dept) == false)
+                {
+                    query = query.Where(s => s.department_code == dept);
+                }
+                if (string.IsNullOrEmpty(drugClass) == false)
+                {
+                    query = query.Where(s => s.ydrug_class_name == drugClass);
+                }
+                if (string.IsNullOrEmpty(mainDrug) == false)
+                {
+                    query = query.Where(s => s.ydrug_id == mainDrug);
+                }
+                list = query.ToList();
             }
-            if (string.IsNullOrEmpty(mainDrug) == false)
-            {
-                query = query.Where(s => s.ydrug_id == mainDrug);
-            }
-            var list = query.ToList();
 
             foreach (var warning in list)
             {
@@ -85,6 +95,7 @@ namespace PrinterManagerProject.EF
                 }
                 catch (Exception e)
                 {
+                    System.Console.Write("记录异常信息出错："+e.Message);
                 }
             });
         }
