@@ -24,7 +24,16 @@ namespace PrinterManagerProject
         private MenuItem miPrint;
         private MenuItem miQuery;
 
+        private MenuItem miUserManager;
+        private MenuItem miBatch;
+        private MenuItem miDrug;
+        private MenuItem miOperatorParam;
+        private MenuItem miSolventSize;
+        private MenuItem miPrintTemplate;
+
         private MenuItem userHeader;
+
+        private MenuItem menu;
 
         private DispatcherTimer dispatcherTimer;
 
@@ -58,6 +67,7 @@ namespace PrinterManagerProject
                 }
                 else
                 {
+                    menu = metroWindowTemplate.FindName("Menu", this) as MenuItem;
                     // 初始化控件
                     lblTime = metroWindowTemplate.FindName("lblTime", this) as Label;
                     userHeader = metroWindowTemplate.FindName("UserHeader", this) as MenuItem;
@@ -66,6 +76,19 @@ namespace PrinterManagerProject
                     miExit = metroWindowTemplate.FindName("miExit", this) as MenuItem;
                     miPrint = metroWindowTemplate.FindName("miPrint", this) as MenuItem;
                     miQuery = metroWindowTemplate.FindName("miQuery", this) as MenuItem;
+
+                    miUserManager = metroWindowTemplate.FindName("miUserManager", this) as MenuItem;
+                    miBatch = metroWindowTemplate.FindName("miBatch", this) as MenuItem;
+                    miDrug = metroWindowTemplate.FindName("miDrug", this) as MenuItem;
+                    miOperatorParam = metroWindowTemplate.FindName("miOperatorParam", this) as MenuItem;
+                    miSolventSize = metroWindowTemplate.FindName("miSolventSize", this) as MenuItem;
+                    miPrintTemplate = metroWindowTemplate.FindName("miPrintTemplate", this) as MenuItem;
+
+                    if (isSuperAdmin() == false)
+                    {
+                        miOperatorParam.IsEnabled = false;
+                        miSolventSize.IsEnabled = false;
+                    }
 
                     if (UserCache.Printer.ID != 0)
                     {
@@ -79,6 +102,13 @@ namespace PrinterManagerProject
                     miPrint.Click += miPrint_Click;
                     miQuery.Click += miQuery_Click;
 
+                    miUserManager.Click += MiUserManager_Click; ;
+                    miBatch.Click += MiBatch_Click; ;
+                    miDrug.Click += MiDrug_Click; ;
+                    miOperatorParam.Click += MiOperatorParam_Click; ;
+                    miSolventSize.Click += MiSolventSize_Click; ;
+                    miPrintTemplate.Click += MiPrintTemplate_Click; ;
+
                     dispatcherTimer = new System.Windows.Threading.DispatcherTimer();
                     // 当间隔时间过去时发生的事件
                     dispatcherTimer.Tick += new EventHandler(ShowCurrentTime);
@@ -88,6 +118,93 @@ namespace PrinterManagerProject
             }
         }
 
+        /// <summary>
+        /// 点击打印模板设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiPrintTemplate_Click(object sender, RoutedEventArgs e)
+        {
+            PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblPrintTemplate");
+            userManageWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
+        }
+
+        /// <summary>
+        /// 点击溶媒尺寸设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiSolventSize_Click(object sender, RoutedEventArgs e)
+        {
+            if (isSuperAdmin())
+            {
+                PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblSizeSetting");
+                userManageWindow.Show();
+                this.needCloseWindowConfirm = false;
+                this.Close();
+            }
+        }
+
+        /// <summary>
+        /// 点击运行参数设置
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiOperatorParam_Click(object sender, RoutedEventArgs e)
+        {
+            if (isSuperAdmin())
+            {
+                PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblParamSetting");
+                userManageWindow.Show();
+                this.needCloseWindowConfirm = false;
+                this.Close();
+            }
+        }
+
+        /// <summary>
+        /// 点击药品信息同步
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiDrug_Click(object sender, RoutedEventArgs e)
+        {
+            PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblDrugSetting");
+            userManageWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
+        }
+
+        /// <summary>
+        /// 点击批次时间同步
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiBatch_Click(object sender, RoutedEventArgs e)
+        {
+            PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblTimeSetting");
+            userManageWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
+        }
+        /// <summary>
+        /// 点击用户管理
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void MiUserManager_Click(object sender, RoutedEventArgs e)
+        {
+            PrinterManagerProject.UserManage userManageWindow = new PrinterManagerProject.UserManage();
+            userManageWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
+        }
+        /// <summary>
+        /// 当前时间
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         public void ShowCurrentTime(object sender, EventArgs e)
         {
             if (!this.ToString().Contains("LoginWindow"))
@@ -95,22 +212,39 @@ namespace PrinterManagerProject
                 this.lblTime.Content = "当前时间：" + DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss dddd");
             }
         }
-
+        /// <summary>
+        /// 点击关闭按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void CloseButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             Close();
         }
-
+        /// <summary>
+        /// 点击最小化按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void MinButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             this.WindowState = System.Windows.WindowState.Minimized;
         }
 
+        /// <summary>
+        /// 点击修改密码按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miChangePassword_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             MessageBox.Show("Comming soon!");
         }
-
+        /// <summary>
+        /// 点击注销按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miLogout_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var collections = Application.Current.Windows;
@@ -136,7 +270,11 @@ namespace PrinterManagerProject
             this.needCloseWindowConfirm = false;
             this.Close();
         }
-
+        /// <summary>
+        /// 点击退出按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miExit_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             MessageBoxResult result = MessageBox.Show("确定要退出系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
@@ -146,7 +284,11 @@ namespace PrinterManagerProject
                 Environment.Exit(0);
             }
         }
-
+        /// <summary>
+        /// 点击贴签系统菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miPrint_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (!this.ToString().Contains("PrintWindow") && !this.ToString().Contains("LoginWindow"))
@@ -157,7 +299,11 @@ namespace PrinterManagerProject
                 this.Close();
             }
         }
-
+        /// <summary>
+        /// 点击综合查询菜单
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void miQuery_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             if (!this.ToString().Contains("QueryWindow") && !this.ToString().Contains("LoginWindow"))
@@ -178,6 +324,41 @@ namespace PrinterManagerProject
             // DragMove();
 
             base.OnMouseLeftButtonDown(e);
+        }
+
+        /// <summary>
+        /// 是否超级管理员
+        /// </summary>
+        /// <returns></returns>
+        protected bool isSuperAdmin()
+        {
+            return UserCache.Printer.user_name == "ydwl" && UserCache.Printer.password == "password01!" && UserCache.Checker.user_name == "ydwl" && UserCache.Checker.password == "password01!";
+        }
+
+        /// <summary>
+        /// 设置菜单不可用
+        /// </summary>
+        protected void SetMenuDisabled()
+        {
+            // 用户菜单
+            userHeader.IsEnabled = false;
+            // 退出按钮
+            miExit.IsEnabled = false;
+            // 关闭按钮
+            CloseButton.IsEnabled = false;
+            //设置菜单可用
+            menu.IsEnabled = false;
+        }
+        protected void SetMenuEnabled()
+        {
+            // 用户菜单
+            userHeader.IsEnabled = true;
+            // 退出按钮
+            miExit.IsEnabled = true;
+            // 关闭按钮
+            CloseButton.IsEnabled = true;
+            //设置菜单可用
+            menu.IsEnabled = true;
         }
     }
 }

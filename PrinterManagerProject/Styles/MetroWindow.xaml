@@ -88,18 +88,20 @@
                         </Menu>
 
                         <Menu Background="Transparent">
-                            <MenuItem Header="菜单" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xE643;">
+                            <MenuItem Name="Menu" Header="菜单" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xE643;">
                                 <MenuItem Name="miPrint" Icon="&#x78;"  Header="贴签系统" />
-                                <MenuItem Icon="&#xe655;"  Header="用户管理" />
-                                <MenuItem Icon="&#xE633;"  Header="系统设置" >
-                                    <MenuItem Icon="&#xe65F;"  Header="批次时间设置" />
-                                    <MenuItem Icon="&#xe610;"  Header="运行参数设置" />
-                                    <MenuItem Icon="&#xe699;"  Header="溶媒尺寸设置" />
-                                </MenuItem>
+                                <MenuItem Name="miUserManager" Icon="&#xe655;"  Header="用户管理" />
                                 <MenuItem Name="miQuery" Icon="&#xe628;" Header="综合查询" />
-                                <Separator Background="#CCCCCC" Style="{StaticResource HorizontalSeparatorStyle}"/>
+                                <MenuItem Icon="&#xE633;"  Header="系统设置" >
+                                    <MenuItem Name="miBatch" Icon="&#xe65F;"  Header="批次时间同步" />
+                                    <MenuItem Name="miDrug" Icon="&#xe610;"  Header="药品信息同步" />
+                                    <MenuItem Name="miOperatorParam" Icon="&#xe699;"  Header="运行参数设置" />
+                                    <MenuItem Name="miSolventSize" Icon="&#xe699;"  Header="溶媒尺寸设置" />
+                                    <MenuItem Name="miPrintTemplate" Icon="&#xe699;"  Header="打印模板设置" />
+                                </MenuItem>
+                                <!--<Separator Background="#CCCCCC" Style="{StaticResource HorizontalSeparatorStyle}"/>
                                 <MenuItem Icon="&#xe60e;" Header="帮助" />
-                                <MenuItem Icon="&#xe635;" Header="关于" />
+                                <MenuItem Icon="&#xe635;" Header="关于" />-->
                             </MenuItem>
                         </Menu>
 

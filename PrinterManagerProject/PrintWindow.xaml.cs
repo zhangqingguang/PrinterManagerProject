@@ -361,11 +361,11 @@ namespace PrinterManagerProject
             //    return;
             //}
 
-            if (CCDConnected == false)
-            {
-                MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            //if (CCDConnected == false)
+            //{
+            //    MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
             if (PCLConnected == false)
             {
                 MessageBox.Show("控制系统连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
@@ -435,10 +435,10 @@ namespace PrinterManagerProject
 
         private void ButtonStopPrint_Click(object sender, RoutedEventArgs e)
         {
-            Stop();
+            StopPrint();
         }
 
-        private void Stop()
+        private void StopPrint()
         {
             StopUpdateControlState();
             if (IsConnectDevices)
@@ -482,6 +482,7 @@ namespace PrinterManagerProject
                 cb_dept.IsEnabled = true;
                 cb_batch.IsEnabled = true;
                 use_date.IsEnabled = true;
+                SetMenuEnabled();
             });
         }
         private void StartUpdateControlState()
@@ -497,6 +498,7 @@ namespace PrinterManagerProject
                 cb_dept.IsEnabled = false;
                 cb_batch.IsEnabled = false;
                 use_date.IsEnabled = false;
+                SetMenuDisabled();
             });
         }
 
@@ -1334,7 +1336,7 @@ namespace PrinterManagerProject
                             //|| colorTapeOutOfWarning == '1'
                             || emptyWarning == '1')
                         {
-                            Stop();
+                            StopPrint();
                         }
 
                     }

@@ -84,7 +84,7 @@
                                     <DataGrid.Columns>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称"  Binding="{Binding SolventName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding Spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="待贴数量" Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签总数" Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="已贴数量" Binding="{Binding MarkNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
                                     </DataGrid.Columns>
                                 </DataGrid>

@@ -22,13 +22,27 @@ namespace PrinterManagerProject
     {
         private Label lblCurrentMenu;
 
-        public SettingsWindow()
+        public SettingsWindow(string pageName="")
         {
             InitializeComponent();
-
             lblCurrentMenu = lblTimeSetting;
+
+            if (string.IsNullOrEmpty(pageName) == false)
+            {
+                if (this.FindName(pageName) is Label label)
+                {
+                    lblCurrentMenu = label;
+                }
+            }
+
             // 打开默认选项对应页面
             this.PageContext.Source = new Uri(lblCurrentMenu.Tag.ToString(), UriKind.Relative);
+
+            if (isSuperAdmin() == false)
+            {
+                lblParamSetting.IsEnabled = false;
+                lblSizeSetting.IsEnabled = false;
+            }
         }
         private void BaseWindow_Closing(object sender, CancelEventArgs e)
         {

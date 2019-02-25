@@ -35,11 +35,7 @@ namespace PrinterManagerProject
 
         private void btnQueryWindow_Click(object sender, RoutedEventArgs e)
         {
-            //QueryWindow query = new QueryWindow();
-            //query.Show();
-            //this.Hide();
-
-            TestWindow query = new TestWindow();
+            QueryWindow query = new QueryWindow();
             query.Owner = this;
             query.Show();
             this.Hide();
