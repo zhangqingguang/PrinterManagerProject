@@ -562,7 +562,7 @@ namespace PrinterManagerProject
                                 var currentCmdData = $"3{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}";
                                 var specCmdData = GetSepcData(currentCmdData);
 
-                                if (PLCSerialPortUtils.GetInstance(this).SendData($"%01#WDD0090100903{specCmdData}**")) // 71-78
+                                if (PLCSerialPortUtils.GetInstance(this).SendData($"%01#WDD0090100901{currentCmdData}**")) // 71-78
                                 {
                                     myEventLog.LogInfo($"CCD1命令发送成功花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     startTime = DateTime.Now;
@@ -834,11 +834,11 @@ namespace PrinterManagerProject
                         var blockWarning = dataArray[7];
                         var printCardOutOfWarning = dataArray[8];
                         //var colorTapeOutOfWarning = dataArray[9];
+                        var scannerStatus = dataArray[9];
                         var emptyWarning = dataArray[10];
                         var ccd1Status = dataArray[11];
                         var printStatus = dataArray[12];
                         var ccd2Status = dataArray[13];
-                        var scannerStatus = dataArray[9];
 
                         if (ccd1Status == '1' && ccd1IsBusy == false)
                         {
@@ -849,7 +849,7 @@ namespace PrinterManagerProject
                                 prevCCD1Time = DateTime.Now;
                                 if (AppConfig.MaxQueueCount != 0 && queue.Count() >= AppConfig.MaxQueueCount)
                                 {
-                                    myEventLog.LogInfo($"PLC接收81信号，队列数量超过{AppConfig.MaxQueueCount}，不识别，剔除");
+                                    myEventLog.LogInfo($"81： PLC接收81信号，队列数量超过{AppConfig.MaxQueueCount}，不识别，剔除");
 
                                     SendCCD1Out();
                                     return;
@@ -875,7 +875,7 @@ namespace PrinterManagerProject
                         if (ccd2Status == '1' && ccd2IsBusy == false)
                         {
                             prevCCD2Time = DateTime.Now;
-                            myEventLog.LogInfo($"PLC接收84信号，CCD2开始拍照");
+                            myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
                             ccd2IsBusy = true;
 
                             // 停一段时间稳定液体
@@ -890,7 +890,7 @@ namespace PrinterManagerProject
 
                         if (printStatus == '1')
                         {
-                            myEventLog.LogInfo($"PLC接收82信号，开始打印");
+                            myEventLog.LogInfo($"82： PLC接收82信号，开始打印");
                             GoToPrinterLight();
                         }
 
@@ -1060,10 +1060,11 @@ namespace PrinterManagerProject
                 {
                     // CCD2是流程最后一步，取出第一个
                     var qModel = queue.FirstOrDefault();
-                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}");
+                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
                 
                     queue.Remove(qModel);
 
+                    myEventLog.LogInfo($"队列数量： {queue.Count}！");
                     if (CanStartConveryorBelt())
                     {
                         // 出队后，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，第一个传送带继续
@@ -1120,6 +1121,7 @@ namespace PrinterManagerProject
             {
                 // 入队时添加到队尾
                 queue.Add(qModel);
+                    myEventLog.LogInfo($"队列数量： {queue.Count}！");
                 if(CanStopConveryorBelt())
                 {
                     // 入队后，队列中液体数量大于队列中液体最大数，或未打印液体数量大于队列中允许的最大未打印数量，停止第一个传送带
@@ -1141,8 +1143,9 @@ namespace PrinterManagerProject
                 {
                     // CCD2是流程最后一步，取出第一个
                     var qModel = queue.FirstOrDefault();
-                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}");
+                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
                     queue.Remove(qModel);
+                    myEventLog.LogInfo($"队列数量： {queue.Count}！");
 
                     if (CanStopConveryorBelt())
                     {
@@ -1238,7 +1241,7 @@ namespace PrinterManagerProject
                     if(item.PrinterLightScan == false)
                     {
                         item.PrinterLightScan = true;
-                        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
+                        myEventLog.LogInfo($"83： Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
                     }
 
                     if (CanStartConveryorBelt())
@@ -1359,6 +1362,7 @@ namespace PrinterManagerProject
 
         private void CreatePLCReader()
         {
+            // 异常、卡药、缺标签纸报警、扫码枪光幕、长时间未放药、CCD1光幕信号、打印光幕信号、CCD2光幕信号
             lightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RCP8R0090R0095R0096R0007R0098R0170R0171R0173**");
             //warningListener = new PLCReader(this, AppConfig.WarningReaderIntervalTime, "%01#RCP5R0090R0095R0096R0097R0098**");
             //scannerLightListener = new PLCReader(this, AppConfig.LightReaderIntervalTime, "%01#RDD0071400714**");
@@ -1866,7 +1870,9 @@ namespace PrinterManagerProject
             }
 
             // 清空队列
+            myEventLog.LogInfo($"队列数量： {queue.Count}！");
             queue = new List<OrderQueueModel>();
+            myEventLog.LogInfo($"清空队列！");
 
             if (tabMain.SelectedIndex == 0)
             {
@@ -2001,6 +2007,8 @@ namespace PrinterManagerProject
 
         private void StopPrint()
         {
+            myEventLog.LogInfo($"队列数量： {queue.Count}！");
+
             StopUpdateControlState();
             if (IsConnectDevices)
             {
@@ -2176,16 +2184,16 @@ namespace PrinterManagerProject
         /// <summary>
         /// 前端传送带是否正在运行
         /// </summary>
-        private bool IsConveryorBeltRunning = true;
+        private static bool IsConveryorBeltRunning = true;
         /// <summary>
         /// 启动传送带
         /// </summary>
         private void StartConveryorBelt()
         {
-            if (IsConveryorBeltRunning)
-            {
-                return;
-            }
+            //if (IsConveryorBeltRunning)
+            //{
+            //    return;
+            //}
             // 启动传送带
             myEventLog.LogInfo($"发送启动传送带命令");
             PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00050**");

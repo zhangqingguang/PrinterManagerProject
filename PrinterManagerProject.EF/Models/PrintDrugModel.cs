@@ -34,7 +34,23 @@ namespace PrinterManagerProject.EF.Models
             get { return _drug_name; }
         }
         /// <summary>
+        /// 规格
+        /// </summary>
+        public string spec
+        {
+            set { _use_count = value; }
+            get { return _use_count; }
+        }
+        /// <summary>
         /// 药品用量
+        /// </summary>
+        public string durg_use_sp
+        {
+            set { _use_count = value; }
+            get { return _use_count; }
+        }
+        /// <summary>
+        /// 药品数量
         /// </summary>
         public string use_count
         {

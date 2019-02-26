@@ -185,32 +185,185 @@ namespace PrinterManagerProject.Models
         /// 药品名称文字Y坐标
         /// </summary>
         public int DrugsContentFontY { get; set; }
+        #region 规格
+        /// <summary>
+        /// 规格标题文字
+        /// </summary>
+        public int SpecTitleFontSize { get; set; }
+        /// <summary>
+        /// 规格标题文字X坐标
+        /// </summary>
+        public int SpecTitleFontX { get; set; }
+        /// <summary>
+        /// 规格标题文字Y坐标
+        /// </summary>
+        public int SpecTitleFontY { get; set; }
+
+        /// <summary>
+        /// 规格值文字
+        /// </summary>
+        public int SpecValueFontSize { get; set; }
+        /// <summary>
+        /// 规格值文字X坐标
+        /// </summary>
+        public int SpecValueFontX { get; set; }
+        /// <summary>
+        /// 规格值文字Y坐标
+        /// </summary>
+        public int SpecValueFontY { get; set; } 
+        #endregion
+        #region 用量
 
         /// <summary>
         /// 用量标题文字
         /// </summary>
-        public int UseTitleFontSize { get; set; }
+        public int UseSpTitleFontSize { get; set; }
         /// <summary>
         /// 用量标题文字X坐标
         /// </summary>
-        public int UseTitleFontX { get; set; }
+        public int UseSpTitleFontX { get; set; }
         /// <summary>
         /// 用量标题文字Y坐标
         /// </summary>
-        public int UseTitleFontY { get; set; }
+        public int UseSpTitleFontY { get; set; }
 
         /// <summary>
         /// 用量值文字
         /// </summary>
-        public int UseValueFontSize { get; set; }
+        public int UseSpValueFontSize { get; set; }
         /// <summary>
         /// 用量值文字X坐标
         /// </summary>
-        public int UseValueFontX { get; set; }
+        public int UseSpValueFontX { get; set; }
         /// <summary>
         /// 用量值文字Y坐标
         /// </summary>
+        public int UseSpValueFontY { get; set; } 
+        #endregion
+
+        #region 数量
+        /// <summary>
+        /// 数量标题文字
+        /// </summary>
+        public int UseTitleFontSize { get; set; }
+        /// <summary>
+        /// 数量标题文字X坐标
+        /// </summary>
+        public int UseTitleFontX { get; set; }
+        /// <summary>
+        /// 数量标题文字Y坐标
+        /// </summary>
+        public int UseTitleFontY { get; set; }
+
+        /// <summary>
+        /// 数量值文字
+        /// </summary>
+        public int UseValueFontSize { get; set; }
+        /// <summary>
+        /// 数量值文字X坐标
+        /// </summary>
+        public int UseValueFontX { get; set; }
+        /// <summary>
+        /// 数量值文字Y坐标
+        /// </summary>
         public int UseValueFontY { get; set; }
+        #endregion
+
+        #region 医院名称
+
+        /// <summary>
+        /// 医院名称文字
+        /// </summary>
+        public int HospitalNameFontSize { get; set; }
+        /// <summary>
+        /// 医院名称文字X坐标
+        /// </summary>
+        public int HospitalNameFontX { get; set; }
+        /// <summary>
+        /// 医院名称文字Y坐标
+        /// </summary>
+        public int HospitalNameFontY { get; set; }
+        #endregion
+
+        #region is_print_snv
+
+        ///// <summary>
+        ///// is_print_snv文字
+        ///// </summary>
+        //public int is_print_snvFontSize { get; set; }
+        ///// <summary>
+        ///// is_print_snv文字X坐标
+        ///// </summary>
+        //public int is_print_snvFontX { get; set; }
+        ///// <summary>
+        ///// is_print_snv文字Y坐标
+        ///// </summary>
+        //public int is_print_snvFontY { get; set; }
+        #endregion
+
+        #region 医嘱类型
+
+        /// <summary>
+        /// 医嘱类型文字
+        /// </summary>
+        public int OrderTypeFontSize { get; set; }
+        /// <summary>
+        /// 医嘱类型文字X坐标
+        /// </summary>
+        public int OrderTypeFontX { get; set; }
+        /// <summary>
+        /// 医嘱类型文字Y坐标
+        /// </summary>
+        public int OrderTypeFontY { get; set; }
+        #endregion
+
+        #region 特殊用药
+
+        /// <summary>
+        /// 特殊用药文字
+        /// </summary>
+        public int special_medicationtipFontSize { get; set; }
+        /// <summary>
+        /// 特殊用药文字X坐标
+        /// </summary>
+        public int special_medicationtipFontX { get; set; }
+        /// <summary>
+        /// 特殊用药文字Y坐标
+        /// </summary>
+        public int special_medicationtipFontY { get; set; }
+        #endregion
+
+        #region 批次名称
+
+        /// <summary>
+        /// 批次名称
+        /// </summary>
+        public int BatchNameFontSize { get; set; }
+        /// <summary>
+        /// 批次名称X坐标
+        /// </summary>
+        public int BatchNameFontX { get; set; }
+        /// <summary>
+        /// 批次名称Y坐标
+        /// </summary>
+        public int BatchNameFontY { get; set; }
+        #endregion
+
+        #region 年龄
+
+        /// <summary>
+        /// 年龄
+        /// </summary>
+        public int AgeFontSize { get; set; }
+        /// <summary>
+        /// 年龄X坐标
+        /// </summary>
+        public int AgeFontX { get; set; }
+        /// <summary>
+        /// 年龄Y坐标
+        /// </summary>
+        public int AgeFontY { get; set; }
+        #endregion
 
         /// <summary>
         /// 处方医生文字

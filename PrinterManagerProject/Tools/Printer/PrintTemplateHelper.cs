@@ -249,32 +249,91 @@ namespace PrinterManagerProject.Tools
             /// 药品名称文字Y坐标
             /// </summary>
             model.DrugsContentFontY = 115;
+            #region 规格
 
+            /// <summary>
+            /// 规格标题文字
+            /// </summary>
+            model.SpecTitleFontSize = 14;
+            /// <summary>
+            /// 规格标题文字X坐标
+            /// </summary>
+            model.SpecTitleFontX = 190;
+            /// <summary>
+            /// 规格标题文字Y坐标
+            /// </summary>
+            model.SpecTitleFontY = 105;
+
+            /// <summary>
+            /// 规格值文字
+            /// </summary>
+            model.SpecValueFontSize = 14;
+            /// <summary>
+            /// 规格值文字X坐标
+            /// </summary>
+            model.SpecValueFontX = 190;
+            /// <summary>
+            /// 规格值文字Y坐标
+            /// </summary>
+            model.SpecValueFontY = 120;
+            #endregion
+
+            #region 用量
             /// <summary>
             /// 用量标题文字
             /// </summary>
-            model.UseTitleFontSize = 14;
+            model.UseSpTitleFontSize = 14;
             /// <summary>
             /// 用量标题文字X坐标
             /// </summary>
-            model.UseTitleFontX = 265;
+            model.UseSpTitleFontX = 225;
             /// <summary>
             /// 用量标题文字Y坐标
             /// </summary>
-            model.UseTitleFontY = 95;
+            model.UseSpTitleFontY = 105;
 
             /// <summary>
             /// 用量值文字
             /// </summary>
-            model.UseValueFontSize = 14;
+            model.UseSpValueFontSize = 14;
             /// <summary>
             /// 用量值文字X坐标
             /// </summary>
-            model.UseValueFontX = 250;
+            model.UseSpValueFontX = 225;
             /// <summary>
             /// 用量值文字Y坐标
             /// </summary>
-            model.UseValueFontY = 115;
+            model.UseSpValueFontY = 125;
+            #endregion
+
+
+            #region 数量
+            /// <summary>
+            /// 数量标题文字
+            /// </summary>
+            model.UseTitleFontSize = 14;
+            /// <summary>
+            /// 数量标题文字X坐标
+            /// </summary>
+            model.UseTitleFontX = 265;
+            /// <summary>
+            /// 数量标题文字Y坐标
+            /// </summary>
+            model.UseTitleFontY = 105;
+
+            /// <summary>
+            /// 数量值文字
+            /// </summary>
+            model.UseValueFontSize = 14;
+            /// <summary>
+            /// 数量值文字X坐标
+            /// </summary>
+            model.UseValueFontX = 250;
+            /// <summary>
+            /// 数量值文字Y坐标
+            /// </summary>
+            model.UseValueFontY = 125; 
+            #endregion
 
             /// <summary>
             /// 处方医生文字
@@ -406,11 +465,11 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 二维码条码X坐标
             /// </summary>
-            model.BarCodeX = 145;
+            model.BarCodeX = 100;
             /// <summary>
             /// 二维码条码Y坐标
             /// </summary>
-            model.BarCodeY = 40;
+            model.BarCodeY = 42;
 
             return model;
         }

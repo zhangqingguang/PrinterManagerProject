@@ -19,7 +19,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 将CCD设为空闲状态等待时间
         /// </summary>
-        public static int FreeCCDBusyState = 160;
+        public static int FreeCCDBusyState = 260;
         /// <summary>
         /// 收到拍照命令后CCD拍照等待时间
         /// </summary>

@@ -58,7 +58,9 @@ namespace PrinterManagerProject.Tools
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split2X), ConvertInt(tempConfig.Split2Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split2X + tempConfig.Split2Width), ConvertInt(tempConfig.Split2Y)));
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.Split2Y - 5));
             sb.Append(GetLabelCommand("药品名称", tempConfig.DrugsTitleFontSize, tempConfig.DrugsTitleFontX, tempConfig.DrugsTitleFontY));
-            sb.Append(GetLabelCommand("用量", tempConfig.UseTitleFontSize, tempConfig.UseTitleFontX, tempConfig.UseTitleFontY));
+            sb.Append(GetLabelCommand("规格", tempConfig.SpecTitleFontSize, tempConfig.SpecTitleFontX, tempConfig.SpecTitleFontY));
+            sb.Append(GetLabelCommand("用量", tempConfig.UseSpTitleFontSize, tempConfig.UseSpTitleFontX, tempConfig.UseSpTitleFontY));
+            sb.Append(GetLabelCommand("数量", tempConfig.UseTitleFontSize, tempConfig.UseTitleFontX, tempConfig.UseTitleFontY));
 
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.SplitX), ConvertInt(tempConfig.SplitY)), new System.Drawing.Point(ConvertInt(tempConfig.SplitX + tempConfig.SplitWidth), ConvertInt(tempConfig.SplitY)));
             var margin = 5;
@@ -73,8 +75,14 @@ namespace PrinterManagerProject.Tools
                 int fontHeight = tempConfig.DrugsContentFontSize;
                 // 药名
                 sb.Append(GetLabelCommand(drugs[i].drug_name, tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
+                //规格
+                sb.Append(GetLabelCommand(drugs[i].spec.TrimEnd('0').TrimEnd('.'), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
                 //用量
-                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0').TrimEnd('.'), tempConfig.DrugsContentFontSize, tempConfig.UseValueFontX, height));
+                sb.Append(GetLabelCommand(drugs[i].durg_use_sp.TrimEnd('0').TrimEnd('.')+"100ml", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+                // 用量增加下划线
+                sb.Append(GetLabelCommand("________", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+                //数量
+                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0').TrimEnd('.'), tempConfig.UseValueFontSize, tempConfig.UseValueFontX, height));
 
                 // 只修改Y轴，向下平铺
                 height += tempConfig.DrugsContentFontSize + margin;
@@ -202,7 +210,7 @@ namespace PrinterManagerProject.Tools
                     g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split2X), ConvertInt(tempConfig.Split2Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split2X + tempConfig.Split2Width), ConvertInt(tempConfig.Split2Y)));
 
                     g.DrawString("药品名称", new Font(fontName, ConvertFontInt(tempConfig.DrugsTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DrugsTitleFontX), ConvertInt(tempConfig.DrugsTitleFontY));
-                    g.DrawString("用量", new Font(fontName, ConvertFontInt(tempConfig.UseTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UseTitleFontX), ConvertInt(tempConfig.UseTitleFontY));
+                    g.DrawString("数量", new Font(fontName, ConvertFontInt(tempConfig.UseTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UseTitleFontX), ConvertInt(tempConfig.UseTitleFontY));
 
                     int x = ConvertInt(tempConfig.DrugsContentFontX);
                     int y = ConvertInt(tempConfig.DrugsContentFontY);
@@ -232,7 +240,7 @@ namespace PrinterManagerProject.Tools
                         g.DrawString(drugs[i].drug_name, font, bush, rectangle, sf);
 
                         //g.DrawString(drug.drug_name, new Font(fontName, ConvertFontInt(tempConfig.DrugsContentFontSize)), bush, x, y);
-                        //用量
+                        //数量
                         g.DrawString(drugs[i].use_count, new Font(fontName, ConvertFontInt(tempConfig.UseValueFontSize)), bush, u_x, u_y);
 
                         // 只修改Y轴，向下平铺

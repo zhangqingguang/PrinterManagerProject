@@ -5,7 +5,7 @@
       xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
       xmlns:local="clr-namespace:PrinterManagerProject.Pages"
       mc:Ignorable="d" 
-      d:DesignHeight="750" d:DesignWidth="1100"
+      d:DesignHeight="1080" d:DesignWidth="1100"
       Background="White"
       Title="PrintTemplatePage">
 
@@ -25,6 +25,15 @@
                 <ColumnDefinition/>
             </Grid.ColumnDefinitions>
             <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
                 <RowDefinition Height="Auto"/>
@@ -115,13 +124,13 @@
 
             <Label Grid.Row="9" Grid.Column="0" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <StackPanel Grid.Row="9" Grid.Column="1" Orientation="Horizontal">
-                <TextBox x:Name="txtPageNumFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="230" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <TextBox x:Name="txtPageNumFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="260" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
             <Label Grid.Row="10" Grid.Column="0" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <StackPanel Grid.Row="10" Grid.Column="1" Orientation="Horizontal">
-                <TextBox x:Name="txtPageNumFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="5" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <TextBox x:Name="txtPageNumFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="290" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -178,7 +187,7 @@
 
             <Label Grid.Row="19" Grid.Column="0" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <StackPanel Grid.Row="19" Grid.Column="1" Orientation="Horizontal">
-                <TextBox x:Name="txtBedFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="35" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <TextBox x:Name="txtBedFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="30" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -328,7 +337,7 @@
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <Label x:Name="labelUseTitle" MouseDown="Label_MouseDown" Content="用量标题字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="17" Grid.Column="2"/>
+            <Label x:Name="labelUseTitle" MouseDown="Label_MouseDown" Content="数量标题字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="17" Grid.Column="2"/>
             <StackPanel Orientation="Horizontal" Grid.Row="17" Grid.Column="3">
                 <Slider x:Name="sliderUseTitleFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
                 <Label Content="{Binding ElementName=sliderUseTitleFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
@@ -347,7 +356,7 @@
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <Label x:Name="labelUseValue" MouseDown="Label_MouseDown" Content="用量数值字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="20" Grid.Column="2"/>
+            <Label x:Name="labelUseValue" MouseDown="Label_MouseDown" Content="数量数值字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="20" Grid.Column="2"/>
             <StackPanel Orientation="Horizontal" Grid.Row="20" Grid.Column="3">
                 <Slider x:Name="sliderUseValueFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
                 <Label Content="{Binding ElementName=sliderUseValueFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
@@ -356,7 +365,7 @@
 
             <Label Grid.Row="21" Grid.Column="2" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
             <StackPanel Grid.Row="21" Grid.Column="3" Orientation="Horizontal">
-                <TextBox x:Name="txtUseValueFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="250" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <TextBox x:Name="txtUseValueFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="270" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -388,7 +397,7 @@
             <!-- 第三列 -->
             <Label x:Name="labelBarCodeX" MouseDown="Label_MouseDown" Content="二维码X：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="0" Grid.Column="4" Margin="0,20,0,0"/>
             <StackPanel Orientation="Horizontal" Grid.Row="0" Grid.Column="5" Margin="0,20,0,0">
-                <TextBox x:Name="txtBarCodeX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="145" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <TextBox x:Name="txtBarCodeX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="100" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
@@ -550,21 +559,209 @@
                 <Label Content="px" VerticalAlignment="Center"/>
             </StackPanel>
 
-            <Button x:Name="btnReset" Grid.Row="26" Grid.Column="3" Content="重置" Height="40" Margin="20" Click="BtnReset_Click" />
-            <Button x:Name="btnSubmit" Grid.Row="26" Grid.Column="5" Content="保存" Height="40" Margin="20" Click="BtnSubmit_Click" />
+            <Label x:Name="labelSpecTitle" MouseDown="Label_MouseDown" Content="规格标题字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="26" Grid.Column="0"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="26" Grid.Column="1">
+                <Slider x:Name="sliderSpecTitleFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderSpecTitleFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="27" Grid.Column="0" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="27" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtSpecTitleFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="190" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="28" Grid.Column="0" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="28" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtSpecTitleFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="105" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+
+            <Label x:Name="labelUseSpTitle" MouseDown="Label_MouseDown" Content="用量标题字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="26" Grid.Column="2"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="26" Grid.Column="3">
+                <Slider x:Name="sliderUseSpTitleFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderUseSpTitleFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="27" Grid.Column="2" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="27" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtUseSpTitleFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="225" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="28" Grid.Column="2" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="28" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtUseSpTitleFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="105" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label x:Name="labelSpecValue" MouseDown="Label_MouseDown" Content="规格内容字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="29" Grid.Column="0"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="1">
+                <Slider x:Name="sliderSpecValueFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderSpecValueFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="30" Grid.Column="0" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="30" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtSpecValueFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="190" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="31" Grid.Column="0" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="31" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtSpecValueFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="125" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+
+            <Label x:Name="labelUseSp" MouseDown="Label_MouseDown" Content="用量内容字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="29" Grid.Column="2"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="3">
+                <Slider x:Name="sliderUseSpValueFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderUseSpValueFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="30" Grid.Column="2" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="30" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtUseSpValueFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="225" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="31" Grid.Column="2" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="31" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtUseSpValueFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="125" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label x:Name="labelHospitalName" MouseDown="Label_MouseDown" Content="医院名称字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="26" Grid.Column="4"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="26" Grid.Column="5">
+                <Slider x:Name="sliderHospitalNameFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderHospitalNameFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="27" Grid.Column="4" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="27" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtHospitalNameFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="28" Grid.Column="4" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="28" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtHospitalNameFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+
+            <Label x:Name="labelOrderType" MouseDown="Label_MouseDown" Content="医嘱类型字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="29" Grid.Column="4"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="29" Grid.Column="5">
+                <Slider x:Name="sliderOrderTypeFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderOrderTypeFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="30" Grid.Column="4" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="30" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtOrderTypeFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="31" Grid.Column="4" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="31" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtOrderTypeFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label x:Name="labelspecial_medicationtip" MouseDown="Label_MouseDown" Content="特殊用药字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="32" Grid.Column="0"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="32" Grid.Column="1">
+                <Slider x:Name="sliderspecial_medicationtipFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderspecial_medicationtipFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="33" Grid.Column="0" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="33" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtspecial_medicationtipFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="34" Grid.Column="0" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="34" Grid.Column="1" Orientation="Horizontal">
+                <TextBox x:Name="txtspecial_medicationtipFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+            <Label x:Name="labelBatchName" MouseDown="Label_MouseDown" Content="批次名称字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="32" Grid.Column="2"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="32" Grid.Column="3">
+                <Slider x:Name="sliderBatchNameFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderBatchNameFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="33" Grid.Column="2" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="33" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtBatchNameFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="34" Grid.Column="2" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="34" Grid.Column="3" Orientation="Horizontal">
+                <TextBox x:Name="txtBatchNameFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label x:Name="labelAge" MouseDown="Label_MouseDown" Content="年龄字号：" VerticalAlignment="Center" HorizontalAlignment="Right" Grid.Row="32" Grid.Column="4"/>
+            <StackPanel Orientation="Horizontal" Grid.Row="32" Grid.Column="5">
+                <Slider x:Name="sliderAgeFontSize" IsSnapToTickEnabled="True" HorizontalAlignment="Left" VerticalAlignment="Center" Width="100" Minimum="14" Maximum="26"/>
+                <Label Content="{Binding ElementName=sliderAgeFontSize,Path=Value,StringFormat=0}" VerticalAlignment="Center" Padding="5,0,0,0"/>
+                <Label Content="px" VerticalAlignment="Center" Padding="0"/>
+            </StackPanel>
+
+            <Label Grid.Row="33" Grid.Column="4" Content="X:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="33" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtAgeFontX" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Label Grid.Row="34" Grid.Column="4" Content="Y:" VerticalAlignment="Center" HorizontalAlignment="Right"/>
+            <StackPanel Grid.Row="34" Grid.Column="5" Orientation="Horizontal">
+                <TextBox x:Name="txtAgeFontY" HorizontalAlignment="Left" Height="23" TextWrapping="Wrap" Text="0" HorizontalContentAlignment="Right" VerticalContentAlignment="Center" VerticalAlignment="Center" Width="100"/>
+                <Label Content="px" VerticalAlignment="Center"/>
+            </StackPanel>
+
+            <Button x:Name="btnReset" Grid.Row="35" Grid.Column="3" Content="重置" Height="40" Margin="20" Click="BtnReset_Click" />
+            <Button x:Name="btnSubmit" Grid.Row="35" Grid.Column="5" Content="保存" Height="40" Margin="20" Click="BtnSubmit_Click" />
         </Grid>
 
         <StackPanel Grid.Column="1" Background="LightGray">
             <Border HorizontalAlignment="Left" VerticalAlignment="Top" Margin="20" Background="White" CornerRadius="5">
                 <Canvas x:Name="canvasMain" Width="{Binding ElementName=txtPageWidth,Path=Text}" Height="{Binding ElementName=txtPageHeight,Path=Text}">
+                    <Border x:Name="borderHospitalName" Canvas.Left="{Binding ElementName=txtHospitalNameFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtHospitalNameFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="河南科技大学第一附属医院" FontWeight="Bold" FontSize="{Binding ElementName=sliderHospitalNameFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderOrderType" Canvas.Left="{Binding ElementName=txtOrderTypeFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtOrderTypeFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="长嘱" FontWeight="Bold" FontSize="{Binding ElementName=sliderOrderTypeFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderspecial_medicationtip" Canvas.Left="{Binding ElementName=txtspecial_medicationtipFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtspecial_medicationtipFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="【普】" FontWeight="Bold" FontSize="{Binding ElementName=sliderspecial_medicationtipFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderBatchName" Canvas.Left="{Binding ElementName=txtBatchNameFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtBatchNameFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="01批" FontWeight="Bold" FontSize="{Binding ElementName=sliderBatchNameFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderAge" Canvas.Left="{Binding ElementName=txtAgeFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtAgeFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="35岁" FontWeight="Bold" FontSize="{Binding ElementName=sliderAgeFontSize,Path=Value}" Padding="0"/>
+                    </Border>
                     <Border x:Name="borderArea" Canvas.Left="{Binding ElementName=txtAreaFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtAreaFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="病区事例文字" FontWeight="Bold" FontSize="{Binding ElementName=sliderAreaFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderDate" Canvas.Left="{Binding ElementName=txtDateFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDateFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="2018-10-18补" FontWeight="Bold" FontSize="{Binding ElementName=sliderDateFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="2018-10-18" FontWeight="Bold" FontSize="{Binding ElementName=sliderDateFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderPageNum" Canvas.Left="{Binding ElementName=txtPageNumFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtPageNumFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="1/1" FontWeight="Bold" FontSize="{Binding ElementName=sliderPageNumFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="1/1页" FontWeight="Bold" FontSize="{Binding ElementName=sliderPageNumFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderSplit" Canvas.Left="{Binding ElementName=txtSplitX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtSplitY, Path=Text, Mode=TwoWay}">
                         <Border BorderThickness="0,1,0,0" BorderBrush="Black" Width="{Binding ElementName=sliderSplitWidth,Path=Value}"/>
@@ -596,11 +793,23 @@
                     <Border x:Name="borderDrugsTitle" Canvas.Left="{Binding ElementName=txtDrugsTitleFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDrugsTitleFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="药品名称" FontWeight="Bold" FontSize="{Binding ElementName=sliderDrugsTitleFontSize,Path=Value}" Padding="0"/>
                     </Border>
+                    <Border x:Name="borderSpecTitle" Canvas.Left="{Binding ElementName=txtSpecTitleFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtSpecTitleFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="规格" FontWeight="Bold" FontSize="{Binding ElementName=sliderSpecTitleFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderUseSpTitle" Canvas.Left="{Binding ElementName=txtUseSpTitleFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtUseSpTitleFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="用量" FontWeight="Bold" FontSize="{Binding ElementName=sliderUseSpTitleFontSize,Path=Value}" Padding="0"/>
+                    </Border>
                     <Border x:Name="borderUseTitle" Canvas.Left="{Binding ElementName=txtUseTitleFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtUseTitleFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="用量" FontWeight="Bold" FontSize="{Binding ElementName=sliderUseTitleFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="数量" FontWeight="Bold" FontSize="{Binding ElementName=sliderUseTitleFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderDrugsContent" Canvas.Left="{Binding ElementName=txtDrugsContentFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDrugsContentFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="5%葡萄糖注射液[100ml](非PVC双阀)" FontSize="{Binding ElementName=sliderDrugsContentFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="5%葡萄糖注射液" FontSize="{Binding ElementName=sliderDrugsContentFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderSpecValue" Canvas.Left="{Binding ElementName=txtSpecValueFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtSpecValueFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="100" FontWeight="Bold" FontSize="{Binding ElementName=sliderSpecValueFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderUseSpValue" Canvas.Left="{Binding ElementName=txtUseSpValueFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtUseSpValueFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="100" FontWeight="Bold" FontSize="{Binding ElementName=sliderUseSpValueFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderUseValue" Canvas.Left="{Binding ElementName=txtUseValueFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtUseValueFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="1" FontWeight="Bold" FontSize="{Binding ElementName=sliderPageNumFontSize,Path=Value}" Padding="0"/>

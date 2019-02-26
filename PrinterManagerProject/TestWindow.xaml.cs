@@ -180,7 +180,7 @@ namespace PrinterManagerProject
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.Split2X), ConvertInt(model.Split2Y)), new System.Drawing.Point(ConvertInt(model.Split2X + model.Split2Width), ConvertInt(model.Split2Y)));
             sb.Append(GetLabelCommand("——————————————————————————", model.DrugsTitleFontSize, 0, model.Split2Y - 5));
             sb.Append(GetLabelCommand("药品名称", model.DrugsTitleFontSize, model.DrugsTitleFontX, model.DrugsTitleFontY));
-            sb.Append(GetLabelCommand("用量", model.UseTitleFontSize, model.UseTitleFontX, model.UseTitleFontY));
+            sb.Append(GetLabelCommand("数量", model.UseTitleFontSize, model.UseTitleFontX, model.UseTitleFontY));
 
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(model.SplitX), ConvertInt(model.SplitY)), new System.Drawing.Point(ConvertInt(model.SplitX + model.SplitWidth), ConvertInt(model.SplitY)));
             //int x = model.DrugsContentFontX;
@@ -199,7 +199,7 @@ namespace PrinterManagerProject
                 int fontHeight = model.DrugsContentFontSize;
                 // 药名
                 sb.Append(GetLabelCommand(drugs[i].drug_name, model.DrugsContentFontSize, model.DrugsContentFontX, height));
-                //用量
+                //数量
                 sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0'), model.DrugsContentFontSize, model.PageWidth-80, height));
 
                 // 只修改Y轴，向下平铺
@@ -322,7 +322,7 @@ namespace PrinterManagerProject
 
                 g.DrawString("药品名称", new Font(fontName, ConvertFontInt(model.DrugsTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(model.DrugsTitleFontX), ConvertInt(model.DrugsTitleFontY));
                 g.DrawString("5%葡萄糖注射液[100ml](非PVC双阀)", new Font(fontName, ConvertFontInt(model.DrugsContentFontSize)), bush, ConvertInt(model.DrugsContentFontX), ConvertInt(model.DrugsContentFontY));
-                g.DrawString("用量", new Font(fontName, ConvertFontInt(model.UseTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(model.UseTitleFontX), ConvertInt(model.UseTitleFontY));
+                g.DrawString("数量", new Font(fontName, ConvertFontInt(model.UseTitleFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(model.UseTitleFontX), ConvertInt(model.UseTitleFontY));
                 g.DrawString("100ml", new Font(fontName, ConvertFontInt(model.UseValueFontSize)), bush, ConvertInt(model.UseValueFontX), ConvertInt(model.UseValueFontY));
                 g.DrawString("处方医生：张慧", new Font(fontName, ConvertFontInt(model.DoctorFontSize)), bush, ConvertInt(model.DoctorFontX), ConvertInt(model.DoctorFontY));
                 g.DrawString("备注：", new Font(fontName, ConvertFontInt(model.RemarkFontSize)), bush, ConvertInt(model.RemarkFontX), ConvertInt(model.RemarkFontY));

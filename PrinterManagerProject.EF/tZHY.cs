@@ -72,5 +72,6 @@ namespace PrinterManagerProject.EF
         public string is_print_snv { get; set; }
         public string barcode { get; set; }
         public string sex { get; set; }
+        public string batch_name { get; set; }
     }
 }

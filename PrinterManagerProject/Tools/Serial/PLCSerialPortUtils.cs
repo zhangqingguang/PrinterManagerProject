@@ -295,7 +295,6 @@ namespace PrinterManagerProject
         public bool SendData(string instructions)
         {
             //byte[] data = strToHexByte(instructions);
-
             if (sp.IsOpen)
             {
                 try
@@ -306,6 +305,10 @@ namespace PrinterManagerProject
                     }
                     var startTime = DateTime.Now;
                     sp.Write(instructions + "\r\n");//发送数据
+                    if (instructions.Contains("WCS") || instructions.Contains("WDD"))
+                    {
+                        myEventLog.LogInfo($"数据发送成功");
+                    }
 
                     //myEventLog.LogInfo($"发送给PLC花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                     //new LogHelper().SerialPortLog($"发送给PLC:{instructions}");

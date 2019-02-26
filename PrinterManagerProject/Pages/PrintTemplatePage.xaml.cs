@@ -570,31 +570,89 @@ namespace PrinterManagerProject.Pages
             /// </summary>
             txtDrugsContentFontY.Text = model.DrugsContentFontY + "";
 
+            #region 规格
+            /// <summary>
+            /// 规格标题文字
+            /// </summary>
+            sliderSpecTitleFontSize.Value = model.SpecTitleFontSize;
+            /// <summary>
+            /// 规格标题文字X坐标
+            /// </summary>
+            txtSpecTitleFontX.Text = model.SpecTitleFontX + "";
+            /// <summary>
+            /// 规格标题文字Y坐标
+            /// </summary>
+            txtSpecTitleFontY.Text = model.SpecTitleFontY + "";
+
+            /// <summary>
+            /// 规格值文字
+            /// </summary>
+            sliderSpecValueFontSize.Value = model.SpecValueFontSize;
+            /// <summary>
+            /// 规格值文字X坐标
+            /// </summary>
+            txtSpecValueFontX.Text = model.SpecValueFontX + "";
+            /// <summary>
+            /// 规格值文字Y坐标
+            /// </summary>
+            txtSpecValueFontY.Text = model.SpecValueFontY + "";
+            #endregion
+
+            #region 用量
             /// <summary>
             /// 用量标题文字
             /// </summary>
-            sliderUseTitleFontSize.Value = model.UseTitleFontSize;
+            sliderUseSpTitleFontSize.Value = model.UseSpTitleFontSize;
             /// <summary>
             /// 用量标题文字X坐标
             /// </summary>
-            txtUseTitleFontX.Text = model.UseTitleFontX + "";
+            txtUseSpTitleFontX.Text = model.UseSpTitleFontX + "";
             /// <summary>
             /// 用量标题文字Y坐标
             /// </summary>
-            txtUseTitleFontY.Text = model.UseTitleFontY + "";
+            txtUseSpTitleFontY.Text = model.UseSpTitleFontY + "";
 
             /// <summary>
             /// 用量值文字
             /// </summary>
-            sliderUseValueFontSize.Value = model.UseValueFontSize;
+            sliderUseSpValueFontSize.Value = model.UseSpValueFontSize;
             /// <summary>
             /// 用量值文字X坐标
             /// </summary>
-            txtUseValueFontX.Text = model.UseValueFontX + "";
+            txtUseSpValueFontX.Text = model.UseSpValueFontX + "";
             /// <summary>
             /// 用量值文字Y坐标
             /// </summary>
-            txtUseValueFontY.Text = model.UseValueFontY + "";
+            txtUseSpValueFontY.Text = model.UseSpValueFontY + ""; 
+            #endregion
+
+            #region 数量
+            /// <summary>
+            /// 数量标题文字
+            /// </summary>
+            sliderUseTitleFontSize.Value = model.UseTitleFontSize;
+            /// <summary>
+            /// 数量标题文字X坐标
+            /// </summary>
+            txtUseTitleFontX.Text = model.UseTitleFontX + "";
+            /// <summary>
+            /// 数量标题文字Y坐标
+            /// </summary>
+            txtUseTitleFontY.Text = model.UseTitleFontY + "";
+
+            /// <summary>
+            /// 数量值文字
+            /// </summary>
+            sliderUseValueFontSize.Value = model.UseValueFontSize;
+            /// <summary>
+            /// 数量值文字X坐标
+            /// </summary>
+            txtUseValueFontX.Text = model.UseValueFontX + "";
+            /// <summary>
+            /// 数量值文字Y坐标
+            /// </summary>
+            txtUseValueFontY.Text = model.UseValueFontY + ""; 
+            #endregion
 
             /// <summary>
             /// 处方医生文字
@@ -922,28 +980,28 @@ namespace PrinterManagerProject.Pages
                 model.DrugsContentFontY = Convert.ToInt32(txtDrugsContentFontY.Text);
 
                 /// <summary>
-                /// 用量标题文字
+                /// 数量标题文字
                 /// </summary>
                 model.UseTitleFontSize = Convert.ToInt32(sliderUseTitleFontSize.Value);
                 /// <summary>
-                /// 用量标题文字X坐标
+                /// 数量标题文字X坐标
                 /// </summary>
                 model.UseTitleFontX = Convert.ToInt32(txtUseTitleFontX.Text);
                 /// <summary>
-                /// 用量标题文字Y坐标
+                /// 数量标题文字Y坐标
                 /// </summary>
                 model.UseTitleFontY = Convert.ToInt32(txtUseTitleFontY.Text);
 
                 /// <summary>
-                /// 用量值文字
+                /// 数量值文字
                 /// </summary>
                 model.UseValueFontSize = Convert.ToInt32(sliderUseValueFontSize.Value);
                 /// <summary>
-                /// 用量值文字X坐标
+                /// 数量值文字X坐标
                 /// </summary>
                 model.UseValueFontX = Convert.ToInt32(txtUseValueFontX.Text);
                 /// <summary>
-                /// 用量值文字Y坐标
+                /// 数量值文字Y坐标
                 /// </summary>
                 model.UseValueFontY = Convert.ToInt32(txtUseValueFontY.Text);
 
