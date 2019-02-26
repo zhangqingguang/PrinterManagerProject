@@ -85,19 +85,19 @@ namespace PrinterManagerProject
             /// <summary>
             /// CCD连接状态
             /// </summary>
-        bool CCDConnected = false;
+        private static bool CCDConnected = false;
         /// <summary>
         /// PLC连接状态
         /// </summary>
-        bool PCLConnected = false;
+        private static bool PCLConnected = false;
         /// <summary>
         /// 自动扫码枪连接状态
         /// </summary>
-        bool AutoScannerConnected = false;
+        private static bool AutoScannerConnected = false;
         /// <summary>
         /// 手动扫码枪连接状态
         /// </summary>
-        bool HanderScannerConnected = false;
+        private static bool HanderScannerConnected = false;
 
 
         private OrderManager orderManager = new OrderManager();
@@ -1233,68 +1233,27 @@ namespace PrinterManagerProject
                     myEventLog.LogInfo($"队列中无数据，不修改扫码枪计数！");
                     return;
                 }
-                var model = queue.FirstOrDefault(s => s.ScannerLightScan == false);
-                if (model != null)
+                foreach (var item in queue)
                 {
-                    model.PrinterLightScan = true;
-                    myEventLog.LogInfo($"Index:{model.Index},过扫码枪光幕，记录过光幕状态，");
+                    if(item.PrinterLightScan == false)
+                    {
+                        item.PrinterLightScan = true;
+                        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
+                    }
+
+                    if (CanStartConveryorBelt())
+                    {
+                        StartConveryorBelt();
+                    }
+
+                    if(item.ScannerLightScan == false)
+                    {
+                        item.ScannerLightScan = true;
+                        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，记录过光幕状态，");
+                        break;
+                    }
                 }
-                //OrderQueueModel model = queue.Find(m => m.ScannerLightScan==false);
-                //if (model != null)
-                //{
-                //    myEventLog.LogInfo($"过扫码枪光幕，记录过光幕状态");
-                //    model.ScannerLightScan = true;
-                //}
-                //else
-                //{
-                //    myEventLog.LogInfo($"过扫码枪光幕，队列中未找到扫码液体");
-                //}
             }
-            // 找到最后一个没有记录的进行记录
-            //lock (queueHelper)
-            //{
-            //    if (scannerLightCount != count)
-            //    {
-            //        myEventLog.LogInfo($"收到扫码枪光幕：{scannerLightCount}=>{count}");
-            //    }
-            //    else
-            //    {
-            //        return;
-            //    }
-            //    if (queue.Any() == false)
-            //    {
-            //        scannerLightCount = count;
-            //        myEventLog.LogInfo($"队列中无数据，同步计数器：{scannerLightCount}=>{count}");
-            //        return;
-            //    }
-            //    foreach (var item in queue)
-            //    {
-            //        if (item.ScannerLightScan)
-            //        {
-            //            continue;
-            //        }
-            //        item.ScannerLightScan = true;
-
-            //        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，记录过光幕状态，");
-
-            //        scannerLightCount++;
-            //        if (scannerLightCount == count)
-            //        {
-            //            break;
-            //        }
-            //    }
-            //    scannerLightCount = count;
-            //    //OrderQueueModel model = queue.Find(m => m.ScannerLightScan==false);
-            //    //if (model != null)
-            //    //{
-            //    //    myEventLog.LogInfo($"过扫码枪光幕，记录过光幕状态");
-            //    //    model.ScannerLightScan = true;
-            //    //}
-            //    //else
-            //    //{
-            //    //    myEventLog.LogInfo($"过扫码枪光幕，队列中未找到扫码液体");
-            //    //}
-            //}
         }
 
         #endregion
@@ -1884,17 +1843,17 @@ namespace PrinterManagerProject
                 return;
             }
 
-            //if (ConnectionManager.CheckPivasConnetionStatus() == false)
-            //{
-            //    MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
+            if (ConnectionManager.CheckPivasConnetionStatus() == false)
+            {
+                MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
 
-            //if (CCDConnected == false)
-            //{
-            //    MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
+            if (CCDConnected == false)
+            {
+                MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
             if (PCLConnected == false)
             {
                 MessageBox.Show("控制系统连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
