@@ -87,5 +87,6 @@ namespace PrinterManagerProject.EF
         public string detection_drug_name { get; set; }
         public string detection_drug_spec { get; set; }
         public string barcode { get; set; }
+        public string sex { get; set; }
     }
 }

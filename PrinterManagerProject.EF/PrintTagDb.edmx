@@ -4,7 +4,7 @@
   <edmx:Runtime>
     <!-- SSDL content -->
     <edmx:StorageModels>
-    <Schema Namespace="PrintTagDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2008" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
+    <Schema Namespace="PrintTagDbModel.Store" Provider="System.Data.SqlClient" ProviderManifestToken="2012" Alias="Self" xmlns:store="http://schemas.microsoft.com/ado/2007/12/edm/EntityStoreSchemaGenerator" xmlns:customannotation="http://schemas.microsoft.com/ado/2013/11/edm/customannotation" xmlns="http://schemas.microsoft.com/ado/2009/11/edm/ssdl">
         <EntityType Name="tBatch">
           <Key>
             <PropertyRef Name="Id" />
@@ -111,6 +111,7 @@
           <Property Name="CheckUserName" Type="nvarchar" MaxLength="50" />
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
+          <Property Name="sex" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -185,6 +186,7 @@
           <Property Name="CheckUserName" Type="nvarchar" MaxLength="50" />
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
+          <Property Name="sex" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -273,6 +275,7 @@
           <Property Name="detection_drug_name" Type="varchar" MaxLength="100" />
           <Property Name="detection_drug_spec" Type="varchar" MaxLength="50" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
+          <Property Name="sex" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -351,6 +354,7 @@
           <Property Name="detection_drug_name" Type="varchar" MaxLength="100" />
           <Property Name="detection_drug_spec" Type="varchar" MaxLength="50" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
+          <Property Name="sex" Type="varchar" MaxLength="4" />
         </EntityType>
         <EntityType Name="tZHY">
           <Key>
@@ -413,6 +417,7 @@
           <Property Name="config_name" Type="varchar" MaxLength="20" />
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
+          <Property Name="sex" Type="varchar" MaxLength="4" />
         </EntityType>
         <Function Name="P_BakHistoryData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
@@ -460,13 +465,13 @@
           <EntitySet Name="tOrderBaks" EntityType="PrintTagDbModel.tOrderBak" />
           <EntitySet Name="tWarningBaks" EntityType="PrintTagDbModel.tWarningBak" />
           <FunctionImport Name="P_BakHistoryData">
-            <Parameter Name="use_date" Mode="In" Type="String" />
+          <Parameter Name="use_date" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="P_InsertIntotOrderSelecttZHY">
-            <Parameter Name="use_date" Mode="In" Type="String" />
+          <Parameter Name="use_date" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="P_UpdatetOrderFromtZHY">
-            <Parameter Name="use_date" Mode="In" Type="String" />
+          <Parameter Name="use_date" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="tBatch">
@@ -554,6 +559,7 @@
           <Property Name="config_name" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <EnumType Name="PrintModelEnum" a:ExternalTypeName="PrinterManagerProject.EF.Models.PrintModelEnum" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
         <EnumType Name="PrintStatusEnum" a:ExternalTypeName="PrinterManagerProject.EF.Models.PrintStatusEnum" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
@@ -639,6 +645,7 @@
           <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="ydrug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarning">
           <Key>
@@ -716,6 +723,7 @@
           <Property Name="detection_drug_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="detection_drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -790,6 +798,7 @@
           <Property Name="CheckUserName" Type="String" MaxLength="50" FixedLength="false" Unicode="true" />
           <Property Name="is_print_snv" Type="String" MaxLength="23" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -868,6 +877,7 @@
           <Property Name="detection_drug_name" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="detection_drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
+          <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
         </EntityType>
       </Schema>
     </edmx:ConceptualModels>
@@ -916,6 +926,7 @@
           <EntitySetMapping Name="tZHies">
             <EntityTypeMapping TypeName="PrintTagDbModel.tZHY">
               <MappingFragment StoreEntitySet="tZHY">
+                <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="is_print_snv" ColumnName="is_print_snv" />
                 <ScalarProperty Name="config_name" ColumnName="config_name" />
@@ -990,6 +1001,7 @@
           <EntitySetMapping Name="tOrders">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrder">
               <MappingFragment StoreEntitySet="tOrder">
+                <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="ydrug_id" ColumnName="ydrug_id" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="is_print_snv" ColumnName="is_print_snv" />
@@ -1064,6 +1076,7 @@
           <EntitySetMapping Name="tWarnings">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarning">
               <MappingFragment StoreEntitySet="tWarning">
+                <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="detection_drug_spec" ColumnName="detection_drug_spec" />
                 <ScalarProperty Name="detection_drug_name" ColumnName="detection_drug_name" />
@@ -1142,6 +1155,7 @@
           <EntitySetMapping Name="tOrderBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrderBak">
               <MappingFragment StoreEntitySet="tOrderBak">
+                <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="is_print_snv" ColumnName="is_print_snv" />
                 <ScalarProperty Name="CheckUserName" ColumnName="CheckUserName" />
@@ -1217,6 +1231,7 @@
           <EntitySetMapping Name="tWarningBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarningBak">
               <MappingFragment StoreEntitySet="tWarningBak">
+                <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="detection_drug_spec" ColumnName="detection_drug_spec" />
                 <ScalarProperty Name="detection_drug_name" ColumnName="detection_drug_name" />

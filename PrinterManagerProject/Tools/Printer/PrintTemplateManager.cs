@@ -52,7 +52,7 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand(order.group_num, tempConfig.DoctorAdviceFontSize, tempConfig.DoctorAdviceFontX, tempConfig.DoctorAdviceFontY));
             sb.Append(GetLabelCommand(order.bed_number, tempConfig.BedFontSize, tempConfig.BedFontX, tempConfig.BedFontY));
             sb.Append(GetLabelCommand(order.patient_name, tempConfig.PatientFontSize, tempConfig.PatientFontX, tempConfig.PatientFontY));
-            sb.Append(GetLabelCommand("男", tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
+            sb.Append(GetLabelCommand(order.sex, tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
             sb.Append(GetLabelCommand(order.batch, tempConfig.BatchNumberFontSize, tempConfig.BatchNumberFontX, tempConfig.BatchNumberFontY));
             sb.Append(GetLabelCommand(order.zone?.ToString(), tempConfig.SerialNumberFontSize, tempConfig.SerialNumberFontX, tempConfig.SerialNumberFontY));
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split2X), ConvertInt(tempConfig.Split2Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split2X + tempConfig.Split2Width), ConvertInt(tempConfig.Split2Y)));

@@ -3,10 +3,12 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:src="clr-namespace:PrinterManagerProject.Converter"
         xmlns:local="clr-namespace:PrinterManagerProject"
         Style="{StaticResource MetroWindowStyle}"
         mc:Ignorable="d"
-        Title="深圳壹达物联科技综合查询系统" Height="748.777" Width="1125.429" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
+        Title="深圳壹达物联科技综合查询系统" Height="1080" Width="1920" 
+                  WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
     <Window.Resources>
         <Style x:Key="DataGridTextColumnCenterSytle" TargetType="{x:Type TextBlock}">
             <Setter Property="HorizontalAlignment" Value="Center" />
@@ -15,6 +17,7 @@
         <Style x:Key="GridStackPanelSytle" TargetType="{x:Type StackPanel}">
             <Setter Property="Margin" Value="10" />
         </Style>
+        <src:PrintStatusConverter x:Key="printStatusConverter"/>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1" Margin="5">
         <Grid>
@@ -32,25 +35,28 @@
 
                 <DataGrid Grid.Row="0" x:Name="dgv_list">
                     <DataGrid.Columns>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding Number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="编码" Binding="{Binding No, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding Area, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="床号" Binding="{Binding Position, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="姓名" Binding="{Binding PeopleName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="70"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="药品名称" Binding="{Binding DrugName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding DrugSpec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="生产企业" Binding="{Binding Company, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称" Binding="{Binding SolventName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding SolventSpec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒批号" Binding="{Binding SolventBatchNo, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签状态" Binding="{Binding Stataus, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签时间" Binding="{Binding MarkTime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>-->
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="医嘱编号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding departmengt_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="患者姓名" Binding="{Binding patient_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病床号" Binding="{Binding bed_number, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="年龄" Binding="{Binding age, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒名称" Binding="{Binding drug_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding drug_spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="140"/>
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="药品名称" Binding="{Binding ydrug_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="200"/>-->
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="规格" Binding="{Binding ydrug_spec, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>-->
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="生产企业" Binding="{Binding Company, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>-->
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒批号" Binding="{Binding sbatches, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>-->
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签状态" Binding="{Binding printing_status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printStatusConverter}}" Width="100"/>
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签模式" Binding="{Binding printing_model, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printModelConverter}}" Width="100"/>-->
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签时间" Binding="{Binding printing_time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                     </DataGrid.Columns>
                 </DataGrid>
-                <StackPanel Grid.Row="1" Orientation="Horizontal" Width="240" Height="50">
+                <!--<StackPanel Grid.Row="1" Orientation="Horizontal" Width="240" Height="50">
                     <Button Content="打印预览" Width="100" Height="25"></Button>
                     <Button Content="打印" Width="100" Height="25" Margin="40,0,0,0"></Button>
-                </StackPanel>
+                </StackPanel>-->
             </Grid>
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
@@ -75,67 +81,47 @@
                 <Label Grid.Row="0" Content="请输入查询内容" Margin="10,0,0,0" HorizontalAlignment="Left"/>
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="起止日期：" Width="100"/>
-                    <DatePicker Width="120" />
+                    <Label Content="用药日期：" Width="100"/>
+                    <DatePicker x:Name="dp_useDate" Width="120" DataContextChanged="Dp_useDate_DataContextChanged" />
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="" Width="100"/>
-                    <DatePicker Width="120" />
+                    <Label Content="批次：" Width="100"/>
+                    <ComboBox x:Name="cb_batch" Width="120" SelectedIndex="0" DataContextChanged="Cb_batch_DataContextChanged">
+                    </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="批次：" Width="100"/>
-                    <ComboBox Width="120" SelectedIndex="0">
-                        <ComboBoxItem Tag="0" Content="全部"/>
-                        <ComboBoxItem Tag="1" Content="01   08:00"/>
-                        <ComboBoxItem Tag="2" Content="02   10:00"/>
-                        <ComboBoxItem Tag="3" Content="03   12:00"/>
+                    <Label Content="科室：" Width="100"/>
+                    <ComboBox x:Name="cb_dept" Width="120" SelectedIndex="0" SelectionChanged="Cb_dept_SelectionChanged">
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="4" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="医嘱编码：" Width="100"/>
-                    <TextBox TextWrapping="Wrap" Width="120" />
+                    <Label Content="主药分组：" Width="100"/>
+                    <ComboBox x:Name="cb_drug" Width="120" SelectedIndex="0" SelectionChanged="Cb_drug_SelectionChanged">
+                    </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="5" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="科室：" Width="100"/>
-                    <ComboBox Width="120" SelectedIndex="0">
-                        <ComboBoxItem Tag="0" Content="全部"/>
-                        <ComboBoxItem Tag="1" Content="儿科一"/>
-                        <ComboBoxItem Tag="2" Content="儿科二"/>
-                        <ComboBoxItem Tag="3" Content="内科一"/>
+                    <Label Content="操作员：" Width="100"/>
+                    <ComboBox x:Name="cb_Printer" Width="120" SelectedIndex="0" SelectionChanged="Cb_Printer_SelectionChanged">
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="6" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="患者名称或床号：" Width="100"/>
-                    <TextBox TextWrapping="Wrap" Width="120" />
+                    <Label Content="贴签状态：" Width="100"/>
+                    <ComboBox x:Name="cb_PrintStatus" Width="120" SelectedIndex="0" SelectionChanged="Cb_PrintStatus_SelectionChanged">
+                        <ComboBoxItem Tag="" DataContext="" Content="全部"/>
+                        <ComboBoxItem Tag="0" DataContext="0" Content="未贴签"/>
+                        <ComboBoxItem Tag="1" DataContext="1" Content="已贴签"/>
+                    </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="7" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="主药分组：" Width="100"/>
-                    <ComboBox Width="120" SelectedIndex="0">
-                        <ComboBoxItem Tag="0" Content="全部"/>
-                        <ComboBoxItem Tag="1" Content="01 复方甘草酸"/>
-                        <ComboBoxItem Tag="2" Content="02 复方甘草酸"/>
-                        <ComboBoxItem Tag="3" Content="03 复方甘草酸"/>
-                    </ComboBox>
+                    <Label Content="医嘱编码：" Width="100"/>
+                    <TextBox x:Name="tb_groupNum" TextWrapping="Wrap" Width="120" TextChanged="Tb_groupNum_TextChanged"/>
                 </StackPanel>
                 <StackPanel Grid.Row="8" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="完成状态：" Width="100"/>
-                    <ComboBox Width="120" SelectedIndex="0">
-                        <ComboBoxItem Tag="0" Content="全部"/>
-                        <ComboBoxItem Tag="1" Content="完成"/>
-                        <ComboBoxItem Tag="2" Content="未完成"/>
-                    </ComboBox>
+                    <Label Content="患者名称或床号：" Width="100"/>
+                    <TextBox Name="tb_key" TextWrapping="Wrap" Width="120" TextChanged="Tb_key_TextChanged" />
                 </StackPanel>
-                <StackPanel Grid.Row="9" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
-                    <Label Content="操作员：" Width="100"/>
-                    <ComboBox Width="120" SelectedIndex="0">
-                        <ComboBoxItem Tag="0" Content="全部"/>
-                        <ComboBoxItem Tag="1" Content="管理员"/>
-                        <ComboBoxItem Tag="2" Content="用户1"/>
-                    </ComboBox>
-                </StackPanel>
-                <Grid Grid.Row="10" Margin="0,20,0,0">
+                <Grid Grid.Row="9" Margin="0,20,0,0">
                     <Grid.RowDefinitions>
-                        <RowDefinition/>
                         <RowDefinition/>
                         <RowDefinition/>
                     </Grid.RowDefinitions>
@@ -145,14 +131,12 @@
                     </Grid.ColumnDefinitions>
                     
                     <RadioButton Grid.Row="0" Margin="15,0,0,0" Grid.Column="0" Content="自动贴签" IsChecked="True" />
-                    <RadioButton Grid.Row="0" Grid.Column="1" Content="非自动贴签" />
-                    <RadioButton Grid.Row="1" Margin="15,0,0,0" Grid.Column="0" Content="医嘱不良品" />
-                    <RadioButton Grid.Row="1" Grid.Column="1" Content="补打标签" />
-                    <RadioButton Grid.Row="2" Margin="15,0,0,0" Grid.Column="0" Content="成品核对不良品" />
-                    <RadioButton Grid.Row="2" Grid.Column="1" Content="补贴标签" />
+                    <RadioButton Grid.Row="0" Grid.Column="1" Content="溶媒异常" />
+                    <RadioButton Grid.Row="1" Margin="15,0,0,0" Grid.Column="0" Content="手动贴签" IsEnabled="False" />
+                    <RadioButton Grid.Row="1" Grid.Column="1" Content="补贴标签" IsEnabled="False" />
                 </Grid>
                 <StackPanel Grid.Row="12" Grid.Column="0" Style="{StaticResource GridStackPanelSytle}">
-                    <Button Content="刷新" Width="120" HorizontalAlignment="Center" VerticalAlignment="Bottom"/>
+                    <Button Content="刷新" Width="120" HorizontalAlignment="Center" VerticalAlignment="Bottom" Click="Button_Click"/>
                 </StackPanel>
             </Grid>
         </Grid>

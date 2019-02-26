@@ -8,21 +8,12 @@ using System.Windows.Controls;
 using System.Windows.Media;
 using PrinterManagerProject.Tools;
 using System.Threading;
-using Zebra.Sdk.Printer.Discovery;
 using Zebra.Sdk.Comm;
 using Zebra.Sdk.Printer;
-using System.Drawing;
-using Zebra.Sdk.Graphics;
-using System.IO;
-using ZXing.PDF417;
-using ZXing;
-using System.Drawing.Drawing2D;
-using System.Drawing.Text;
 using System.Windows.Shapes;
 using System.Text;
 using System.Linq;
 using System.Data;
-using log4net;
 using System.Threading.Tasks;
 using PrinterManagerProject.EF;
 using PrinterManagerProject.EF.Models;
@@ -163,45 +154,7 @@ namespace PrinterManagerProject
                 CCDSerialPortUtils.GetInstance(this).Open();
                 ScannerSerialPortUtils.GetInstance(this).Open();
                 ScanHandlerSerialPortUtils.GetInstance(this).Open();
-
-                // 检查打印机状态
-
-                Task.Run(()=> {
-                    try
-                    {
-                        var printer = printerManager.GetPrinter();
-                    }
-                    catch (Exception ex)
-                    {
-                        myEventLog.LogError("尝试连接打印机失败", ex);
-                    }
-                });
-                #region 检查打印机状态，直到连接成功
-
-                //bool continueTryConnectPrinter = false;
-                //bool connectSuccess = false;
-                //do
-                //{
-                //    string errorMsg = printerManager.InitPrinter();
-
-                //    if (string.IsNullOrEmpty(errorMsg) == false)
-                //    {
-                //        // 这里设置显示串口正常
-                //        MessageBoxResult result = MessageBox.Show(errorMsg, "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                //        continueTryConnectPrinter = result == MessageBoxResult.OK;
-                //    }
-                //    else
-                //    {
-                //        connectSuccess = true;
-                //    }
-
-                //} while (continueTryConnectPrinter && connectSuccess == false);
-                //if (connectSuccess == false)
-                //{
-                //    return;
-                //}
-                #endregion
-
+                
                 // 检查数据库状态
                 if (!CheckDBConnection())
                 {
@@ -241,467 +194,6 @@ namespace PrinterManagerProject
         }
         #endregion
 
-        #region 事件响应
-
-        private void BaseWindow_Closing(object sender, CancelEventArgs e)
-        {
-            if (needCloseWindowConfirm)
-            {
-                //MessageBoxResult result = MessageBox.Show("确定是退出贴签系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                ////关闭窗口
-                //if (result == MessageBoxResult.Yes)
-                //{
-
-                //    e.Cancel = false;
-                //}
-                ////不关闭窗口
-                //if (result == MessageBoxResult.No)
-                //    e.Cancel = true;
-
-
-                // 关闭PLC
-                PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
-                plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
-                // 关闭串口
-                PLCSerialPortUtils.GetInstance(this).Close();
-                CCDSerialPortUtils.GetInstance(this).Close();
-                ScannerSerialPortUtils.GetInstance(this).Close();
-                ScanHandlerSerialPortUtils.GetInstance(this).Close();
-
-                // 打开主窗口
-                var collections = Application.Current.Windows;
-                foreach (Window window in collections)
-                {
-                    BaseWindow win = window as BaseWindow;
-                    if (win != null)
-                    {
-                        // 其他Window直接关闭
-                        if (win.ToString().Contains("MainWindow"))
-                        {
-                            win.Show();
-                        }
-                    }
-                }
-            }
-        }
-
-        /// <summary>
-        /// 同步医嘱
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
-        {
-            if (ConnectionManager.CheckPivasConnetionStatus() == false)
-            {
-                MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (CheckDBConnection() == false)
-            {
-                return;
-            }
-            if (this.use_date.SelectedDate.HasValue == false)
-            {
-                MessageBox.Show("请选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (this.use_date.SelectedDate.Value.Date < DateTime.Now.Date)
-            {
-                MessageBox.Show("只能选择今天和今天后的日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            try
-            {
-                myEventLog.LogInfo("开始同步医嘱");
-                this.btnUpdate.IsEnabled = false;
-                new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
-                myEventLog.LogInfo("医嘱同步完成");
-                MessageBox.Show("从Pivas同步医嘱完成！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            catch (Exception exception)
-            {
-                myEventLog.LogError(exception.Message, exception);
-                MessageBox.Show("从Pivas同步医嘱出错！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-            finally
-            {
-                this.btnUpdate.IsEnabled = true;
-            }
-
-            LoadData();
-        }
-
-        private void ButtonPrint_Click(object sender, RoutedEventArgs e)
-        {
-            ////var model = autoPrintCurrentList[0];
-            ////model.printing_status = 1;
-
-            //var model = autoPrintCurrentList[0];
-            //autoPrintCurrentList.Remove(model);
-
-            //// 显示界面效果
-            //Dispatcher.Invoke(() =>
-            //{
-            //    dgv_AllPrint.ItemsSource = null;
-            //    dgv_AllPrint.ItemsSource = autoPrintCurrentList;
-            //});
-            //return;
-
-            // 检查本地数据库连接状态
-            if (CheckDBConnection() == false)
-            {
-                return;
-            }
-
-            //if (ConnectionManager.CheckPivasConnetionStatus() == false)
-            //{
-            //    MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
-
-            //if (CCDConnected == false)
-            //{
-            //    MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            //    return;
-            //}
-            if (PCLConnected == false)
-            {
-                MessageBox.Show("控制系统连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-            if (AutoScannerConnected == false)
-            {
-                MessageBox.Show("自动扫码枪连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
-
-            // 清空队列
-            queue = new List<OrderQueueModel>();
-
-            if (tabMain.SelectedIndex == 0)
-            {
-                Task.Run(() => {
-
-                    Dispatcher.Invoke(() => {
-                        loadMask.LoadingText = "正在检测打印机...";
-                        loadMask.Visibility = Visibility.Visible;
-                    });
-                    if (IsConnectDevices == false || CheckPrinterStatus())
-                    {
-                        Dispatcher.Invoke(() => {
-                            loadMask.Visibility = Visibility.Hidden;
-                        });
-                        var printer = printerManager.GetPrinter();
-                        var status = printer.GetCurrentStatus();
-                        if (status.labelsRemainingInBatch > 0)
-                        {
-                            myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
-                            // 打印机中有打印任务的，重置打印机
-                            printerManager.ResetPrinter();
-                            MessageBox.Show("打印机正在启动，请稍后再试！");
-                            return;
-                        }
-                        // 先关再开
-                        PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
-                        //plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
-                        //plcUtils.SendData(PLCSerialPortData.MACHINE_START);
-                        plcUtils.SendData("%01#WCSR00291**"); // 停止打印
-                        myEventLog.LogInfo($"发送停止命令");
-
-                        plcUtils.SendData("%01#WCSR00201**"); // 开始打印
-                        myEventLog.LogInfo($"发送开始命令");
-
-                        if (lightListener == null)
-                        {
-                            CreatePLCReader();
-                        }
-
-                        lightListener?.Start();
-
-                        StartUpdateControlState();
-
-                        SetCCD1IsNotBusy();
-                        SetCCD2IsNotBusy();
-                    }
-                    else
-                    {
-                        Dispatcher.Invoke(() => {
-                            loadMask.Visibility = Visibility.Hidden;
-                        });
-                        MessageBox.Show("无法连接到打印机，请检查打印机是否开启！");
-                    }
-                });
-                //scannerLightListener.Start();
-                // 这里设置显示串口正常
-            }
-            else
-            {
-                MessageBox.Show("当前标签页面不能自动打印！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-            }
-        }
-        /// <summary>
-        /// 检查打印机状态
-        /// </summary>
-        /// <returns></returns>
-        private bool CheckPrinterStatus()
-        {
-            var printerConnected = true;
-            try
-            {
-                var tryConnectionTimes = 0;
-
-                while (printerManager.TryOpenPrinterConnection() == false)
-                {
-                    tryConnectionTimes++;
-                    if (tryConnectionTimes >= 5)
-                    {
-                        printerConnected = false;
-                        break;
-                    }
-
-                    Thread.Sleep(1000);
-                }
-                tryConnectionTimes = 0;
-
-                while (printerConnected == true && printerManager.GetPrinter() == null)
-                {
-                    tryConnectionTimes++;
-                    if (tryConnectionTimes >= 5)
-                    {
-                        printerConnected = false;
-                        break;
-                    }
-                    Thread.Sleep(1000);
-                }
-            }
-            catch (Exception ex)
-            {
-                myEventLog.LogError("尝试连接打印机出错", ex);
-            }
-            finally
-            {
-            }
-            
-            return printerConnected;
-        }
-
-        private void ButtonStopPrint_Click(object sender, RoutedEventArgs e)
-        {
-            StopPrint();
-        }
-
-        private void StopPrint()
-        {
-            StopUpdateControlState();
-            if (IsConnectDevices)
-            {
-                lightListener?.Stop();
-                //scannerLightListener.Stop();
-                //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
-                PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00291**"); // 停止打印
-                myEventLog.LogInfo($"发送停止命令");
-
-                Task.Run(() => {
-                    try
-                    {
-
-                        var status = printerManager.GetPrinterStatus();
-                        if (status.labelsRemainingInBatch > 0)
-                        {
-                            printerManager.ResetPrinter();
-                            myEventLog.LogInfo($"停止时，打印机中有打印任务，重置打印机！");
-                        }
-                    }
-                    catch (Exception ex)
-                    {
-                        myEventLog.LogError($"停止打印时，检测打印机任务数出错！",ex);
-
-                    }
-                });
-            }
-        }
-
-        private void StopUpdateControlState()
-        {
-
-            // 这里设置显示串口正常
-            Dispatcher.Invoke(() =>
-            {
-                btnPrint.IsEnabled = true;
-                btnStopPrint.IsEnabled = false;
-                cb_drug.IsEnabled = true;
-                cb_drug_category.IsEnabled = true;
-                cb_dept.IsEnabled = true;
-                cb_batch.IsEnabled = true;
-                use_date.IsEnabled = true;
-                SetMenuEnabled();
-            });
-        }
-        private void StartUpdateControlState()
-        {
-
-            // 这里设置显示串口正常
-            Dispatcher.Invoke(() =>
-            {
-                btnPrint.IsEnabled = false;
-                btnStopPrint.IsEnabled = true;
-                cb_drug.IsEnabled = false;
-                cb_drug_category.IsEnabled = false;
-                cb_dept.IsEnabled = false;
-                cb_batch.IsEnabled = false;
-                use_date.IsEnabled = false;
-                SetMenuDisabled();
-            });
-        }
-
-        private void Use_date_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
-        {
-            //绑定批次调整后事件
-            this.cb_batch.SelectedIndex = 0;
-
-            // 清空右侧总统计信息
-            lblNumber.Content = 0;
-            lblMarkNumber.Content = 0;
-
-            LoadData();
-        }
-        /// <summary>
-        /// 筛选数据
-        /// </summary>
-        /// <param name="sender"></param>
-        /// <param name="e"></param>
-        private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
-        {
-            LoadData();
-        }
-        #endregion
-
-        #region 读取打印机状态
-
-
-        ///// <summary>
-        ///// 尝试打开打印机连接
-        ///// </summary>
-        ///// <returns></returns>
-        //private bool TryOpenPrinterConnection()
-        //{
-        //    try
-        //    {
-        //        var startTime = DateTime.Now;
-        //        if (connection == null)
-        //        {
-        //            DiscoveredUsbPrinter usbPrinter = null;
-        //            List<DiscoveredUsbPrinter> printers = UsbDiscoverer.GetZebraUsbPrinters(new ZebraPrinterFilter());
-        //            if (printers == null || printers.Count <= 0)
-        //            {
-        //                MessageBox.Show("没有检测到打印机，请检查打印机是否开启！");
-        //                myEventLog.LogInfo("没有检测到打印机，请检查打印机是否开启！");
-        //                return false;
-        //            }
-        //            usbPrinter = printers[0];
-
-        //            connection = new UsbConnection(usbPrinter.Address);
-        //        }
-        //        if (connection.Connected == false)
-        //        {
-        //            connection.Open();
-        //            myEventLog.LogInfo($"打开打印机连接花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-        //            myEventLog.LogInfo("成功打开打印机连接！");
-        //        }
-        //        return true;
-        //    }
-        //    catch (Exception ex)
-        //    {
-        //        MessageBox.Show("与打印机连接出错！");
-        //        myEventLog.LogError("打开打印机连接出错！", ex);
-        //        return false;
-        //    }
-        //}
-
-        //ZebraPrinter zPrinter = null;
-        ///// <summary>
-        ///// 获取ZebraPrinter
-        ///// </summary>
-        ///// <returns></returns>
-        //private ZebraPrinter GetPrinter()
-        //{
-        //    //if (TryOpenPrinterConnection())
-        //    //{
-        //    //    return ZebraPrinterFactory.GetInstance(connection);
-        //    //}
-        //    //return null;
-        //    if (TryOpenPrinterConnection())
-        //    {
-        //        if (zPrinter != null && zPrinter.Connection.Connected == false)
-        //        {
-        //            myEventLog.LogInfo("Printer连接失败，重置Printer！");
-        //            zPrinter = null;
-        //        }
-        //        if (zPrinter == null)
-        //        {
-        //            zPrinter = ZebraPrinterFactory.GetInstance(connection);
-
-        //        }
-        //    }
-        //    return zPrinter;
-        //}
-
-
-        ///// <summary>
-        ///// 打印机中是否有多余的打印任务
-        ///// </summary>
-        //bool PrinterHasExtraContent = false;
-        ///// <summary>
-        ///// 检查打印机中是否有多余打印任务
-        ///// </summary>
-        ///// <returns></returns>
-        //private void CheckLabelsRemainingInBatch()
-        //{
-        //    Task.Run(() =>
-        //    {
-        //        while (true)
-        //        {
-        //            CheckPrintHasExtraContent();
-
-        //            Thread.Sleep(10000);
-        //        }
-        //    });
-        //}
-        //private void CheckLabelsRemainingInBatchOnce()
-        //{
-        //    Task.Run(() =>
-        //    {
-        //        CheckPrintHasExtraContent();
-        //    });
-        //}
-
-        //private void CheckPrintHasExtraContent()
-        //{
-        //    try
-        //    {
-        //        var printer = GetPrinter();
-        //        if (printer != null)
-        //        {
-        //            var labelsCount =printerManager.GetLabelsRemainingInBatch(printer);
-        //            PrinterHasExtraContent = labelsCount > queue.Count(s => s.GoToScan == false);
-
-        //            myEventLog.LogInfo($"检测打印机是否有多余打印任务：{(PrinterHasExtraContent ? "有" : "无")},打印任务：{labelsCount}，未贴签：{queue.Count(s => s.GoToScan == false)}");
-        //        }
-        //        else
-        //        {
-        //            myEventLog.LogInfo("检测打印机是否有多余打印任务：打印机连接未开启");
-        //        }
-        //    }
-        //    catch (Exception)
-        //    {
-        //    }
-        //}
-
-
-        #endregion
-        
         #region CCD1超时处理
         CCD1Timer ccd1Timer;
         int ccd1ErrorCount = 0;
@@ -1350,7 +842,7 @@ namespace PrinterManagerProject
 
                         if (ccd1Status == '1' && ccd1IsBusy == false)
                         {
-                            if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count() < AppConfig.MaxQueueCount)
+                            if (CanStartConveryorBelt())
                             {
                                 // 收到光幕信号，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，继续拍照
 
@@ -1468,79 +960,6 @@ namespace PrinterManagerProject
                     // 写CCD1和CCD2指令返回结果
                     myEventLog.LogInfo($"收到剔除或继续返回信号:{data}。");
                 }
-                //myEventLog.LogInfo($"接收到PLC：{data}");
-                //// PLC 报错
-                //if (data == PLCSerialPortData.ERROR)
-                //{
-                //StopUpdateControlState();
-
-                //    printerManager.ResetPrinter();
-                //}
-                //// PLC 超时停机
-                //else if (data == PLCSerialPortData.OVER_TIME)
-                //{
-                //StopUpdateControlState();
-
-                //    printerManager.ResetPrinter();
-                //}
-                //// PLC 缺纸
-                //else if (data == PLCSerialPortData.NO_PAPER)
-                //{
-                //  
-                //StopUpdateControlState();
-
-                //    printerManager.ResetPrinter();
-                //}
-                //// PLC 缺色带
-                //else if (data == PLCSerialPortData.NO_COLOR)
-                //{
-                //
-                //StopUpdateControlState();
-
-                //    printerManager.ResetPrinter();
-                //}
-                //// 接收指令触发1#拍照
-                //else if (data == PLCSerialPortData.CCD1_TACK_PICTURE)
-                //{
-                //    // 停50毫秒稳定液体
-                //    Thread.Sleep(50);
-
-                //    // 开始拍照
-                //    lock (ccd1LockHelper)
-                //    {
-                //        ccd1ErrorCount = 0;
-                //    }
-                //    CCD1TakePicture();
-                //}
-                //// 接收指令触发2#拍照
-                //else if (data == PLCSerialPortData.CCD2_TACK_PICTURE)
-                //{
-                //    // 停50毫秒稳定液体
-                //    Thread.Sleep(50);
-                //    // 开始拍照
-                //    lock (ccd2LockHelper)
-                //    {
-                //        ccd2ErrorCount = 0;
-                //    }
-                //    CCD2TakePicture();
-                //}
-                //// 过光幕
-                //else if (data == PLCSerialPortData.LIGHT_PASS)
-                //{
-                //    GoToScan();
-                //}
-                //// 重置完成
-                //else if (data == PLCSerialPortData.RESET_COMPLATE)
-                //{
-                //    // 这里设置显示串口正常
-                //    Dispatcher.Invoke(() =>
-                //    {
-                //        Ellipse ellipse = spcViewPanel.FindName("elControlSystem") as Ellipse;
-                //        ellipse.Fill = complate;
-                //        Label label = spcViewPanel.FindName("lblControlSystem") as Label;
-                //        label.Content = "控制系统通讯正常";
-                //    });
-                //}
             }
             catch (Exception ex)
             {
@@ -1618,26 +1037,6 @@ namespace PrinterManagerProject
 
         #endregion
 
-        #region 前端传送带控制
-        /// <summary>
-        /// 启动传送带
-        /// </summary>
-        private void StartConveryorBelt()
-        {
-            // 启动传送带
-            myEventLog.LogInfo($"发送启动传送带命令");
-            PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00050**");
-        }
-        /// <summary>
-        /// 停止传送带
-        /// </summary>
-        private void StopConveryorBelt()
-        {
-            myEventLog.LogInfo($"发送停止传送单命令");
-            // 停止传送带
-            PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00051**");
-        }
-        #endregion
 
         #region 队列方法 - 先进先出原则
         /// <summary>
@@ -1665,7 +1064,7 @@ namespace PrinterManagerProject
                 
                     queue.Remove(qModel);
 
-                    if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count()<AppConfig.MaxQueueCount)
+                    if (CanStartConveryorBelt())
                     {
                         // 出队后，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，第一个传送带继续
                         myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
@@ -1721,7 +1120,7 @@ namespace PrinterManagerProject
             {
                 // 入队时添加到队尾
                 queue.Add(qModel);
-                if(queue.Count(s=>s.PrinterLightScan==false)>= AppConfig.MaxNotPrintQueueCount || queue.Count() >= AppConfig.MaxQueueCount)
+                if(CanStopConveryorBelt())
                 {
                     // 入队后，队列中液体数量大于队列中液体最大数，或未打印液体数量大于队列中允许的最大未打印数量，停止第一个传送带
                     myEventLog.LogInfo($"停止传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
@@ -1745,7 +1144,7 @@ namespace PrinterManagerProject
                     myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}");
                     queue.Remove(qModel);
 
-                    if (queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count() < AppConfig.MaxQueueCount)
+                    if (CanStopConveryorBelt())
                     {
                         myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
                         StartConveryorBelt();
@@ -1800,6 +1199,11 @@ namespace PrinterManagerProject
                 {
                     model.PrinterLightScan = true;
                     myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
+                    if (CanStartConveryorBelt())
+                    {
+                        // 打印过之后，判断是否可以可以启动
+                        StartConveryorBelt();
+                    }
                 }
                 else
                 {
@@ -2437,20 +1841,425 @@ namespace PrinterManagerProject
 
         #endregion
 
+        #region 事件响应
+
+        private void BaseWindow_Closing(object sender, CancelEventArgs e)
+        {
+            if (needCloseWindowConfirm)
+            {
+                // 关闭PLC
+                PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
+                plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
+                // 关闭串口
+                PLCSerialPortUtils.GetInstance(this).Close();
+                CCDSerialPortUtils.GetInstance(this).Close();
+                ScannerSerialPortUtils.GetInstance(this).Close();
+                ScanHandlerSerialPortUtils.GetInstance(this).Close();
+
+                // 打开主窗口
+                var collections = Application.Current.Windows;
+                foreach (Window window in collections)
+                {
+                    BaseWindow win = window as BaseWindow;
+                    if (win != null)
+                    {
+                        // 其他Window直接关闭
+                        if (win.ToString().Contains("MainWindow"))
+                        {
+                            win.Show();
+                        }
+                    }
+                }
+            }
+        }
+
+
+        #region 开始打印/暂停打印事件
+        private void ButtonPrint_Click(object sender, RoutedEventArgs e)
+        {
+
+            // 检查本地数据库连接状态
+            if (CheckDBConnection() == false)
+            {
+                return;
+            }
+
+            //if (ConnectionManager.CheckPivasConnetionStatus() == false)
+            //{
+            //    MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
+
+            //if (CCDConnected == false)
+            //{
+            //    MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
+            if (PCLConnected == false)
+            {
+                MessageBox.Show("控制系统连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (AutoScannerConnected == false)
+            {
+                MessageBox.Show("自动扫码枪连接失败，请检查！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            // 清空队列
+            queue = new List<OrderQueueModel>();
+
+            if (tabMain.SelectedIndex == 0)
+            {
+                if(string.IsNullOrEmpty(cb_batch.SelectedValue?.ToString() ?? ""))
+                {
+                    MessageBox.Show("请选择批次！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (autoPrintList.Any() == false)
+                {
+                    MessageBox.Show("当前批次无待贴标签液体！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                if (autoPrintList.Count(s=>s.printing_status.HasValue == false || s.printing_status == PrintStatusEnum.NotPrint)==0)
+                {
+                    MessageBox.Show("当前批次以完成贴签，无待打印液体！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    return;
+                }
+                Task.Run(() =>
+                {
+
+                    Dispatcher.Invoke(() =>
+                    {
+                        loadMask.LoadingText = "正在检测打印机...";
+                        loadMask.Visibility = Visibility.Visible;
+                    });
+                    if (IsConnectDevices == false || CheckPrinterStatus())
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadMask.Visibility = Visibility.Hidden;
+                        });
+                        var printer = printerManager.GetPrinter();
+                        var status = printer.GetCurrentStatus();
+                        if (status.labelsRemainingInBatch > 0)
+                        {
+                            myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
+                            // 打印机中有打印任务的，重置打印机
+                            printerManager.ResetPrinter();
+                            MessageBox.Show("打印机正在启动，请稍后再试！");
+                            return;
+                        }
+                        // 先关再开
+                        PLCSerialPortUtils plcUtils = PLCSerialPortUtils.GetInstance(this);
+                        //plcUtils.SendData(PLCSerialPortData.MACHINE_STOP);
+                        //plcUtils.SendData(PLCSerialPortData.MACHINE_START);
+                        plcUtils.SendData("%01#WCSR00291**"); // 停止打印
+                        myEventLog.LogInfo($"发送停止命令");
+
+                        plcUtils.SendData("%01#WCSR00201**"); // 开始打印
+                        myEventLog.LogInfo($"发送开始命令");
+
+                        if (lightListener == null)
+                        {
+                            CreatePLCReader();
+                        }
+
+                        lightListener?.Start();
+
+                        StartUpdateControlState();
+
+                        SetCCD1IsNotBusy();
+                        SetCCD2IsNotBusy();
+                    }
+                    else
+                    {
+                        Dispatcher.Invoke(() =>
+                        {
+                            loadMask.Visibility = Visibility.Hidden;
+                        });
+                        MessageBox.Show("无法连接到打印机，请检查打印机是否开启！");
+                    }
+                });
+                //scannerLightListener.Start();
+                // 这里设置显示串口正常
+            }
+            else
+            {
+                MessageBox.Show("当前标签页面不能自动打印！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+        }
+        /// <summary>
+        /// 检查打印机状态
+        /// </summary>
+        /// <returns></returns>
+        private bool CheckPrinterStatus()
+        {
+            var printerConnected = true;
+            try
+            {
+                var tryConnectionTimes = 0;
+
+                while (printerManager.TryOpenPrinterConnection() == false)
+                {
+                    tryConnectionTimes++;
+                    if (tryConnectionTimes >= 5)
+                    {
+                        printerConnected = false;
+                        break;
+                    }
+
+                    Thread.Sleep(1000);
+                }
+                tryConnectionTimes = 0;
+
+                while (printerConnected == true && printerManager.GetPrinter() == null)
+                {
+                    tryConnectionTimes++;
+                    if (tryConnectionTimes >= 5)
+                    {
+                        printerConnected = false;
+                        break;
+                    }
+                    Thread.Sleep(1000);
+                }
+            }
+            catch (Exception ex)
+            {
+                myEventLog.LogError("尝试连接打印机出错", ex);
+            }
+            finally
+            {
+            }
+
+            return printerConnected;
+        }
+
+        private void ButtonStopPrint_Click(object sender, RoutedEventArgs e)
+        {
+            StopPrint();
+        }
+
+        private void StopPrint()
+        {
+            StopUpdateControlState();
+            if (IsConnectDevices)
+            {
+                lightListener?.Stop();
+                //scannerLightListener.Stop();
+                //PLCSerialPortUtils.GetInstance(this).SendData(PLCSerialPortData.MACHINE_STOP);
+                PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00291**"); // 停止打印
+                myEventLog.LogInfo($"发送停止命令");
+
+                Task.Run(() =>
+                {
+                    try
+                    {
+
+                        var status = printerManager.GetPrinterStatus();
+                        if (status.labelsRemainingInBatch > 0)
+                        {
+                            printerManager.ResetPrinter();
+                            myEventLog.LogInfo($"停止时，打印机中有打印任务，重置打印机！");
+                        }
+                    }
+                    catch (Exception ex)
+                    {
+                        myEventLog.LogError($"停止打印时，检测打印机任务数出错！", ex);
+
+                    }
+                });
+            }
+        }
+
+        private void StopUpdateControlState()
+        {
+
+            // 这里设置显示串口正常
+            Dispatcher.Invoke(() =>
+            {
+                btnPrint.IsEnabled = true;
+                btnStopPrint.IsEnabled = false;
+                cb_drug.IsEnabled = true;
+                cb_drug_category.IsEnabled = true;
+                cb_dept.IsEnabled = true;
+                cb_batch.IsEnabled = true;
+                use_date.IsEnabled = true;
+                SetMenuEnabled();
+            });
+        }
+        private void StartUpdateControlState()
+        {
+
+            // 这里设置显示串口正常
+            Dispatcher.Invoke(() =>
+            {
+                btnPrint.IsEnabled = false;
+                btnStopPrint.IsEnabled = true;
+                cb_drug.IsEnabled = false;
+                cb_drug_category.IsEnabled = false;
+                cb_dept.IsEnabled = false;
+                cb_batch.IsEnabled = false;
+                use_date.IsEnabled = false;
+                SetMenuDisabled();
+            });
+        }
+
+        #endregion
+
+        #region 数据绑定事件
+        /// <summary>
+        /// 同步医嘱
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void ButtonUpdate_Click(object sender, RoutedEventArgs e)
+        {
+            if (ConnectionManager.CheckPivasConnetionStatus() == false)
+            {
+                MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (CheckDBConnection() == false)
+            {
+                return;
+            }
+            if (this.use_date.SelectedDate.HasValue == false)
+            {
+                MessageBox.Show("请选择用药日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+            if (this.use_date.SelectedDate.Value.Date < DateTime.Now.Date)
+            {
+                MessageBox.Show("只能选择今天和今天后的日期！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                return;
+            }
+
+            try
+            {
+                myEventLog.LogInfo("开始同步医嘱");
+                this.btnUpdate.IsEnabled = false;
+                new DataSync().SyncOrder(this.use_date.SelectedDate.Value);
+                myEventLog.LogInfo("医嘱同步完成");
+                MessageBox.Show("从Pivas同步医嘱完成！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            catch (Exception exception)
+            {
+                myEventLog.LogError(exception.Message, exception);
+                MessageBox.Show("从Pivas同步医嘱出错！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            }
+            finally
+            {
+                this.btnUpdate.IsEnabled = true;
+            }
+
+            LoadData();
+        }
+        /// <summary>
+        /// 日期选择框发生变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Use_date_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            //绑定批次调整后事件
+            this.cb_batch.SelectedIndex = 0;
+
+            // 清空右侧总统计信息
+            lblNumber.Content = 0;
+            lblMarkNumber.Content = 0;
+
+            LoadData();
+        }
+        /// <summary>
+        /// 筛选数据
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            LoadData();
+        }
+
+        /// <summary>
+        /// 科室下拉框发生变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Cb_dept_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BindDgvs();
         }
-
+        /// <summary>
+        /// 药品分类下拉框发生变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Cb_drug_category_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BindDgvs();
         }
-
+        /// <summary>
+        /// 主药下拉框发生变化
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
         private void Cb_drug_OnSelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             BindDgvs();
+        } 
+        #endregion
+
+        #endregion
+
+
+        #region 前端传送带控制
+        /// <summary>
+        /// 前端传送带是否正在运行
+        /// </summary>
+        private bool IsConveryorBeltRunning = true;
+        /// <summary>
+        /// 启动传送带
+        /// </summary>
+        private void StartConveryorBelt()
+        {
+            if (IsConveryorBeltRunning)
+            {
+                return;
+            }
+            // 启动传送带
+            myEventLog.LogInfo($"发送启动传送带命令");
+            PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00050**");
         }
+        /// <summary>
+        /// 停止传送带
+        /// </summary>
+        private void StopConveryorBelt()
+        {
+            if (IsConveryorBeltRunning)
+            {
+                myEventLog.LogInfo($"发送停止传送单命令");
+                // 停止传送带
+                PLCSerialPortUtils.GetInstance(this).SendData("%01#WCSR00051**");
+            }
+        }
+        /// <summary>
+        /// 判断是否应该开始送料传送带
+        /// </summary>
+        /// <returns></returns>
+        private bool CanStartConveryorBelt()
+        {
+            return queue.Count(s => s.PrinterLightScan == false) < AppConfig.MaxNotPrintQueueCount && queue.Count() < AppConfig.MaxQueueCount;
+        }
+        /// <summary>
+        /// 判断是否需要停止送料传送带
+        /// </summary>
+        /// <returns></returns>
+        private bool CanStopConveryorBelt()
+        {
+            return queue.Count(s => s.PrinterLightScan == false) >= AppConfig.MaxNotPrintQueueCount || queue.Count() >= AppConfig.MaxQueueCount;
+        }
+        #endregion
     }
 
 }

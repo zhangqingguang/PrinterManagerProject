@@ -4,7 +4,7 @@
     <Style x:Key="controlLabel" TargetType="{x:Type Label}">
         <Setter Property="FontSize" Value="20" />
         <Setter Property="Width" Value="125" />
-        <Setter Property="Height" Value="36" />
+        <Setter Property="Height" Value="38" />
     </Style>
     
     <Style x:Key="controlTabItem" TargetType="{x:Type TabItem}">
