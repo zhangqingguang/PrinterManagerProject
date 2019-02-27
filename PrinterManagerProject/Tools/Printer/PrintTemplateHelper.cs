@@ -332,8 +332,87 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量值文字Y坐标
             /// </summary>
-            model.UseValueFontY = 125; 
+            model.UseValueFontY = 125;
             #endregion
+
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>
+            model.HospitalNameFontSize = 14;
+            /// <summary>
+            /// 医院名称文字X坐标
+            /// </summary>
+            model.HospitalNameFontX = 0;
+            /// <summary>
+            /// 医院名称文字Y坐标
+            /// </summary>
+            model.HospitalNameFontY = 0;
+
+            ///// <summary>
+            ///// is_print_snv文字
+            ///// </summary>
+            //model.is_print_snvFontSize = 14;
+            ///// <summary>
+            ///// is_print_snv文字X坐标
+            ///// </summary>
+            //model.is_print_snvFontX = 0;
+            ///// <summary>
+            ///// is_print_snv文字Y坐标
+            ///// </summary>
+            //model.is_print_snvFontY = 0;
+
+            /// <summary>
+            /// 医嘱类型文字
+            /// </summary>
+            model.OrderTypeFontSize = 14;
+            /// <summary>
+            /// 医嘱类型文字X坐标
+            /// </summary>
+            model.OrderTypeFontX = 0;
+            /// <summary>
+            /// 医嘱类型文字Y坐标
+            /// </summary>
+            model.OrderTypeFontY = 0;
+
+            /// <summary>
+            /// 特殊用药文字
+            /// </summary>
+            model.special_medicationtipFontSize = 14;
+            /// <summary>
+            /// 特殊用药文字X坐标
+            /// </summary>
+            model.special_medicationtipFontX = 0;
+            /// <summary>
+            /// 特殊用药文字Y坐标
+            /// </summary>
+            model.special_medicationtipFontY = 0;
+
+            /// <summary>
+            /// 批次名称文字
+            /// </summary>
+            model.BatchNameFontSize = 14;
+            /// <summary>
+            /// 批次名称文字X坐标
+            /// </summary>
+            model.BatchNameFontX = 0;
+            /// <summary>
+            /// 批次名称文字Y坐标
+            /// </summary>
+            model.BatchNameFontY = 0;
+
+            /// <summary>
+            /// 年龄文字
+            /// </summary>
+            model.AgeFontSize = 14;
+            /// <summary>
+            /// 年龄文字X坐标
+            /// </summary>
+            model.AgeFontX = 0;
+            /// <summary>
+            /// 年龄文字Y坐标
+            /// </summary>
+            model.AgeFontY = 0;
+
 
             /// <summary>
             /// 处方医生文字

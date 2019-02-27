@@ -45,7 +45,13 @@ namespace PrinterManagerProject.Tools
             //sb.Append("^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS");
             sb.Append(GetBarCodeCommand(order.barcode, tempConfig.BarCodeX, tempConfig.BarCodeY));
             //g.DrawImage(bmp, ConvertInt(tempConfig.BarCodeX), ConvertInt(tempConfig.BarCodeY), ConvertInt(tempConfig.BarCodeWidth), ConvertInt(tempConfig.BarCodeHeight));
-            sb.Append(GetLabelCommand(order.patient_name, tempConfig.AreaFontSize, tempConfig.AreaFontX, tempConfig.AreaFontY));
+            //sb.Append(GetLabelCommand("河南科技大学第一附属医院", tempConfig.HospitalNameFontSize, tempConfig.HospitalNameFontX, tempConfig.HospitalNameFontY));
+            //sb.Append(GetLabelCommand(order.order_type, tempConfig.OrderTypeFontSize, tempConfig.OrderTypeFontX, tempConfig.OrderTypeFontY));
+            //sb.Append(GetLabelCommand(order.special_medicationtip, tempConfig.special_medicationtipFontSize, tempConfig.special_medicationtipFontX, tempConfig.special_medicationtipFontY));
+            //sb.Append(GetLabelCommand(order.batch_name, tempConfig.BatchNameFontSize, tempConfig.BatchNameFontX, tempConfig.BatchNameFontY));
+            //sb.Append(GetLabelCommand(order.age, tempConfig.AgeFontSize, tempConfig.AgeFontX, tempConfig.AgeFontY));
+
+            sb.Append(GetLabelCommand(order.departmengt_name, tempConfig.AreaFontSize, tempConfig.AreaFontX, tempConfig.AreaFontY));
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
             sb.Append(GetLabelCommand(order.is_print_snv, tempConfig.PageNumFontSize, tempConfig.PageNumFontX, tempConfig.PageNumFontY));
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));

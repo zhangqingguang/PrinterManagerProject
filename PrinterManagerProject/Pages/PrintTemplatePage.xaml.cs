@@ -651,7 +651,82 @@ namespace PrinterManagerProject.Pages
             /// <summary>
             /// 数量值文字Y坐标
             /// </summary>
-            txtUseValueFontY.Text = model.UseValueFontY + ""; 
+            txtUseValueFontY.Text = model.UseValueFontY + "";
+            #endregion
+
+            #region 医院名称
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>
+            sliderHospitalNameFontSize.Value = model.HospitalNameFontSize;
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>X坐标
+            txtHospitalNameFontX.Text = model.HospitalNameFontX + "";
+            /// <summary>
+            /// 医院名称文字Y坐标
+            /// </summary>
+            txtHospitalNameFontY.Text = model.HospitalNameFontY + "";
+            #endregion
+
+            #region 医嘱类型
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>
+            sliderOrderTypeFontSize.Value = model.OrderTypeFontSize;
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>X坐标
+            txtOrderTypeFontX.Text = model.OrderTypeFontX + "";
+            /// <summary>
+            /// 医院名称文字Y坐标
+            /// </summary>
+            txtOrderTypeFontY.Text = model.OrderTypeFontY + "";
+            #endregion
+
+            #region 特殊用药
+            /// <summary>
+            /// 特殊用药文字
+            /// </summary>
+            sliderspecial_medicationtipFontSize.Value = model.special_medicationtipFontSize;
+            /// <summary>
+            /// 特殊用药文字X坐标
+            /// </summary>
+            txtspecial_medicationtipFontX.Text = model.special_medicationtipFontX + "";
+            /// <summary>
+            /// 特殊用药文字Y坐标
+            /// </summary>
+            txtspecial_medicationtipFontY.Text = model.special_medicationtipFontY + "";
+            #endregion
+
+            #region 批次名称
+            /// <summary>
+            /// 批次名称文字
+            /// </summary>
+            sliderBatchNameFontSize.Value = model.BatchNameFontSize;
+            /// <summary>
+            /// 批次名称文字X坐标
+            /// </summary>
+            txtBatchNameFontX.Text = model.BatchNameFontX + "";
+            /// <summary>
+            /// 批次名称文字Y坐标
+            /// </summary>
+            txtBatchNameFontY.Text = model.BatchNameFontY + "";
+            #endregion
+
+            #region 年龄
+            /// <summary>
+            /// 年龄文字
+            /// </summary>
+            sliderAgeFontSize.Value = model.AgeFontSize;
+            /// <summary>
+            /// 年龄文字X坐标
+            /// </summary>
+            txtAgeFontX.Text = model.AgeFontX + "";
+            /// <summary>
+            /// 年龄文字Y坐标
+            /// </summary>
+            txtAgeFontY.Text = model.AgeFontY + "";
             #endregion
 
             /// <summary>
@@ -1140,6 +1215,199 @@ namespace PrinterManagerProject.Pages
                 /// 二维码条码Y坐标
                 /// </summary>
                 model.BarCodeY = Convert.ToInt32(txtBarCodeY.Text);
+
+
+
+                /// <summary>
+                /// 规格标题文字
+                /// </summary>
+                model.SpecTitleFontSize = Convert.ToInt32(sliderSpecTitleFontSize.Value);
+
+                /// <summary>
+                /// 规格标题文字X坐标
+                /// </summary>
+                model.SpecTitleFontX = Convert.ToInt32(txtSpecTitleFontX.Text);
+
+                /// <summary>
+                /// 规格标题文字Y坐标
+                /// </summary>
+                model.SpecTitleFontY = Convert.ToInt32(txtSpecTitleFontY.Text);
+
+
+                /// <summary>
+                /// 规格值文字
+                /// </summary>
+                model.SpecValueFontSize = Convert.ToInt32(sliderSpecValueFontSize.Value);
+
+                /// <summary>
+                /// 规格值文字X坐标
+                /// </summary>
+                model.SpecValueFontX = Convert.ToInt32(txtSpecValueFontX.Text);
+
+                /// <summary>
+                /// 规格值文字Y坐标
+                /// </summary>
+                model.SpecValueFontY = Convert.ToInt32(txtSpecValueFontY.Text);
+
+
+                /// <summary>
+                /// 用量标题文字
+                /// </summary>
+                model.UseSpTitleFontSize = Convert.ToInt32(sliderUseSpTitleFontSize.Value);
+
+                /// <summary>
+                /// 用量标题文字X坐标
+                /// </summary>
+                model.UseSpTitleFontX = Convert.ToInt32(txtUseSpTitleFontX.Text);
+
+                /// <summary>
+                /// 用量标题文字Y坐标
+                /// </summary>
+                model.UseSpTitleFontY = Convert.ToInt32(txtUseSpTitleFontY.Text);
+
+
+                /// <summary>
+                /// 用量值文字
+                /// </summary>
+                model.UseSpValueFontSize = Convert.ToInt32(sliderUseSpValueFontSize.Value);
+
+                /// <summary>
+                /// 用量值文字X坐标
+                /// </summary>
+                model.UseSpValueFontX = Convert.ToInt32(txtUseSpValueFontX.Text);
+
+                /// <summary>
+                /// 用量值文字Y坐标
+                /// </summary>
+                model.UseSpValueFontY = Convert.ToInt32(txtUseSpValueFontY.Text);
+
+
+                /// <summary>
+                /// 数量标题文字
+                /// </summary>
+                model.UseTitleFontSize = Convert.ToInt32(sliderUseTitleFontSize.Value);
+
+                /// <summary>
+                /// 数量标题文字X坐标
+                /// </summary>
+                model.UseTitleFontX = Convert.ToInt32(txtUseTitleFontX.Text);
+
+                /// <summary>
+                /// 数量标题文字Y坐标
+                /// </summary>
+                model.UseTitleFontY = Convert.ToInt32(txtUseTitleFontY.Text);
+
+
+                /// <summary>
+                /// 数量值文字
+                /// </summary>
+                model.UseValueFontSize = Convert.ToInt32(sliderUseValueFontSize.Value);
+
+                /// <summary>
+                /// 数量值文字X坐标
+                /// </summary>
+                model.UseValueFontX = Convert.ToInt32(txtUseValueFontX.Text);
+
+                /// <summary>
+                /// 数量值文字Y坐标
+                /// </summary>
+                model.UseValueFontY = Convert.ToInt32(txtUseValueFontY.Text);
+
+
+                /// <summary>
+                /// 医院名称文字
+                /// </summary>
+                model.HospitalNameFontSize = Convert.ToInt32(sliderHospitalNameFontSize.Value);
+
+                /// <summary>
+                /// 医院名称文字X坐标
+                /// </summary>
+                model.HospitalNameFontX = Convert.ToInt32(txtHospitalNameFontX.Text);
+
+                /// <summary>
+                /// 医院名称文字Y坐标
+                /// </summary>
+                model.HospitalNameFontY = Convert.ToInt32(txtHospitalNameFontY.Text);
+
+                /// <summary>
+                /// 医院名称文字
+                /// </summary>
+                model.OrderTypeFontSize = Convert.ToInt32(sliderOrderTypeFontSize.Value);
+
+                /// <summary>
+                /// 医院名称文字X坐标
+                /// </summary>
+                model.OrderTypeFontX = Convert.ToInt32(txtOrderTypeFontX.Text);
+
+                /// <summary>
+                /// 医院名称文字Y坐标
+                /// </summary>
+                model.OrderTypeFontY = Convert.ToInt32(txtOrderTypeFontY.Text);
+
+                /// <summary>
+                /// 特殊用药文字
+                /// </summary>
+                model.special_medicationtipFontSize = Convert.ToInt32(sliderspecial_medicationtipFontSize.Value);
+
+                /// <summary>
+                /// 特殊用药文字X坐标
+                /// </summary>
+                model.special_medicationtipFontX = Convert.ToInt32(txtspecial_medicationtipFontX.Text);
+
+                /// <summary>
+                /// 特殊用药文字Y坐标
+                /// </summary>
+                model.special_medicationtipFontY = Convert.ToInt32(txtspecial_medicationtipFontY.Text);
+
+                /// <summary>
+                /// 批次名称文字
+                /// </summary>
+                model.BatchNameFontSize = Convert.ToInt32(sliderBatchNameFontSize.Value);
+
+                /// <summary>
+                /// 批次名称文字X坐标
+                /// </summary>
+                model.BatchNameFontX = Convert.ToInt32(txtBatchNameFontX.Text);
+
+                /// <summary>
+                /// 批次名称文字Y坐标
+                /// </summary>
+                model.BatchNameFontY = Convert.ToInt32(txtBatchNameFontY.Text);
+
+
+                /// <summary>
+                /// 配液时间文字
+                /// </summary>
+                model.AgeFontSize = Convert.ToInt32(sliderAgeFontSize.Value);
+
+                /// <summary>
+                /// 配液时间文字X坐标
+                /// </summary>
+                model.AgeFontX = Convert.ToInt32(txtAgeFontX.Text);
+
+                /// <summary>
+                /// 配液时间文字Y坐标
+                /// </summary>
+                model.AgeFontY = Convert.ToInt32(txtAgeFontY.Text);
+
+
+                /// <summary>
+                /// 配液时间文字
+                /// </summary>
+                model.DispensingDateFontSize = Convert.ToInt32(sliderDispensingDateFontSize.Value);
+
+                /// <summary>
+                /// 配液时间文字X坐标
+                /// </summary>
+                model.DispensingDateFontX = Convert.ToInt32(txtDispensingDateFontX.Text);
+
+                /// <summary>
+                /// 配液时间文字Y坐标
+                /// </summary>
+                model.DispensingDateFontY = Convert.ToInt32(txtDispensingDateFontY.Text);
+
+
+
             }
             catch (Exception)
             {
