@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -32,7 +33,15 @@ namespace PrinterManagerProject.Pages
 
         public void BindList()
         {
-            var batchs = drugManager.GetAll();
+            var query = drugManager.GetQueryable();
+
+            if(tb_drugName!=null && string.IsNullOrEmpty(tb_drugName.Text) == false)
+            {
+                query = query.Where(s => s.drug_name.Contains(tb_drugName.Text) || s.drug_form.Contains(tb_drugName.Text));
+            }
+
+            var batchs = query.ToList();
+            this.dgv_list.ItemsSource = null;
             this.dgv_list.ItemsSource = batchs;
         }
 
@@ -63,6 +72,16 @@ namespace PrinterManagerProject.Pages
                 this.update.Content = "从Pival更新";
 
             }
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            BindList();
+        }
+
+        private void Tb_drugName_TextChanged(object sender, TextChangedEventArgs e)
+        {
+            BindList();
         }
     }
 }

@@ -18,5 +18,6 @@ namespace PrinterManagerProject.EF
         void AddOrUpdate(T model);
         bool Any(Expression<Func<T, bool>> whereCondition);
         void Delete(int id);
+        IQueryable<T> GetQueryable();
     }
 }

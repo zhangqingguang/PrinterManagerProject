@@ -226,10 +226,19 @@ namespace PrinterManagerProject
 
     public class PLCSerialPortUtils
     {
+        // 缓存收到的数据
+        private static string buffer = "";
+        // 锁定buffer
+        private static object LockReceiveBuffer = new object();
+
+
         private static PLCSerialPortUtils serialPortUtils;
         private static SerialPort sp = new SerialPort();
 
+
         private static PLCSerialPortInterface mSerialPortInterface;
+
+        public static int MAX_BUFFER_LEN = 5000;
 
         private PLCSerialPortUtils() { }
 
@@ -273,18 +282,17 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private static void Com_DataReceived(object sender, SerialDataReceivedEventArgs e)
         {
-            Task.Run(() => {
+            //Task.Run(() => {
                 //myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
                 byte[] ReDatas = new byte[sp.BytesToRead];
                 sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
-                string result = Encoding.UTF8.GetString(ReDatas);
+            lock (LockReceiveBuffer)
+            {
+                var result = Encoding.UTF8.GetString(ReDatas);
+                //myEventLog.LogInfo($"收到PLC信号：{result}。");
 
-                //myEventLog.LogInfo($"PLC接收数据：{result},{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
-
-                result = result.Replace("\r", "");
-
-                mSerialPortInterface.OnPLCDataReceived(result);
-            });
+                buffer += Encoding.UTF8.GetString(ReDatas);
+            }
         }
 
         /// <summary>
@@ -344,6 +352,28 @@ namespace PrinterManagerProject
                     mSerialPortInterface.OnPLCComplated(1);
                     myEventLog.LogInfo($"成功打开PLC串口，{sp.PortName}。");
                 }
+                Task.Run(() => {
+                    //string bufferStr = "";
+                    //int frameLen = 1;
+                    while (sp.IsOpen)
+                    {
+                        lock (LockReceiveBuffer)
+                        {
+                            int endIndex = buffer.IndexOf('\r');
+                            if (endIndex > 0)
+                            {
+                                var result = buffer.Substring(0, endIndex);
+                                //myEventLog.LogInfo($"读取到PLC信号：{result}。");
+
+                                buffer = buffer.Substring(endIndex + 1, buffer.Length - endIndex - 1);
+
+                                mSerialPortInterface.OnPLCDataReceived(result);
+                            }
+                        }
+                        // 读取信号间隔时间
+                        Thread.Sleep(20);
+                    }
+                });
                 return true;
             }
             catch (Exception ex)

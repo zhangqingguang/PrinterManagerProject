@@ -14,7 +14,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 收到光幕最小有效间隔时间，超过这个时间的光幕忽略
         /// </summary>
-        internal static int LightTimeInterval=200;
+        internal static int LightTimeInterval=260;
 
         /// <summary>
         /// 将CCD设为空闲状态等待时间
@@ -23,7 +23,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 收到拍照命令后CCD拍照等待时间
         /// </summary>
-        public static int CcdTakePhotoSleepTime = 10;
+        public static int CcdTakePhotoSleepTime = 50;
         /// <summary>
         /// CCD拍照结果超时时间
         /// </summary>
@@ -32,7 +32,7 @@ namespace PrinterManagerProject.Tools
         /// CCD1验证通过，发送结果等待时间
         /// CCD2不通过要先退出，再复位拨板，时间会比CCD1成功直接复位拨板消耗时间长
         /// </summary>
-        public static int Ccd1SuccessSleepTime = 200;
+        public static int Ccd1SuccessSleepTime = 150;
         /// <summary>
         /// CCD1拍照最大次数
         /// </summary>

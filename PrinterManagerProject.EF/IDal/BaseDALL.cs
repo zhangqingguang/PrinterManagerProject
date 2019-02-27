@@ -74,5 +74,10 @@ namespace PrinterManagerProject.EF
                     .Remove(model);
             }
         }
+
+        public IQueryable<T> GetQueryable()
+        {
+            return DBContext.Set<T>().AsNoTracking().AsQueryable();
+        }
     }
 }
