@@ -224,6 +224,10 @@ namespace PrinterManagerProject
         {
             try
             {
+                if (sp.IsOpen)
+                {
+                    return true;
+                }
                 sp.Open();
                 if (mSerialPortInterface != null)
                 {

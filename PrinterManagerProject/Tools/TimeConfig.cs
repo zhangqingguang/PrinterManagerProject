@@ -23,7 +23,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 收到拍照命令后CCD拍照等待时间
         /// </summary>
-        public static int CcdTakePhotoSleepTime = 50;
+        public static int CcdTakePhotoSleepTime = 100;
         /// <summary>
         /// CCD拍照结果超时时间
         /// </summary>

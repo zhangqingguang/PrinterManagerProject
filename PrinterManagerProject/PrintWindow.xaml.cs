@@ -1926,11 +1926,18 @@ namespace PrinterManagerProject
                 return;
             }
 
-            if (ConnectionManager.CheckPivasConnetionStatus() == false)
-            {
-                MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                return;
-            }
+            // 打印期间不需要连接Pivas
+            //if (ConnectionManager.CheckPivasConnetionStatus() == false)
+            //{
+            //    MessageBox.Show("Pivas数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+            //    return;
+            //}
+
+            // 尝试开启串口，已开启的不重新开启
+            PLCSerialPortUtils.GetInstance(this).Open();
+            CCDSerialPortUtils.GetInstance(this).Open();
+            ScannerSerialPortUtils.GetInstance(this).Open();
+            ScanHandlerSerialPortUtils.GetInstance(this).Open();
 
             if (CCDConnected == false)
             {
@@ -1985,13 +1992,22 @@ namespace PrinterManagerProject
                             loadMask.Visibility = Visibility.Hidden;
                         });
                         var printer = printerManager.GetPrinter();
-                        var status = printer.GetCurrentStatus();
-                        if (status.labelsRemainingInBatch > 0)
+                        try
                         {
-                            myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
-                            // 打印机中有打印任务的，重置打印机
-                            printerManager.ResetPrinter();
-                            MessageBox.Show("打印机正在启动，请稍后再试！");
+                            var status = printer.GetCurrentStatus();
+                            if (status.labelsRemainingInBatch > 0)
+                            {
+                                myEventLog.LogInfo("开始时，打印机中有打印任务，重置打印机！");
+                                // 打印机中有打印任务的，重置打印机
+                                printerManager.ResetPrinter();
+                                MessageBox.Show("打印机正在启动，请稍后再试！");
+                                return;
+                            }
+                        }
+                        catch (Exception ex)
+                        {
+                            myEventLog.LogError("获取打印机状态失败！",ex);
+                            MessageBox.Show("未获取到打印机状态，请重试！");
                             return;
                         }
                         // 先关再开
