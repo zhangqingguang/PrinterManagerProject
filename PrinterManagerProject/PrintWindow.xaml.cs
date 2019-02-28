@@ -969,18 +969,100 @@ namespace PrinterManagerProject
                             prevCCD2Time = DateTime.Now;
                             if(isLightSignalEffective && ccd2IsBusy == false)
                             {
-                                myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
-                                ccd2IsBusy = true;
-                                Task.Run(() => {
-                                    // 停一段时间稳定液体
-                                    Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
-                                    // 开始拍照
-                                    lock (ccd2LockHelper)
+
+
+                                if (AppConfig.CCD2IsEnabled)
+                                {
+                                    myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
+                                    ccd2IsBusy = true;
+                                    Task.Run(() => {
+                                        // 停一段时间稳定液体
+                                        Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
+                                        // 开始拍照
+                                        lock (ccd2LockHelper)
+                                        {
+                                            ccd2ErrorCount = 0;
+                                        }
+                                        CCD2TakePicture();
+                                    });
+                                }
+                                else
+                                {
+                                    bool success = true;
+
+                                    OrderQueueModel model = queue.FirstOrDefault();
+                                    if(model == null)
                                     {
-                                        ccd2ErrorCount = 0;
+                                        return;
                                     }
-                                    CCD2TakePicture();
-                                });
+                                    if (string.IsNullOrEmpty(model.ScanData))
+                                    {
+                                        success = false;
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                    }
+                                    else
+                                        if (model.ScanData != model.QRData)
+                                    {
+                                        success = false;
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                    }
+
+                                    if (success)
+                                    {
+                                        bool updateDataSuccess = false;
+                                        try
+                                        {
+                                            orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, "无", UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                            updateDataSuccess = true;
+                                        }
+                                        catch (Exception ex)
+                                        {
+                                            myEventLog.LogError($"更新到数据库出错", ex);
+                                        }
+
+                                        if (updateDataSuccess)
+                                        {
+                                            myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
+                                            countModel.AutoCount++;
+                                            countModel.PrintedTotalCount++;
+                                            countModel.NotPrintTotalCount--;
+                                            UpdateSummaryLabel();
+
+                                            // 处理到数据源
+                                            tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
+                                            // 2#位通过
+                                            myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
+                                            SendCCD2Success();
+
+                                            // 回写数据
+                                            PrintSuccess(autoPrintModel, "无");
+                                            // --- 设置为CCD2识别通过的状态 ---
+                                            Success();
+
+                                            myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
+                                        }
+                                        else
+                                        {
+                                            // --- 删除对比失败的信息 ---
+                                            myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
+                                            warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                            success = false;
+                                        }
+                                    }
+
+                                    if (success == false)
+                                    {
+                                        // 从2#位剔除信息对比失败的药袋
+                                        SendCCD2Out();
+
+                                        // --- 删除对比失败的信息 ---
+                                        RemoveCCD2();
+                                    }
+                                }
                             }
                         }
 

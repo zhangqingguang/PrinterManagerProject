@@ -64,14 +64,22 @@ namespace PrinterManagerProject.Tools
                     string command = "";
                     if (queue.TryDequeue(out command))
                     {
-                        myEventLog.LogInfo($"发送信号时间间隔：{(DateTime.Now - dateTime).TotalMilliseconds}");
-                        dateTime = DateTime.Now;
+                        //myEventLog.LogInfo($"发送信号时间间隔：{(DateTime.Now - dateTime).TotalMilliseconds}");
+                        //dateTime = DateTime.Now;
                         if (command.Contains("WDD0090100901"))
                         {
                             myEventLog.LogInfo($"正在发送内容：{command}");
                         }
+                        if (command.Contains("00201"))
+                        {
+                            myEventLog.LogInfo($"正在发送内容：{command}");
+                        }
+                        if (command.Contains("00291"))
+                        {
+                            myEventLog.LogInfo($"正在发送内容：{command}");
+                        }
                         PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(command);
-                        
+                        Thread.Sleep(20);
                     }
                     else
                     {

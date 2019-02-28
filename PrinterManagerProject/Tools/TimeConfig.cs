@@ -61,8 +61,11 @@ namespace PrinterManagerProject.Tools
         /// CCD1信号丢失或延时是否停止打印
         /// </summary>
         public static bool IsStopOnCCD1ResultDelayed = false;
+        /// <summary>
+        /// 检测CCD1信号丢失或延时的81信号个数
+        /// </summary>
         public static int Waite81SignalTimesOnCCD1ResultDelayed = 0;
 
-
+        public static bool CCD2IsEnabled = true;
     }
 }
