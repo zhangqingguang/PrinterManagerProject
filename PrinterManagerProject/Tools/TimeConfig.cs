@@ -53,6 +53,16 @@ namespace PrinterManagerProject.Tools
         /// 队列中最大未打印液体数
         /// </summary>
         public static int MaxNotPrintQueueCount = 2;
+        /// <summary>
+        /// 长时间未放药停机时间（10分钟）
+        /// </summary>
+        public static int QueueIsEmptyStopTime = 10*60*1000;
+        /// <summary>
+        /// CCD1信号丢失或延时是否停止打印
+        /// </summary>
+        public static bool IsStopOnCCD1ResultDelayed = false;
+        public static int Waite81SignalTimesOnCCD1ResultDelayed = 0;
+
 
     }
 }

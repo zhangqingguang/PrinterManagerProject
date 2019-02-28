@@ -318,11 +318,6 @@ namespace PrinterManagerProject
                         myEventLog.LogInfo($"数据发送成功");
                     }
 
-                    //myEventLog.LogInfo($"发送给PLC花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                    //new LogHelper().SerialPortLog($"发送给PLC:{instructions}");
-
-                    //myEventLog.LogInfo($"发送给PLC:{instructions}");
-
                     return true;
                 }
                 catch (Exception ex)
@@ -332,7 +327,6 @@ namespace PrinterManagerProject
                 }
                 finally
                 {
-                    Thread.Sleep(50);
                 }
             }
             return false;

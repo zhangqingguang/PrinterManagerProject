@@ -46,22 +46,30 @@ namespace PrinterManagerProject.EF
             return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_BakHistoryData", use_dateParameter);
         }
     
-        public virtual int P_InsertIntotOrderSelecttZHY(string use_date)
+        public virtual int P_InsertIntotOrderSelecttZHY(string use_date, string batch)
         {
             var use_dateParameter = use_date != null ?
                 new ObjectParameter("use_date", use_date) :
                 new ObjectParameter("use_date", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_InsertIntotOrderSelecttZHY", use_dateParameter);
+            var batchParameter = batch != null ?
+                new ObjectParameter("batch", batch) :
+                new ObjectParameter("batch", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_InsertIntotOrderSelecttZHY", use_dateParameter, batchParameter);
         }
     
-        public virtual int P_UpdatetOrderFromtZHY(string use_date)
+        public virtual int P_UpdatetOrderFromtZHY(string use_date, string batch)
         {
             var use_dateParameter = use_date != null ?
                 new ObjectParameter("use_date", use_date) :
                 new ObjectParameter("use_date", typeof(string));
     
-            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_UpdatetOrderFromtZHY", use_dateParameter);
+            var batchParameter = batch != null ?
+                new ObjectParameter("batch", batch) :
+                new ObjectParameter("batch", typeof(string));
+    
+            return ((IObjectContextAdapter)this).ObjectContext.ExecuteFunction("P_UpdatetOrderFromtZHY", use_dateParameter, batchParameter);
         }
     }
 }

@@ -18,9 +18,11 @@ namespace PrinterManagerProject.EF
         /// <summary>
         /// 同步医嘱数据
         /// </summary>
-        public void SyncOrder(DateTime dateTime)
+        /// <param name="dateTime">用药日期</param>
+        /// <param name="batch">批次编号</param>
+        public void SyncOrder(DateTime dateTime,string batch)
         {
-            DownloadOrder(dateTime);
+            DownloadOrder(dateTime, batch);
             CompareData(dateTime);
         }
         /// <summary>
@@ -132,11 +134,13 @@ namespace PrinterManagerProject.EF
         /// <summary>
         /// 从Pivas下载数据到tZHY中
         /// </summary>
-        /// <param name="dateTime"></param>
-        private void DownloadOrder(DateTime dateTime)
+        /// <param name="dateTime">用药日期</param>
+        /// <param name="batch">批次时间</param>
+        private void DownloadOrder(DateTime dateTime,string batch)
         {
             var useDateParam = new SqlParameter("@usedate", dateTime.ToString("yyyy-MM-dd"));
-            var dataset = PivasDbHelperSQL.Query("select * from v_for_ydwl where use_date=@usedate", useDateParam);
+            var batchParam = new SqlParameter("@batch", batch);
+            var dataset = PivasDbHelperSQL.Query("select * from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam,batchParam);
 
             var dt = dataset.Tables[0];
             dt.Columns.Remove(dt.Columns["id"]);
@@ -151,18 +155,18 @@ namespace PrinterManagerProject.EF
             // tOrder:待贴签医嘱表
 
             // 删除原有数据
-            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate", useDateParam);
+            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate and batch=@batch", useDateParam,batchParam);
 
             // 添加新数据
             DbHelperSQL.SqlBulkCopyByDataTable("tZHY", dataset.Tables[0]);
 
             // 对比医嘱数据，将需要增加的医嘱信息添加到tOrder表中
-            DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate", useDateParam);
+            DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate,@batch", useDateParam,batchParam);
 
             var bakDateParam = new SqlParameter("@usedate", OrderConfig.GetBakDate());
 
             // 更新医嘱信息
-            DbHelperSQL.ExecuteSql("exec P_UpdatetOrderFromtZHY @usedate", bakDateParam);
+            DbHelperSQL.ExecuteSql("exec P_UpdatetOrderFromtZHY @usedate,@batch", bakDateParam, batchParam);
 
             // 备份历史数据
             DbHelperSQL.ExecuteSql("exec P_BakHistoryData @usedate", bakDateParam);

@@ -427,9 +427,11 @@
         </Function>
         <Function Name="P_InsertIntotOrderSelecttZHY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
+          <Parameter Name="batch" Type="varchar" Mode="In" />
         </Function>
         <Function Name="P_UpdatetOrderFromtZHY" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
+          <Parameter Name="batch" Type="varchar" Mode="In" />
         </Function>
         <EntityContainer Name="PrintTagDbModelStoreContainer">
           <EntitySet Name="tBatch" EntityType="Self.tBatch" Schema="dbo" store:Type="Tables" />
@@ -472,9 +474,11 @@
           </FunctionImport>
           <FunctionImport Name="P_InsertIntotOrderSelecttZHY">
           <Parameter Name="use_date" Mode="In" Type="String" />
+            <Parameter Name="batch" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="P_UpdatetOrderFromtZHY">
           <Parameter Name="use_date" Mode="In" Type="String" />
+            <Parameter Name="batch" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
         <EntityType Name="tBatch">

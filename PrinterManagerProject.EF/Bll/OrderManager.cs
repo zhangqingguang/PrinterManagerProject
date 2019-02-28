@@ -41,7 +41,7 @@ namespace PrinterManagerProject.EF
                 {
                     if (DBContext.tOrders.Any(s => s.use_date == date) == false)
                     {
-                        new DataSync().SyncOrder(dateTime);
+                        new DataSync().SyncOrder(dateTime,batch);
                     }
                 }
                 // 列表按照打印状态、医嘱组号、用药时间排序
