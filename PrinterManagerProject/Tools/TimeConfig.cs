@@ -67,5 +67,22 @@ namespace PrinterManagerProject.Tools
         public static int Waite81SignalTimesOnCCD1ResultDelayed = 0;
 
         public static bool CCD2IsEnabled = true;
+
+
+        #region 档板卡药配置
+        /// <summary>
+        /// 是否启用挡板处卡药检测
+        /// </summary>
+        public static bool BeforePrintLightBlockDetectictIsEnabled = false;
+        /// <summary>
+        /// 挡板处卡药时间间隔（CCD1继续到打印机光幕时间间隔）
+        /// </summary>
+        public static int BeforePrintLightBlockDuration = 2000;
+        /// <summary>
+        /// 检测档板处卡药时间间隔
+        /// </summary>
+        public static int BeforePrintLightBlockDetectictInterval = 20; 
+        #endregion
+
     }
 }

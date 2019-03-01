@@ -68,7 +68,14 @@ namespace PrinterManagerProject.Tools
                 {
                     lock (connectionHelper)
                     {
-                        printer = ZebraPrinterFactory.GetInstance(connection);
+                        try
+                        {
+                            printer = ZebraPrinterFactory.GetInstance(connection);
+                        }
+                        catch (Exception ex)
+                        {
+                            myEventLog.LogError("Printer连接出错："+ex.Message, ex);
+                        }
                     }
                 }
             }
@@ -199,6 +206,9 @@ namespace PrinterManagerProject.Tools
             return 0;
         }
 
+        /// <summary>
+        /// 重启打印机
+        /// </summary>
         internal void ResetPrinter()
         {
             if (TryOpenPrinterConnection())
@@ -217,6 +227,19 @@ namespace PrinterManagerProject.Tools
 
                     //printer = GetPrinter();
                     myEventLog.Log.Warn("正在重置打印机状态！");
+                }
+            }
+        }
+        /// <summary>
+        /// 清除打印机中所有任务
+        /// </summary>
+        public void ClearAll()
+        {
+            if(connection!=null && connection.Connected)
+            {
+                if (printer != null)
+                {
+                    printer.SendCommand("~JA");
                 }
             }
         }

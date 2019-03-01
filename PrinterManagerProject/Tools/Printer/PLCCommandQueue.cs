@@ -79,7 +79,7 @@ namespace PrinterManagerProject.Tools
                             myEventLog.LogInfo($"正在发送内容：{command}");
                         }
                         PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(command);
-                        Thread.Sleep(20);
+                        Thread.Sleep(25);
                     }
                     else
                     {

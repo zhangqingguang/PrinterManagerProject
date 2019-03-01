@@ -64,5 +64,21 @@ namespace PrinterManagerProject.Models
         /// 发给PLC的规格代码
         /// </summary>
         public string SpecCmd { get; internal set; }
+        /// <summary>
+        /// 入队时间，给PLC发送成功指令时间
+        /// </summary>
+        public DateTime EnqueueTime { get; set; }
+        /// <summary>
+        /// 收到打印光幕时间
+        /// </summary>
+        public DateTime PrintLightTime { get; set; }
+        /// <summary>
+        /// 过扫码枪光幕时间
+        /// </summary>
+        public DateTime ScannerLightTime { get; set; }
+        /// <summary>
+        /// 收到84信号时间
+        /// </summary>
+        public DateTime CCD2Time { get; set; }
     }
 }

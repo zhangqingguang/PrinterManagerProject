@@ -23,6 +23,7 @@ using Zebra.Sdk.Printer;
 using Zebra.Sdk.Printer.Discovery;
 using ZXing;
 using ZXing.PDF417;
+using System.Threading;
 
 namespace PrinterManagerProject
 {
@@ -140,6 +141,11 @@ namespace PrinterManagerProject
 
                 printer.SendCommand(command);
                 Console.WriteLine($"打印内容发送成功！花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
+
+
+                //Thread.Sleep(5000);
+
+                //printer.SendCommand("~JA");
             }
             catch (Exception e)
             {
