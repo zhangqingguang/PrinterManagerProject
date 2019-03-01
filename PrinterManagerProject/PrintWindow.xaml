@@ -293,9 +293,9 @@
                                     <StackPanel Grid.Row="1" Orientation="Horizontal" Margin="4" HorizontalAlignment="Right">
                                         <Label Content="合计" FontWeight="Bold" />
                                         <Label Content="待贴数量：" Margin="10,0,0,0"/>
-                                        <Label Content="xxxxxx" HorizontalAlignment="Right" />
+                                        <Label Content="0" HorizontalAlignment="Right" />
                                         <Label Content="已贴数量：" Margin="10,0,0,0"/>
-                                        <Label Content="xxxxxx" HorizontalAlignment="Right" />
+                                        <Label Content="0" HorizontalAlignment="Right" />
                                     </StackPanel>
                                 </Grid>
                             </Grid>

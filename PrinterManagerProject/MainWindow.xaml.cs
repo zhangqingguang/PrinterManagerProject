@@ -24,6 +24,11 @@ namespace PrinterManagerProject
         public MainWindow()
         {
             InitializeComponent();
+
+            if (IsAdmin()==false)
+            {
+                btnUserWindow.IsEnabled = false;
+            }
         }
 
         private void btnPrintWindow_Click(object sender, RoutedEventArgs e)

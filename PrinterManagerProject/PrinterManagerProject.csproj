@@ -157,6 +157,9 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="BaseWindow.cs" />
+    <Compile Include="ChangePassword.xaml.cs">
+      <DependentUpon>ChangePassword.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Converter\PrintModelConverter.cs" />
     <Compile Include="Converter\PrintStatusConverter.cs" />
     <Compile Include="Converter\RowBgColorConverter.cs" />
@@ -225,6 +228,10 @@
     <Compile Include="UserManage.xaml.cs">
       <DependentUpon>UserManage.xaml</DependentUpon>
     </Compile>
+    <Page Include="ChangePassword.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="LoginWindow.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

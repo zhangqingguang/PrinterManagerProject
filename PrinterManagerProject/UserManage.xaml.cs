@@ -21,6 +21,7 @@ namespace PrinterManagerProject
     /// </summary>
     public partial class UserManage : BaseWindow
     {
+        tUser user = null;
         EF.UserManager userManager = new UserManager();
         public UserManage()
         {
@@ -29,7 +30,6 @@ namespace PrinterManagerProject
         }
         private void LoadData()
         {
-            tUser users = new tUser();
             dgv_list.ItemsSource = userManager.GetAll();
         }
 
@@ -63,30 +63,29 @@ namespace PrinterManagerProject
 
         private void BtnUpdateUser_Click(object sender, RoutedEventArgs e)
         {
-            tUser userbll = new tUser();
-
-            if (userid.Text.Trim()=="")
+            if (user == null)
             {
                 MessageBox.Show("请选择您要修改的用户");
                 return;
             }
-            var userId = Convert.ToInt32(userid.Text.Trim());
-            if (userManager.Any(s =>s.ID != userId && s.user_name == username.Text.Trim()))
+            if (userManager.Any(s =>s.ID != user.ID && s.user_name == username.Text.Trim()))
             {
                 MessageBox.Show($"用户名【{username.Text.Trim()}】已经存在,请修改!");
                 return;
             }
-            formcheck();
-            tUser usermodel = new tUser();
-            usermodel.ID = Convert.ToInt32(userid.Text.Trim());
-            usermodel.user_name = username.Text.Trim();
-            usermodel.password = userpwd.Text.Trim();
-            usermodel.true_name = usertrue.Text.Trim();
-            usermodel.type_name = usertype.Text.Trim();
-            usermodel.createtime = DateTime.Now;
+            if (formcheck() == false)
+            {
+                return;
+            }
+            //usermodel.ID = Convert.ToInt32(userid.Text.Trim());
+            user.user_name = username.Text.Trim();
+            user.password = userpwd.Text.Trim();
+            user.true_name = usertrue.Text.Trim();
+            user.type_name = usertype.Text.Trim();
+            user.createtime = DateTime.Now;
             try
             {
-                userManager.Update(usermodel);
+                userManager.Update(user);
                 MessageBox.Show("用户修改成功！");
                 LoadData();
             }
@@ -98,16 +97,18 @@ namespace PrinterManagerProject
 
         private void BtnDeleteUser_Click(object sender, RoutedEventArgs e)
         {
-            if (userid.Text.Trim() == "")
+            if (user==null)
             {
                 MessageBox.Show("请选择您要修改的用户");
                 return;
             }
-            tUser userbll = new tUser();
-            int uid = Convert.ToInt32(userid.Text.Trim());
+            if (formcheck() == false)
+            {
+                return;
+            }
             try
             {
-                userManager.Delete(uid);
+                userManager.Delete(user.ID);
                 MessageBox.Show("用户删除成功！");
                 LoadData();
             }
@@ -125,11 +126,12 @@ namespace PrinterManagerProject
             var a = this.dgv_list.SelectedItem;
             if (a is tUser b)
             {
-                userid.Text = b.ID.ToString();
                 username.Text = b.user_name;
                 userpwd.Text = b.password;
                 usertrue.Text = b.true_name;
                 usertype.Text = b.type_name;
+
+                user = b;
             }
 
         }
@@ -140,27 +142,41 @@ namespace PrinterManagerProject
             username.Text = "";
             userpwd.Text = "";
             usertrue.Text = "";
-            userid.Text = "";
         }
         /// <summary>
         /// 检测用户输入
         /// </summary>
-        public void formcheck()
+        public bool formcheck()
         {
             if (usertype.Text.Trim() == "请选择")
             {
                 MessageBox.Show("请选择用户的操作身份！");
-                return;
+                return false;
             }
             if (username.Text.Trim() == "")
             {
                 MessageBox.Show("请认真填写用户名！");
-                return;
+                return false;
             }
             if (userpwd.Text.Trim() == "" && userpwd.Text.Trim().Length < 6)
             {
                 MessageBox.Show("请填写6位及以上用户密码！");
+                return false;
+            }
+            return true;
+        }
+
+        private void Btn_resetPassword_Click(object sender, RoutedEventArgs e)
+        {
+            if (user == null)
+            {
+                MessageBox.Show("请选择您要修改的用户");
                 return;
+            }
+            if (MessageBox.Show("确定要重置密码","确认", MessageBoxButton.OKCancel) == MessageBoxResult.OK)
+            {
+                user.password = "888888";
+                userManager.AddOrUpdate(user);
             }
         }
     }

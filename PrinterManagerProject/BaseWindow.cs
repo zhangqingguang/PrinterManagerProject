@@ -18,8 +18,9 @@ namespace PrinterManagerProject
         private TextBlock WindowTitleTbl;
 
         private Label lblTime;
-        private MenuItem miChangePassword;
-        private MenuItem miLogout;
+        private MenuItem miPrinterChangePassword;
+        private MenuItem miCheakerChangePassword;
+        private MenuItem miPrinterLogout;
         private MenuItem miExit;
         private MenuItem miPrint;
         private MenuItem miQuery;
@@ -31,7 +32,8 @@ namespace PrinterManagerProject
         private MenuItem miSolventSize;
         private MenuItem miPrintTemplate;
 
-        private MenuItem userHeader;
+        private MenuItem printerHeader;
+        private MenuItem checkerHeader;
 
         private MenuItem menu;
 
@@ -70,9 +72,11 @@ namespace PrinterManagerProject
                     menu = metroWindowTemplate.FindName("Menu", this) as MenuItem;
                     // 初始化控件
                     lblTime = metroWindowTemplate.FindName("lblTime", this) as Label;
-                    userHeader = metroWindowTemplate.FindName("UserHeader", this) as MenuItem;
-                    miChangePassword = metroWindowTemplate.FindName("miChangePassword", this) as MenuItem;
-                    miLogout = metroWindowTemplate.FindName("miLogout", this) as MenuItem;
+                    printerHeader = metroWindowTemplate.FindName("printerHeader", this) as MenuItem;
+                    checkerHeader = metroWindowTemplate.FindName("checkerHeader", this) as MenuItem;
+                    miPrinterChangePassword = metroWindowTemplate.FindName("miPrinterChangePassword", this) as MenuItem;
+                    miCheakerChangePassword = metroWindowTemplate.FindName("miCheakerChangePassword", this) as MenuItem;
+                    miPrinterLogout = metroWindowTemplate.FindName("miPrinterLogout", this) as MenuItem;
                     miExit = metroWindowTemplate.FindName("miExit", this) as MenuItem;
                     miPrint = metroWindowTemplate.FindName("miPrint", this) as MenuItem;
                     miQuery = metroWindowTemplate.FindName("miQuery", this) as MenuItem;
@@ -90,14 +94,24 @@ namespace PrinterManagerProject
                         miSolventSize.IsEnabled = false;
                     }
 
+                    if(IsAdmin()==false)
+                    {
+                        miUserManager.IsEnabled = false;
+                    }
+
                     if (UserCache.Printer.ID != 0)
                     {
-                        userHeader.Header = UserCache.Printer.true_name;
+                        printerHeader.Header = UserCache.Printer.true_name;
+                    }
+                    if (UserCache.Checker.ID != 0)
+                    {
+                        checkerHeader.Header = UserCache.Checker.true_name;
                     }
 
                     // 事件绑定
-                    miChangePassword.Click += miChangePassword_Click;
-                    miLogout.Click += miLogout_Click;
+                    miPrinterChangePassword.Click += miPrinterChangePassword_Click;
+                    miCheakerChangePassword.Click += miCheakerChangePassword_Click;
+                    miPrinterLogout.Click += miPrinterLogout_Click;
                     miExit.Click += miExit_Click;
                     miPrint.Click += miPrint_Click;
                     miQuery.Click += miQuery_Click;
@@ -236,16 +250,33 @@ namespace PrinterManagerProject
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void miChangePassword_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void miPrinterChangePassword_Click(object sender, System.Windows.RoutedEventArgs e)
         {
-            MessageBox.Show("Comming soon!");
+            ChangePassword changePasswordWindow = new ChangePassword();
+            changePasswordWindow.Init(UserCache.Printer.ID);
+            changePasswordWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
+        }
+        /// <summary>
+        /// 点击修改密码按钮
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void miCheakerChangePassword_Click(object sender, System.Windows.RoutedEventArgs e)
+        {
+            ChangePassword changePasswordWindow = new ChangePassword();
+            changePasswordWindow.Init(UserCache.Checker.ID);
+            changePasswordWindow.Show();
+            this.needCloseWindowConfirm = false;
+            this.Close();
         }
         /// <summary>
         /// 点击注销按钮
         /// </summary>
         /// <param name="sender"></param>
         /// <param name="e"></param>
-        private void miLogout_Click(object sender, System.Windows.RoutedEventArgs e)
+        private void miPrinterLogout_Click(object sender, System.Windows.RoutedEventArgs e)
         {
             var collections = Application.Current.Windows;
             foreach (Window window in collections)
@@ -335,13 +366,19 @@ namespace PrinterManagerProject
             return UserCache.Printer.user_name == "ydwl" && UserCache.Printer.password == "password01!" && UserCache.Checker.user_name == "ydwl" && UserCache.Checker.password == "password01!";
         }
 
+        protected bool IsAdmin()
+        {
+            return UserCache.Printer.type_name == "管理员";
+        }
+
         /// <summary>
         /// 设置菜单不可用
         /// </summary>
         protected void SetMenuDisabled()
         {
             // 用户菜单
-            userHeader.IsEnabled = false;
+            printerHeader.IsEnabled = false;
+            checkerHeader.IsEnabled = false;
             // 退出按钮
             miExit.IsEnabled = false;
             // 关闭按钮
@@ -352,7 +389,8 @@ namespace PrinterManagerProject
         protected void SetMenuEnabled()
         {
             // 用户菜单
-            userHeader.IsEnabled = true;
+            printerHeader.IsEnabled = true;
+            checkerHeader.IsEnabled = true;
             // 退出按钮
             miExit.IsEnabled = true;
             // 关闭按钮

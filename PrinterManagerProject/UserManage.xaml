@@ -17,7 +17,8 @@
         </Style>
     </Window.Resources>
     <Border BorderBrush="Black" BorderThickness="1" Margin="5">
-        <Grid>
+
+        <Grid Grid.Row="0">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>
@@ -26,8 +27,8 @@
 
             <Grid Grid.Column="0">
                 <Grid.RowDefinitions>
-                    <RowDefinition Height="*"/>
                     <RowDefinition Height="Auto"/>
+                    <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
                 <DataGrid Grid.Row="0" x:Name="dgv_list" AutoGenerateColumns="False" SelectionMode="Single" DataGridRow.MouseUp="dgv_list_MouseUp" >
@@ -36,9 +37,9 @@
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="用户名" Binding="{Binding user_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="真实姓名" Binding="{Binding true_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="用户角色" Binding="{Binding type_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="创建时间" Binding="{Binding createtime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>                                                
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="创建时间" Binding="{Binding createtime, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="*"/>
                     </DataGrid.Columns>
-                </DataGrid>                
+                </DataGrid>
             </Grid>
 
             <GridSplitter Grid.Column="1" Width="5" HorizontalAlignment="Stretch" />
@@ -51,17 +52,17 @@
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
-                    <RowDefinition Height="150"/>
+                    <RowDefinition Height="225"/>
                     <RowDefinition Height="*"/>
                 </Grid.RowDefinitions>
 
                 <Label Grid.Row="0" Content="用户信息管理" Margin="10,0,0,0" HorizontalAlignment="Left"/>
 
-                <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
+                <!--<StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
                     <Label Content="用户编号：" Width="100"/>
                     <TextBox x:Name="userid" TextWrapping="Wrap" Text="" IsReadOnly="True" Width="120" Background="#FFF1E8E8"/>
-                </StackPanel>
-                
+                </StackPanel>-->
+
                 <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
                     <Label Content="操作身份：" Width="100"/>
                     <ComboBox x:Name="usertype" Width="120">
@@ -87,7 +88,8 @@
                 <Grid Grid.Row="6" Margin="0,20,0,0">
                     <Grid.RowDefinitions>
                         <RowDefinition/>
-                        <RowDefinition/>                        
+                        <RowDefinition/>
+                        <RowDefinition/>
                     </Grid.RowDefinitions>
                     <Grid.ColumnDefinitions>
                         <ColumnDefinition/>
@@ -99,11 +101,12 @@
 
                     <Button x:Name="btnDeleteUser" Content="删除用户"  Grid.Row="1" Margin="15,10,0,0" Width="90" Click="BtnDeleteUser_Click"/>
                     <Button x:Name="btn_clear" Content="重置"  Grid.Row="1" Grid.Column="1" Margin="15,10,0,0" Width="90" Click="Btn_clear_Click"/>
+                    <Button x:Name="btn_resetPassword" Content="重置密码"  Grid.Row="2" Grid.Column="0" Margin="15,10,0,0" Width="90" Click="Btn_resetPassword_Click"/>
 
 
 
                 </Grid>
-                
+
             </Grid>
         </Grid>
     </Border>

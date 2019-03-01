@@ -2010,14 +2010,8 @@ namespace PrinterManagerProject
         {
             if (needCloseWindowConfirm)
             {
-                // 关闭PLC
-                plcCommandSendQueueHelper.Enqueue(PLCSerialPortData.MACHINE_STOP);
-                // 关闭串口
-                PLCSerialPortUtils.GetInstance(this).Close();
-                CCDSerialPortUtils.GetInstance(this).Close();
-                ScannerSerialPortUtils.GetInstance(this).Close();
-                ScanHandlerSerialPortUtils.GetInstance(this).Close();
-                plcCommandSendQueueHelper.Stop();
+
+                StopPrint();
 
                 // 打开主窗口
                 var collections = Application.Current.Windows;

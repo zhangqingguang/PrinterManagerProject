@@ -94,7 +94,7 @@ namespace PrinterManagerProject
             }
             else
             {
-                if (czrUser.type_name != "操作员")
+                if (czrUser.type_name != "操作员" && czrUser.type_name == "管理员")
                 {
                     MessageBox.Show($"{crzName}不是操作员！");
                     return;
