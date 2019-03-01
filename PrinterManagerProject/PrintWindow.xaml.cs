@@ -109,7 +109,11 @@ namespace PrinterManagerProject
         /// </summary>
         private DispatcherTimer QueueIsEmptyStopTimer;
         private DispatcherTimer PlcReaderTimer;
-        private DispatcherTimer BeforePrintBlockTimer;
+
+        /// <summary>
+        /// 卡药检测Timer
+        /// </summary>
+        private DispatcherTimer BlockDetectictTimer;
 
 
         PLCCommandQueue plcCommandSendQueueHelper;
@@ -691,9 +695,11 @@ namespace PrinterManagerProject
                             OrderQueueModel model = queue.FirstOrDefault();
                             if (success == true && model != null && model.Drug != null)
                             {
+                                model.CCD2Time = DateTime.Now;
+                                model.CCD2LightScan = true;
 
-                                    // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
-                                    if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
+                                // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
+                                if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
                                     {
                                         if (string.IsNullOrEmpty(model.ScanData))
                                         {
@@ -986,6 +992,8 @@ namespace PrinterManagerProject
                                     if (queue.TryPeek(out model))
                                     {
                                         model.CCD2Time = DateTime.Now;
+                                        model.CCD2LightScan = true;
+
                                         if (string.IsNullOrEmpty(model.ScanData))
                                         {
                                             success = false;
@@ -1228,6 +1236,7 @@ namespace PrinterManagerProject
                     OrderQueueModel qModel;
                     if(queue.TryDequeue(out qModel))
                     {
+                        PrintQueueTimes(qModel);
                         myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
                     }
 
@@ -1276,6 +1285,7 @@ namespace PrinterManagerProject
                 qModel.QRData = drug.barcode;
                 qModel.PrinterLightScan = false;
                 qModel.ScannerLightScan = false;
+                qModel.CCD2LightScan = false;
                 qModel.Index = queueIndex++;
                 qModel.SpecCmd = specCmd;
                 qModel.EnqueueTime = ccd1SuccessTime;
@@ -1301,6 +1311,24 @@ namespace PrinterManagerProject
                 }
 
         }
+
+        private void PrintQueueTimes(OrderQueueModel model)
+        {
+            var now = DateTime.Now;
+            myEventLog.LogInfo($"CCD1-打印光幕时间： {(model.PrintLightTime - model.EnqueueTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"CCD1-扫码枪光幕时间： {(model.ScannerLightTime - model.EnqueueTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"CCD1-CCD2光幕时间： {(model.CCD2Time - model.EnqueueTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"CCD1-完成时间： {(now - model.EnqueueTime).TotalMilliseconds}！");
+
+            myEventLog.LogInfo($"打印光幕时间-扫码枪光幕时间： {(model.ScannerLightTime - model.PrintLightTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"打印光幕时间-CCD2光幕时间： {(model.CCD2Time - model.PrintLightTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"打印光幕时间-完成时间： {(now - model.PrintLightTime).TotalMilliseconds}！");
+
+            myEventLog.LogInfo($"扫码枪光幕时间-CCD2光幕时间： {(model.CCD2Time - model.ScannerLightTime).TotalMilliseconds}！");
+            myEventLog.LogInfo($"扫码枪光幕时间-完成时间： {(now - model.ScannerLightTime).TotalMilliseconds}！");
+
+            myEventLog.LogInfo($"CCD2光幕时间-完成时间： {(now - model.CCD2Time).TotalMilliseconds}！");
+        }
         /// <summary>
         /// CCD2错误时删除对象
         /// </summary>
@@ -1313,6 +1341,7 @@ namespace PrinterManagerProject
                     OrderQueueModel qModel ;
                     if(queue.TryDequeue(out qModel))
                     {
+                        PrintQueueTimes(qModel);
                         myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
                     }
 
@@ -1361,8 +1390,8 @@ namespace PrinterManagerProject
         private void GoToPrinterLight()
         {
 
-            var ccd1SuccessIntervalTickets = (DateTime.Now - ccd1SuccessTime).TotalMilliseconds;
-            myEventLog.LogInfo($"CCD1成功到82信号间隔时间：{ccd1SuccessIntervalTickets}");
+            //var ccd1SuccessIntervalTickets = (DateTime.Now - ccd1SuccessTime).TotalMilliseconds;
+            //myEventLog.LogInfo($"CCD1成功到82信号间隔时间：{ccd1SuccessIntervalTickets}");
 
             var intervalTickets = (DateTime.Now - prevPrinterLightTime).TotalMilliseconds;
             //myEventLog.LogInfo($"82信号间隔时间：{intervalTickets}");
@@ -1419,11 +1448,11 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"83： PLC接收83信号，记录扫码信息");
                 foreach (var item in queue)
                 {
-                    if(item.PrinterLightScan == false)
-                    {
-                        item.PrinterLightScan = true;
-                        myEventLog.LogInfo($"83： Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
-                    }
+                    //if(item.PrinterLightScan == false)
+                    //{
+                    //    item.PrinterLightScan = true;
+                    //    myEventLog.LogInfo($"83： Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
+                    //}
 
                     if (CanStartConveryorBelt())
                     {
@@ -1526,7 +1555,6 @@ namespace PrinterManagerProject
             {
                 PCLConnected = false;
                 PlcReaderTimer?.Stop();
-                //scannerLightListener.Stop();
             }
 
             // 这里设置显示串口连接成功
@@ -2051,14 +2079,10 @@ namespace PrinterManagerProject
                 return;
             }
 
-            // 清空队列
-            myEventLog.LogInfo($"队列数量： {queue.Count}！");
-            queue = new ConcurrentQueue<OrderQueueModel>();
-            myEventLog.LogInfo($"清空队列！");
 
             if (tabMain.SelectedIndex == 0)
             {
-                if(string.IsNullOrEmpty(cb_batch.SelectedValue?.ToString() ?? ""))
+                if (string.IsNullOrEmpty(cb_batch.SelectedValue?.ToString() ?? ""))
                 {
                     MessageBox.Show("请选择批次！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
@@ -2068,23 +2092,47 @@ namespace PrinterManagerProject
                     MessageBox.Show("当前批次无待贴标签液体！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
-                if (autoPrintList.Count(s=>s.printing_status.HasValue == false || s.printing_status == PrintStatusEnum.NotPrint)==0)
+                if (autoPrintList.Count(s => s.printing_status.HasValue == false || s.printing_status == PrintStatusEnum.NotPrint) == 0)
                 {
                     MessageBox.Show("当前批次以完成贴签，无待打印液体！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                     return;
                 }
                 Task.Run(() => {
                     int times = 60;
-                    while (times>0)
+                    while (times > 0)
                     {
                         Dispatcher.Invoke(() =>
                         {
-                            loadMask.LoadingText = "正在检测打印机"+times;
+                            loadMask.LoadingText = "正在检测打印机" + times;
                         });
                         times--;
                         Thread.Sleep(1000);
                     }
                 });
+
+
+                // 轮询监听长时间未放药，停止打印
+                QueueIsEmptyTime = DateTime.Now;
+                QueueIsEmptyStopTimer = new DispatcherTimer();
+                QueueIsEmptyStopTimer.Tick += QueueIsEmptyStopTimer_Tick; ;
+                QueueIsEmptyStopTimer.Interval = new TimeSpan(0, 0, 0, 5);
+                QueueIsEmptyStopTimer.Start();
+
+                if (AppConfig.BeforePrintLightBlockDetectictIsEnabled || AppConfig.BeforeCCD2BlockDetectictIsEnabled)
+                {
+                    // 打印机前档板卡药计时器
+                    BlockDetectictTimer = new DispatcherTimer();
+                    BlockDetectictTimer.Tick += BeforePrintBlockTimer_Tick; ;
+                    BlockDetectictTimer.Interval = new TimeSpan(0, 0, 0, 0, AppConfig.BlockDetectictInterval);
+                    BlockDetectictTimer.Start();
+                }
+
+                // 轮询获取光幕状态和异常信息
+                PlcReaderTimer = new DispatcherTimer();
+                PlcReaderTimer.Tick += PlcReaderTimer_Tick; ; ;
+                PlcReaderTimer.Interval = new TimeSpan(0, 0, 0, 0, AppConfig.LightReaderIntervalTime);
+                PlcReaderTimer.Start();
+
                 Task.Run(() =>
                 {
                     // 连接打印机Loading，尝试打开打印机连接，判断打印机状态是否需要重置，重置后goto到打印机Loading，获取打印机状态5次仍失败的，提示获取打印机状态失败
@@ -2097,7 +2145,14 @@ namespace PrinterManagerProject
                         if (IsConnectDevices == false || CheckPrinterStatus())
                         {
 
+                            // 清空队列
+                            myEventLog.LogInfo($"队列数量： {queue.Count}！");
+                            queue = new ConcurrentQueue<OrderQueueModel>();
+                            myEventLog.LogInfo($"清空队列！");
+
+                            // 清除打印机中的打印内容
                             printerManager.ClearAll();
+
                             // 先关再开
                             plcCommandSendQueueHelper.Enqueue("%01#WCSR00291**"); // 停止打印
                             // 命令间隔时间太短会导致无法启动
@@ -2107,34 +2162,12 @@ namespace PrinterManagerProject
                             plcCommandSendQueueHelper.Enqueue("%01#WCSR00201**"); // 开始打印
                             myEventLog.LogInfo($"发送开始命令");
 
-                            IsWarningShowing = false;
-
-                            StartUpdateControlState();
 
                             SetCCD1IsNotBusy();
                             SetCCD2IsNotBusy();
+                            IsWarningShowing = false;
 
-                            // 轮询监听长时间未放药，停止打印
-                            QueueIsEmptyTime = DateTime.Now;
-                            QueueIsEmptyStopTimer = new DispatcherTimer();
-                            QueueIsEmptyStopTimer.Tick += QueueIsEmptyStopTimer_Tick; ;
-                            QueueIsEmptyStopTimer.Interval = new TimeSpan(0, 0, 0, 5);
-                            QueueIsEmptyStopTimer.Start();
-
-                            if (AppConfig.BeforePrintLightBlockDetectictIsEnabled)
-                            {
-                                // 打印机前档板卡药计时器
-                                BeforePrintBlockTimer = new DispatcherTimer();
-                                BeforePrintBlockTimer.Tick += BeforePrintBlockTimer_Tick; ;
-                                BeforePrintBlockTimer.Interval = new TimeSpan(0, 0, 0, 0, AppConfig.BeforePrintLightBlockDetectictInterval);
-                                BeforePrintBlockTimer.Start();
-                            }
-
-                            // 轮询获取光幕状态和异常信息
-                            PlcReaderTimer = new DispatcherTimer();
-                            PlcReaderTimer.Tick += PlcReaderTimer_Tick; ; ;
-                            PlcReaderTimer.Interval = new TimeSpan(0, 0, 0, 0, AppConfig.LightReaderIntervalTime);
-                            PlcReaderTimer.Start();
+                            StartUpdateControlState();
 
                         }
                         else
@@ -2171,21 +2204,28 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void BeforePrintBlockTimer_Tick(object sender, EventArgs e)
         {
-            if (AppConfig.BeforePrintLightBlockDetectictIsEnabled)
+            if (IsWarningShowing == false && AppConfig.BeforePrintLightBlockDetectictIsEnabled)
             {
                 // 没过打印机，且入队时间超过
                 if (queue.Any(s => s.PrinterLightScan == false && (DateTime.Now - s.EnqueueTime).TotalMilliseconds > AppConfig.BeforePrintLightBlockDuration))
                 {
-                    if (IsWarningShowing == false)
-                    {
-                        IsWarningShowing = true;
-                        StopPrint();
-                        MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-
-                    }
+                    IsWarningShowing = true;
+                    StopPrint();
+                    MessageBox.Show("设备有卡药（打印）！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
-
             }
+
+            if (IsWarningShowing == false && AppConfig.BeforeCCD2BlockDetectictIsEnabled)
+            {
+                // 没过打印机，且入队时间超过
+                if (queue.Count(s => s.CCD2LightScan == false && s.ScannerLightScan == true && (DateTime.Now - s.ScannerLightTime).TotalMilliseconds > AppConfig.BeforeCCD2BlockAfterScannerLightTimes)>AppConfig.BeforeCCD2MaxCount)
+                {
+                    IsWarningShowing = true;
+                    StopPrint();
+                    MessageBox.Show("设备有卡药（CCD2）！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+
         }
 
         /// <summary>

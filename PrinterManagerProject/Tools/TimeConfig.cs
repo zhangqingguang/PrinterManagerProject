@@ -69,6 +69,11 @@ namespace PrinterManagerProject.Tools
         public static bool CCD2IsEnabled = true;
 
 
+        /// <summary>
+        /// 卡药检测时间间隔
+        /// </summary>
+        public static int BlockDetectictInterval = 20;
+
         #region 档板卡药配置
         /// <summary>
         /// 是否启用挡板处卡药检测
@@ -76,13 +81,42 @@ namespace PrinterManagerProject.Tools
         public static bool BeforePrintLightBlockDetectictIsEnabled = false;
         /// <summary>
         /// 挡板处卡药时间间隔（CCD1继续到打印机光幕时间间隔）
+        /// 90条数据统计最大时间1523
         /// </summary>
-        public static int BeforePrintLightBlockDuration = 2000;
-        /// <summary>
-        /// 检测档板处卡药时间间隔
-        /// </summary>
-        public static int BeforePrintLightBlockDetectictInterval = 20; 
+        public static int BeforePrintLightBlockDuration = 1900;
         #endregion
+
+
+
+        #region CCD2前卡药配置
+        /// <summary>
+        /// 是否启用挡板处卡药检测
+        /// </summary>
+        public static bool BeforeCCD2BlockDetectictIsEnabled = true;
+
+        /// <summary>
+        /// 
+        /// </summary>
+        public static int BeforeCCD2BlockAfterScannerLightTimes = 500;
+        /// <summary>
+        /// 挡板处卡药时间间隔（CCD1继续到打印机光幕时间间隔）
+        /// </summary>
+        public static int BeforeCCD2MaxCount = 2;
+        #endregion
+
+//CCD1-打印光幕时间	1523
+//CCD1-扫码枪光幕时间	3328
+//CCD1-CCD2光幕时间
+//CCD1-完成时间	5611
+	
+//打印光幕时间-扫码枪光幕时间	2041
+//打印光幕时间-CCD2光幕时间
+//打印光幕时间-完成时间	4175
+	
+//扫码枪光幕时间-CCD2光幕时间
+//扫码枪光幕时间-完成时间	2495
+	
+//CCD2光幕时间-完成时间
 
     }
 }

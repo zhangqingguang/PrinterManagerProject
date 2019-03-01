@@ -55,6 +55,10 @@ namespace PrinterManagerProject.Models
         /// 扫码枪光幕扫描
         /// </summary>
         public bool ScannerLightScan { get; set; }
+        /// <summary>
+        /// 是否过CCD2光幕扫描（正在拍照识别状态）
+        /// </summary>
+        public bool CCD2LightScan { get; set; }
 
         /// <summary>
         /// CCD1拍照次数，CCD2的拍照次数不能超过CCD1的拍照次数
