@@ -2211,7 +2211,7 @@ namespace PrinterManagerProject
                 {
                     IsWarningShowing = true;
                     StopPrint();
-                    MessageBox.Show("设备有卡药（打印）！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
 
@@ -2222,7 +2222,7 @@ namespace PrinterManagerProject
                 {
                     IsWarningShowing = true;
                     StopPrint();
-                    MessageBox.Show("设备有卡药（CCD2）！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
 
