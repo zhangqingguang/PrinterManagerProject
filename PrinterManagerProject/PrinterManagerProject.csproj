@@ -205,7 +205,6 @@
     <Compile Include="Tools\Printer\PrintTemplateManager.cs" />
     <Compile Include="Tools\Printer\UsbConnectionManager.cs" />
     <Compile Include="Tools\Serial\PLCTest.cs" />
-    <Compile Include="Tools\Serial\PLCReader.cs" />
     <Compile Include="Tools\Serial\ScannerHandlerSerialPortUtils.cs" />
     <Compile Include="Tools\Serial\ScannerSerialPortUtils.cs" />
     <Compile Include="Models\DrugsQueueModel.cs" />

@@ -308,21 +308,18 @@ namespace PrinterManagerProject
         /// <returns></returns>
         private bool SendCCD1Success(string cmdData)
         {
-            try
+            Task.Run(() =>
             {
+                Thread.Sleep(AppConfig.Ccd1SuccessSleepTime);
+                myEventLog.LogInfo($"发送指令等待时间:{AppConfig.Ccd1SuccessSleepTime}");
                 ccd1SuccessTime = DateTime.Now;
                 int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
 
-                //plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
+                    //plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
 
-                myEventLog.LogInfo($"发送CCD1继续命令");
-                return true;
-            }
-            catch (Exception ex)
-            {
-                myEventLog.LogError($"发送CCD1继续命令出错：" + ex.Message, ex);
-                return false;
-            }
+                    myEventLog.LogInfo($"发送CCD1继续命令");
+            });
+            return true;
         }
         /// <summary>
         /// 发送CCD2成功命令
@@ -433,13 +430,15 @@ namespace PrinterManagerProject
                         if (ccd1ErrorCount < AppConfig.CCD1TakePhotoMaxTimes - 1)
                         {
                             ccd1ErrorCount++;
-                            //1#拍照
-                            Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
-
-                            // 重新拍照
-                            CCD1TakePicture();
-                            myEventLog.LogInfo($"CCD1第{ccd1ErrorCount}次识别失败，重新拍照");
-                            //model.Count++;
+                            Task.Run(() =>
+                            {
+                                //1#拍照
+                                Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
+                                // 重新拍照
+                                CCD1TakePicture();
+                                myEventLog.LogInfo($"CCD1第{ccd1ErrorCount}次识别失败，重新拍照");
+                                //model.Count++;
+                            });
                         }
                         else
                         {
@@ -475,38 +474,40 @@ namespace PrinterManagerProject
                             label.Content = "CCD2通讯正常";
                         });
 
-                            // CCD2是流程最后一步，取出第一个
-                            OrderQueueModel model = queue.FirstOrDefault();
-                            if (model != null)
+                        // CCD2是流程最后一步，取出第一个
+                        OrderQueueModel model = queue.FirstOrDefault();
+                        if (model != null)
+                        {
+                            if (string.IsNullOrEmpty(model.ScanData) == false)
                             {
-                                if (string.IsNullOrEmpty(model.ScanData) == false)
-                                {
-                                    ccd2ErrorCount++;
-                                    myEventLog.LogInfo($"Index:{model?.Index},CCD2第{ccd2ErrorCount}次识别失败，重新拍照");
+                                ccd2ErrorCount++;
+                                myEventLog.LogInfo($"Index:{model?.Index},CCD2第{ccd2ErrorCount}次识别失败，重新拍照");
 
-                                    if (ccd2ErrorCount < model.CCD1TakePhotoCount+1)
+                                if (ccd2ErrorCount < model.CCD1TakePhotoCount + 1)
+                                {
+                                    Task.Run(() =>
                                     {
                                         //2#拍照
                                         Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
                                         CCD2TakePicture();
-
-                                        return;
-                                    }
-                                    else
-                                    {
-                                        //myEventLog.LogInfo($"Index:{model?.Index},CCD2拍照次数{ccd2ErrorCount}超过CCD1拍照次数{model.CCD1TakePhotoCount}，从CCD2剔除");
-                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2拍照次数{ccd2ErrorCount}超过{ccd2ErrorCount}次，从CCD2剔除");
-                                    }
+                                    });
+                                    return;
                                 }
                                 else
                                 {
-                                    myEventLog.LogInfo($"Index:{model?.Index},扫码枪未识别到二维码[{model.QRData}]，从CCD2剔除");
+                                    //myEventLog.LogInfo($"Index:{model?.Index},CCD2拍照次数{ccd2ErrorCount}超过CCD1拍照次数{model.CCD1TakePhotoCount}，从CCD2剔除");
+                                    myEventLog.LogInfo($"Index:{model?.Index},CCD2拍照次数{ccd2ErrorCount}超过{ccd2ErrorCount}次，从CCD2剔除");
                                 }
                             }
                             else
                             {
-                                myEventLog.LogInfo($"Index:{model?.Index},队列中没有液体，CCD2不拍照，从CCD2剔除");
+                                myEventLog.LogInfo($"Index:{model?.Index},扫码枪未识别到二维码[{model.QRData}]，从CCD2剔除");
                             }
+                        }
+                        else
+                        {
+                            myEventLog.LogInfo($"Index:{model?.Index},队列中没有液体，CCD2不拍照，从CCD2剔除");
+                        }
 
                         // 从2#位剔除药袋
                         SendCCD2Out();
@@ -618,14 +619,12 @@ namespace PrinterManagerProject
                                 }
                                 catch(Exception ex)
                                 {
-                                    
+                                    myEventLog.LogError($"获取Printer出错:{ex.Message}", ex);
                                     success = false;
                                 }
                                 if (success)
                                 {
                                     // 发送指令，调整PLC药袋大小以及打印机高度
-                                    Thread.Sleep(AppConfig.Ccd1SuccessSleepTime);
-                                    myEventLog.LogInfo($"发送指令等待时间:{AppConfig.Ccd1SuccessSleepTime}");
 
                                     //var specCmdData = GetSepcData(currentCmdData);
                                     var currentCmdData = $"3{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}";
@@ -695,8 +694,6 @@ namespace PrinterManagerProject
                             OrderQueueModel model = queue.FirstOrDefault();
                             if (success == true && model != null && model.Drug != null)
                             {
-                                model.CCD2Time = DateTime.Now;
-                                model.CCD2LightScan = true;
 
                                 // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
                                 if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
@@ -858,7 +855,8 @@ namespace PrinterManagerProject
         }
 
         bool IsWarningShowing = false;
-
+        //DateTime prePLCTime = DateTime.Now;
+        //DateTime preReadPLCTime = DateTime.Now;
         /// <summary>
         /// PLC 数据接收
         /// </summary>
@@ -867,6 +865,9 @@ namespace PrinterManagerProject
         {
             try
             {
+                //var plcIntervalTickets = (DateTime.Now - prePLCTime).TotalMilliseconds;
+                //prePLCTime = DateTime.Now;
+                //myEventLog.LogInfo($"两个PLC信号间隔时间:{plcIntervalTickets}。");
                 if (data.StartsWith("%01!") || data.Contains("!") || data.StartsWith("%")==false)
                 {
                     // 异常信号
@@ -874,6 +875,9 @@ namespace PrinterManagerProject
                 }
                 else if (data.Contains("$RC"))
                 {
+                    //var plcReadIntervalTickets = (DateTime.Now - preReadPLCTime).TotalMilliseconds;
+                    //preReadPLCTime = DateTime.Now;
+                    //myEventLog.LogInfo($"两个读取PLC信号间隔时间:{plcReadIntervalTickets}。");
                     if (data.Length == "%01#RC12345678**".Length)
                     {
                         //myEventLog.LogInfo($"PLC接收报警信号");
@@ -893,34 +897,35 @@ namespace PrinterManagerProject
                         {
                             var intervalTickets = (DateTime.Now - prevCCD1Time).TotalMilliseconds;
                             //myEventLog.LogInfo($"81信号间隔时间：{intervalTickets}");
-                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval;
+                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // CCD1信号最小间隔时间=CCD1拨成功后等待时间+从拨成功位置走到初始值位置
                             prevCCD1Time = DateTime.Now;
                             if (isLightSignalEffective == false)
                             {
-                                //
                                 if (AppConfig.IsStopOnCCD1ResultDelayed)
                                 {
                                     // 时间间隔小于AppConfig.LightTimeInterval，
                                     if (ccd1IsBusy == false && IndexOf81AfterCCD1IsNotBusy == AppConfig.Waite81SignalTimesOnCCD1ResultDelayed)
                                     {
                                         StopPrint();
-                                        MessageBox.Show("CCD1有卡药");
+                                        myEventLog.LogInfo($"设备有卡药：CCD1");
+                                        MessageBox.Show("设备有卡药");
                                     }
                                     else
                                     {
                                         IndexOf81AfterCCD1IsNotBusy++;
                                     }
                                 }
-                            }else
+                            }
+                            else
                             if (isLightSignalEffective && ccd1IsBusy == false)
-                            {
-                                ccd1IsBusy = true;
-                                if (CanStartConveryorBelt())
                                 {
+                                    ccd1IsBusy = true;
+                                    if (CanStartConveryorBelt())
+                                    {
+                                        StartConveryorBelt();
+                                    }
                                     Task.Run(() =>
                                     {
-                                        // 不论传送带是否正在运行，都发送启动传送带指令
-                                        //StartConveryorBelt();
                                         // 收到光幕信号，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，继续拍照
 
                                         if (AppConfig.MaxQueueCount != 0 && queue.Count() >= AppConfig.MaxQueueCount)
@@ -950,116 +955,119 @@ namespace PrinterManagerProject
                                         }
                                     });
                                 }
-                                else
-                                {
-                                    ccd1IsBusy = false;
-
-                                }
-                            }
                         }
 
-                        if (ccd2Status == '1')
+                        if (ccd2Status == '1') 
                         {
                             var intervalTickets = (DateTime.Now - prevCCD2Time).TotalMilliseconds;
                             //myEventLog.LogInfo($"84信号间隔时间：{intervalTickets}");
-                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval;
+                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // CCD2最小间隔时间=CCD2拨成功后等待时间+从拨成功位置走到初始值位置
                             prevCCD2Time = DateTime.Now;
                             if(isLightSignalEffective && ccd2IsBusy == false)
                             {
-
-
-                                if (AppConfig.CCD2IsEnabled)
+                                myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
+                                var item = queue.FirstOrDefault();
+                                if ((DateTime.Now - item.ScannerLightTime).TotalMilliseconds <AppConfig.ScannerToCCD2LightMinTime)
                                 {
-                                    myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
-                                    ccd2IsBusy = true;
-                                    Task.Run(() =>
+                                    // 收到CCD2信号时间小于光幕信号到CCD2最小时间，异常信号
+                                    myEventLog.LogInfo($"84： PLC接收有效84信号，CCD2开始拍照");
+                                    myEventLog.LogInfo($"幕信号到CCD2时间小于{AppConfig.ScannerToCCD2LightMinTime}，无效信号");
+                                }
+                                else
+                                {
+                                    myEventLog.LogInfo($"84： PLC接收有效84信号，CCD2开始拍照");
+                                    item.CCD2Time = DateTime.Now;
+                                    item.CCD2LightScan = true;
+                                    if (AppConfig.CCD2IsEnabled)
                                     {
+                                        ccd2IsBusy = true;
+                                        Task.Run(() =>
+                                        {
                                         // 停一段时间稳定液体
                                         Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
                                         // 开始拍照
                                         lock (ccd2LockHelper)
-                                        {
-                                            ccd2ErrorCount = 0;
-                                        }
-                                        CCD2TakePicture();
-                                    });
-                                }
-                                else
-                                {
-                                    bool success = true;
-
-                                    OrderQueueModel model;
-                                    if (queue.TryPeek(out model))
+                                            {
+                                                ccd2ErrorCount = 0;
+                                            }
+                                            CCD2TakePicture();
+                                        });
+                                    }
+                                    else
                                     {
-                                        model.CCD2Time = DateTime.Now;
-                                        model.CCD2LightScan = true;
+                                        bool success = true;
 
-                                        if (string.IsNullOrEmpty(model.ScanData))
+                                        OrderQueueModel model;
+                                        if (queue.TryPeek(out model))
                                         {
-                                            success = false;
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
-                                            warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
-                                        else
-                                            if (model.ScanData != model.QRData)
-                                        {
-                                            success = false;
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
-                                            warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
 
-                                        if (success)
-                                        {
-                                            bool updateDataSuccess = false;
-                                            try
+                                            if (string.IsNullOrEmpty(model.ScanData))
                                             {
-                                                orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, "无", UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                                updateDataSuccess = true;
-                                            }
-                                            catch (Exception ex)
-                                            {
-                                                myEventLog.LogError($"更新到数据库出错", ex);
-                                            }
-
-                                            if (updateDataSuccess)
-                                            {
-                                                myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
-                                                countModel.AutoCount++;
-                                                countModel.PrintedTotalCount++;
-                                                countModel.NotPrintTotalCount--;
-                                                UpdateSummaryLabel();
-
-                                                // 处理到数据源
-                                                tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
-                                                // 2#位通过
-                                                myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
-                                                SendCCD2Success();
-
-                                                // 回写数据
-                                                PrintSuccess(autoPrintModel, "无");
-                                                // --- 设置为CCD2识别通过的状态 ---
-                                                Success();
-
-                                                myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                                myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
+                                                success = false;
+                                                myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
+                                                warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                             }
                                             else
+                                                if (model.ScanData != model.QRData)
                                             {
-                                                // --- 删除对比失败的信息 ---
-                                                myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                                myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
-                                                warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                                 success = false;
+                                                myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
+                                                warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                             }
-                                        }
 
-                                        if (success == false)
-                                        {
-                                            // 从2#位剔除信息对比失败的药袋
-                                            SendCCD2Out();
+                                            if (success)
+                                            {
+                                                bool updateDataSuccess = false;
+                                                try
+                                                {
+                                                    orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, "无", UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                                    updateDataSuccess = true;
+                                                }
+                                                catch (Exception ex)
+                                                {
+                                                    myEventLog.LogError($"更新到数据库出错", ex);
+                                                }
 
-                                            // --- 删除对比失败的信息 ---
-                                            RemoveCCD2();
+                                                if (updateDataSuccess)
+                                                {
+                                                    myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
+                                                    countModel.AutoCount++;
+                                                    countModel.PrintedTotalCount++;
+                                                    countModel.NotPrintTotalCount--;
+                                                    UpdateSummaryLabel();
+
+                                                    // 处理到数据源
+                                                    tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
+                                                    // 2#位通过
+                                                    myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
+                                                    SendCCD2Success();
+
+                                                    // 回写数据
+                                                    PrintSuccess(autoPrintModel, "无");
+                                                    // --- 设置为CCD2识别通过的状态 ---
+                                                    Success();
+
+                                                    myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                                    myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
+                                                }
+                                                else
+                                                {
+                                                    // --- 删除对比失败的信息 ---
+                                                    myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：QRCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                                                    myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
+                                                    warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                                    success = false;
+                                                }
+                                            }
+
+                                            if (success == false)
+                                            {
+                                                // 从2#位剔除信息对比失败的药袋
+                                                SendCCD2Out();
+
+                                                // --- 删除对比失败的信息 ---
+                                                RemoveCCD2();
+                                            }
                                         }
                                     }
                                 }
@@ -1068,17 +1076,37 @@ namespace PrinterManagerProject
 
                         if (printStatus == '1')
                         {
-                            GoToPrinterLight();
+                            var intervalTickets = (DateTime.Now - prevPrinterLightTime).TotalMilliseconds;
+                            //myEventLog.LogInfo($"82信号间隔时间：{intervalTickets}");
+                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // 打印机光幕最小间隔时间=两个读取信号的长间隔时间
+                            prevPrinterLightTime = DateTime.Now;
+                            if (isLightSignalEffective)
+                            {
+
+                                Task.Run(() => {
+                                    GoToPrinterLight();
+                                });
+                            }
                         }
 
                         if(scannerStatus == '1')
                         {
-                            GoToScannerLight();
+                            var intervalTickets = (DateTime.Now - prevScannerLightTime).TotalMilliseconds;
+                            //myEventLog.LogInfo($"83信号间隔时间：{intervalTickets}");
+                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; //扫码枪光幕最小间隔时间=两个读取信号的长间隔时间
+                            prevScannerLightTime = DateTime.Now;
+                            if (isLightSignalEffective)
+                            {
+                                Task.Run(() => {
+                                    GoToScannerLight();
+                                });
+                            }
                         }
 
                         if (IsWarningShowing == false &&(warning == '1' || blockWarning == '1'))
                         {
                             IsWarningShowing = true;
+                            myEventLog.LogInfo($"设备有卡药：PLC报警");
                             MessageBox.Show("设备有卡药，请处理后再进行工作！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                             //IsWarningShowing = false;
                             //printerManager.ResetPrinter();
@@ -1229,30 +1257,29 @@ namespace PrinterManagerProject
         /// </summary>
         private void Success()
         {
-                // 判断是否有队列数据
-                if (queue.IsEmpty == false)
+            // 判断是否有队列数据
+            if (queue.IsEmpty == false)
+            {
+                // CCD2是流程最后一步，取出第一个
+                OrderQueueModel qModel;
+                if (queue.TryDequeue(out qModel))
                 {
-                    // CCD2是流程最后一步，取出第一个
-                    OrderQueueModel qModel;
-                    if(queue.TryDequeue(out qModel))
-                    {
-                        PrintQueueTimes(qModel);
-                        myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
-                    }
-
-                    if (queue.IsEmpty)
-                    {
-                        QueueIsEmptyTime = DateTime.Now;
-                    }
-
-                    myEventLog.LogInfo($"队列数量： {queue.Count}！");
-                    if (CanStartConveryorBelt())
-                    {
-                        // 出队后，队列中液体数量小于队列中液体最大数，且未打印液体数量小于队列中允许的最大未打印数量，第一个传送带继续
-                        myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
-                        StartConveryorBelt();
-                    }
+                    PrintQueueTimes(qModel);
+                    myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}");
                 }
+
+                if (queue.IsEmpty)
+                {
+                    QueueIsEmptyTime = DateTime.Now;
+                }
+
+                myEventLog.LogInfo($"队列数量： {queue.Count}！");
+                if (CanStartConveryorBelt())
+                {
+                    myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                    StartConveryorBelt();
+                }
+            }
         }
 
         /// <summary>
@@ -1352,7 +1379,7 @@ namespace PrinterManagerProject
                         QueueIsEmptyTime = DateTime.Now;
                     }
 
-                    if (CanStopConveryorBelt())
+                    if (CanStartConveryorBelt())
                     {
                         myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
                         StartConveryorBelt();
@@ -1389,39 +1416,34 @@ namespace PrinterManagerProject
         /// </summary>
         private void GoToPrinterLight()
         {
-
-            //var ccd1SuccessIntervalTickets = (DateTime.Now - ccd1SuccessTime).TotalMilliseconds;
-            //myEventLog.LogInfo($"CCD1成功到82信号间隔时间：{ccd1SuccessIntervalTickets}");
-
-            var intervalTickets = (DateTime.Now - prevPrinterLightTime).TotalMilliseconds;
-            //myEventLog.LogInfo($"82信号间隔时间：{intervalTickets}");
-            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval;
-            prevPrinterLightTime = DateTime.Now;
-            if (isLightSignalEffective==false)
+            myEventLog.LogInfo($"82： PLC接收82信号，开始打印");
+            // 找到最后一个没有记录的进行记录
+            OrderQueueModel model = queue.FirstOrDefault(m => !m.PrinterLightScan);
+            if (model != null)
             {
-                return;
+//#warning 需要统计从入队到打印机收到打印信号的最小时间间隔
+                //var printLightMinTime = 1000;   // 最小时间=入队到CCD1推到传送带时间+(CCD1到打印机光幕移动距离)/传送带移动速度=（48-22）/43=600
+                if ((DateTime.Now - model.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToPrintLightMinTime)
+                {
+                    myEventLog.LogInfo($"82： PLC接收有效82信号，开始打印");
+                    model.PrintLightTime = DateTime.Now;
+                    model.PrinterLightScan = true;
+                    myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
+                    if (CanStartConveryorBelt())
+                    {
+                        // 打印过之后，判断是否可以可以启动
+                        StartConveryorBelt();
+                    }
+                }
+                else
+                {
+                    myEventLog.LogInfo($"当前信号从入队列到收到打印机光幕信号小于{AppConfig.EnqueueToPrintLightMinTime}，无效信号");
+                }
             }
-
-            Task.Run(()=> {
-                myEventLog.LogInfo($"82： PLC接收82信号，开始打印");
-                    // 找到最后一个没有记录的进行记录
-                    OrderQueueModel model = queue.FirstOrDefault(m => !m.PrinterLightScan);
-                    if (model != null)
-                    {
-                        model.PrintLightTime = DateTime.Now;
-                        model.PrinterLightScan = true;
-                        myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
-                        if (CanStartConveryorBelt())
-                        {
-                            // 打印过之后，判断是否可以可以启动
-                            StartConveryorBelt();
-                        }
-                    }
-                    else
-                    {
-                        myEventLog.LogInfo($"过打印机光幕，队列中未找到打印液体");
-                    }
-            });
+            else
+            {
+                myEventLog.LogInfo($"过打印机光幕，队列中未找到打印液体，无效信号");
+            }
         }
         DateTime prevScannerLightTime = DateTime.Now;
         DateTime prevPrinterLightTime = DateTime.Now;
@@ -1432,41 +1454,44 @@ namespace PrinterManagerProject
         /// </summary>
         private void GoToScannerLight()
         {
-            var intervalTickets = (DateTime.Now - prevScannerLightTime).TotalMilliseconds;
-            //myEventLog.LogInfo($"83信号间隔时间：{intervalTickets}");
-            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval;
-            prevScannerLightTime = DateTime.Now;
-            if (isLightSignalEffective==false)
+            if (queue.IsEmpty)
             {
-                return;
+                myEventLog.LogInfo($"队列中无数据，不修改扫码枪计数！");
             }
-                if (queue.IsEmpty)
-                {
-                    myEventLog.LogInfo($"队列中无数据，不修改扫码枪计数！");
-                    return;
-                }
+            else
+            {
                 myEventLog.LogInfo($"83： PLC接收83信号，记录扫码信息");
-                foreach (var item in queue)
+
+                var item = queue.FirstOrDefault(s => s.ScannerLightScan == false);
+                if (item != null)
                 {
-                    //if(item.PrinterLightScan == false)
-                    //{
-                    //    item.PrinterLightScan = true;
-                    //    myEventLog.LogInfo($"83： Index:{item.Index},过扫码枪光幕，识别到未记录82信号，修改收到82信号，");
-                    //}
+                    //var enqueueToScannerMinTime = 2700;// 最小时间=入队到CCD1推到传送带时间+(入队到扫码枪光幕移动距离)/传送带移动速度=（85-22）/43=1650
+                    //var printerToScannerMinTime = 1200; // 最小时间=入队到CCD1推到传送带时间+(CCD1到扫码枪光幕移动距离)/传送带移动速度=（36-22）/43=581
+                    var now = DateTime.Now;
 
-                    if (CanStartConveryorBelt())
+                    if ((DateTime.Now - item.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToScannerLightMinTime)
                     {
-                        StartConveryorBelt();
+                        if ((DateTime.Now - item.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime)
+                        {
+                            item.ScannerLightScan = true;
+                            item.ScannerLightTime = DateTime.Now;
+                            myEventLog.LogInfo($"83： PLC接收有效83信号，记录扫码信息");
+                        }
+                        else
+                        {
+                            myEventLog.LogInfo($"过扫码枪光幕，小于从打印机光幕到扫码枪光幕的最小时间，无效信号");
+                        }
                     }
-
-                    if(item.ScannerLightScan == false)
+                    else
                     {
-                        item.ScannerLightScan = true;
-                        item.ScannerLightTime = DateTime.Now;
-                        myEventLog.LogInfo($"Index:{item.Index},过扫码枪光幕，记录过光幕状态，");
-                        break;
+                        myEventLog.LogInfo($"过扫码枪光幕，小于从入队到扫码枪光幕的最小时间，无效信号");
                     }
                 }
+                else
+                {
+                    myEventLog.LogInfo($"过扫码枪光幕，队列中未找到未过光幕液体，无效信号");
+                }
+            }
         }
 
         #endregion
@@ -1755,7 +1780,7 @@ namespace PrinterManagerProject
             GetSummaryLabels();
             //autoPrintList.Where(s => s.printing_model == PrintModelEnum.Manual)
             //BindManualList(autoPrintList.Where(s=>s.printing_model== PrintModelEnum.Manual));
-            BindWarning();
+            //BindWarning();
         }
 
         /// <summary>
@@ -2112,7 +2137,7 @@ namespace PrinterManagerProject
                 QueueIsEmptyStopTimer.Interval = new TimeSpan(0, 0, 0, 5);
                 QueueIsEmptyStopTimer.Start();
 
-                if (AppConfig.BeforePrintLightBlockDetectictIsEnabled || AppConfig.BeforeCCD2BlockDetectictIsEnabled)
+                if (AppConfig.IsEnabledCCD2ExpireDetectict || AppConfig.IsEnabledScannerLightExpireDetectict || AppConfig.IsEnabledPrinterLightExpireDetectict || AppConfig.BeforeCCD2BlockDetectictIsEnabled)
                 {
                     // 打印机前档板卡药计时器
                     BlockDetectictTimer = new DispatcherTimer();
@@ -2138,6 +2163,7 @@ namespace PrinterManagerProject
                         });
                         if (IsConnectDevices == false || CheckPrinterStatus())
                         {
+                            queueIndex = 0;
 
                             // 清空队列
                             myEventLog.LogInfo($"队列数量： {queue.Count}！");
@@ -2198,17 +2224,6 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void BeforePrintBlockTimer_Tick(object sender, EventArgs e)
         {
-            if (IsWarningShowing == false && AppConfig.BeforePrintLightBlockDetectictIsEnabled)
-            {
-                // 没过打印机，且入队时间超过
-                if (queue.Any(s => s.PrinterLightScan == false && (DateTime.Now - s.EnqueueTime).TotalMilliseconds > AppConfig.BeforePrintLightBlockDuration))
-                {
-                    IsWarningShowing = true;
-                    StopPrint();
-                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
-                }
-            }
-
             if (IsWarningShowing == false && AppConfig.BeforeCCD2BlockDetectictIsEnabled)
             {
                 // 没过打印机，且入队时间超过
@@ -2216,9 +2231,44 @@ namespace PrinterManagerProject
                 {
                     IsWarningShowing = true;
                     StopPrint();
+                    myEventLog.LogInfo($"CCD2前等待数量超过{AppConfig.BeforeCCD2MaxCount}，提示卡药，暂停打印");
                     MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 }
             }
+            if (IsWarningShowing == false && AppConfig.IsEnabledPrinterLightExpireDetectict)
+            {
+                if (queue.Any(s => s.PrinterLightScan == false && (DateTime.Now - s.EnqueueTime).TotalMilliseconds > AppConfig.PrinterLightExpireDetectictTimes))
+                {
+                    // 插入队列到一段时间后未收到打印机光幕信号，提示卡药
+                    IsWarningShowing = true;
+                    StopPrint();
+                    myEventLog.LogInfo($"收到打印机光幕信号超时，提示卡药，暂停打印");
+                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            if (IsWarningShowing == false && AppConfig.IsEnabledScannerLightExpireDetectict)
+            {
+                if (queue.Any(s => s.ScannerLightScan == false && s.PrinterLightScan == true && (DateTime.Now - s.PrintLightTime).TotalMilliseconds > AppConfig.ScannerLightExpireDetectictTimes))
+                {
+                    // 收到打印机光幕信号一段时间后未收到扫码枪光幕信号，提示卡药
+                    IsWarningShowing = true;
+                    StopPrint();
+                    myEventLog.LogInfo($"收到扫码枪光幕信号超时，提示卡药，暂停打印");
+                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+            if (IsWarningShowing == false && AppConfig.IsEnabledCCD2ExpireDetectict)
+            {
+                if (queue.Any(s => s.CCD2LightScan == false && s.ScannerLightScan == true && (DateTime.Now - s.ScannerLightTime).TotalMilliseconds > AppConfig.CCD2ExpireDetectictTimes))
+                {
+                    // 收到打印机光幕信号一段时间后未收到扫码枪光幕信号，提示卡药
+                    IsWarningShowing = true;
+                    StopPrint();
+                    myEventLog.LogInfo($"收到CCD2信号超时，提示卡药，暂停打印");
+                    MessageBox.Show("设备有卡药！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                }
+            }
+
 
         }
 
@@ -2317,6 +2367,9 @@ namespace PrinterManagerProject
                 PlcReaderTimer?.Stop();
                 plcCommandSendQueueHelper.Enqueue("%01#WCSR00291**"); // 停止打印
                 myEventLog.LogInfo($"发送停止命令");
+
+                // 等上一段时间，命令发送完毕再停止发送命令
+                Thread.Sleep(200);
                 plcCommandSendQueueHelper.Stop();
 
                 printerManager.ClearAll();

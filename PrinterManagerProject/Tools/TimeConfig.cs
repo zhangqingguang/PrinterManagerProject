@@ -14,8 +14,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 收到光幕最小有效间隔时间，超过这个时间的光幕忽略
         /// </summary>
-        internal static int LightTimeInterval=260;
-
+        internal static int LightTimeInterval=180;
         /// <summary>
         /// 将CCD设为空闲状态等待时间
         /// </summary>
@@ -66,33 +65,21 @@ namespace PrinterManagerProject.Tools
         /// </summary>
         public static int Waite81SignalTimesOnCCD1ResultDelayed = 0;
 
+        /// <summary>
+        /// 是否启用CCD2检测，如false，CCD2不拍照
+        /// </summary>
         public static bool CCD2IsEnabled = true;
-
 
         /// <summary>
         /// 卡药检测时间间隔
         /// </summary>
         public static int BlockDetectictInterval = 20;
 
-        #region 档板卡药配置
-        /// <summary>
-        /// 是否启用挡板处卡药检测
-        /// </summary>
-        public static bool BeforePrintLightBlockDetectictIsEnabled = false;
-        /// <summary>
-        /// 挡板处卡药时间间隔（CCD1继续到打印机光幕时间间隔）
-        /// 90条数据统计最大时间1523
-        /// </summary>
-        public static int BeforePrintLightBlockDuration = 1900;
-        #endregion
-
-
-
         #region CCD2前卡药配置
         /// <summary>
         /// 是否启用挡板处卡药检测
         /// </summary>
-        public static bool BeforeCCD2BlockDetectictIsEnabled = true;
+        public static bool BeforeCCD2BlockDetectictIsEnabled = false;
 
         /// <summary>
         /// 
@@ -103,20 +90,61 @@ namespace PrinterManagerProject.Tools
         /// </summary>
         public static int BeforeCCD2MaxCount = 2;
         #endregion
+        
+        #region 规定时间没到打印机超时
+        /// <summary>
+        /// 是否开启规定时间内没到打印机超时报警检测
+        /// </summary>
+        public static bool IsEnabledPrinterLightExpireDetectict = true;
 
-//CCD1-打印光幕时间	1523
-//CCD1-扫码枪光幕时间	3328
-//CCD1-CCD2光幕时间
-//CCD1-完成时间	5611
-	
-//打印光幕时间-扫码枪光幕时间	2041
-//打印光幕时间-CCD2光幕时间
-//打印光幕时间-完成时间	4175
-	
-//扫码枪光幕时间-CCD2光幕时间
-//扫码枪光幕时间-完成时间	2495
-	
-//CCD2光幕时间-完成时间
+        /// <summary>
+        /// 从发送CCD1成功到收到打印机光幕时间
+        /// </summary>
+        public static int PrinterLightExpireDetectictTimes = 1800;
+        #endregion
+
+        #region 规定时间没到扫码枪光幕超时
+        /// <summary>
+        /// 是否开启规定时间内没到扫码枪光幕超时报警检测
+        /// </summary>
+        public static bool IsEnabledScannerLightExpireDetectict = true;
+
+        /// <summary>
+        /// 从收到打印机光幕时间到收到扫码枪光幕时间
+        /// </summary>
+        public static int ScannerLightExpireDetectictTimes = 2300;
+        #endregion
+
+        #region 规定时间没到CCD2超时
+        /// <summary>
+        /// 是否开启规定时间内没到CCD2超时报警检测
+        /// </summary>
+        public static bool IsEnabledCCD2ExpireDetectict = true;
+
+        /// <summary>
+        /// 从收到收到扫码枪光幕时间到CCD2光幕时间
+        /// </summary>
+        public static int CCD2ExpireDetectictTimes = 2000;
+        #endregion
+
+        #region 信号间最小间隔时间，用于过滤无效信号
+        /// <summary>
+        /// 入队时间到打印光幕最小时间
+        /// </summary>
+        public static int EnqueueToPrintLightMinTime = 1000;
+        /// <summary>
+        /// 入队时间到扫码枪光幕时间
+        /// </summary>
+        public static int EnqueueToScannerLightMinTime = 2700;
+        /// <summary>
+        /// 打印光幕时间到扫码枪光幕时间
+        /// </summary>
+        public static int PrintToScannerLightMinTime = 1200;
+        /// <summary>
+        /// 扫码枪光幕到CCD2光幕最小时间
+        /// </summary>
+        public static int ScannerToCCD2LightMinTime = 1300; 
+        #endregion
 
     }
 }

@@ -107,7 +107,6 @@ namespace PrinterManagerProject
                 }
                 finally
                 {
-                    Thread.Sleep(500);
                 }
             }
             return false;

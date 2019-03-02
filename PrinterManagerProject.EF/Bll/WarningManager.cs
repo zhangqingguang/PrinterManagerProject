@@ -74,6 +74,7 @@ namespace PrinterManagerProject.EF
         /// <param name="warningState">异常状态</param>
         public void AddWarning(tOrder order,string detectionDrugName,string detectionDrugSpec,string warningState,int printerId,string printerName,int checkerId,string checkerName)
         {
+            return;
             Task.Run(() =>
             {
                 try

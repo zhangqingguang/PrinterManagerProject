@@ -14,6 +14,8 @@ namespace PrinterManagerProject.Tools
     /// </summary>
     public class PLCCommandQueue
     {
+        private static bool HasRead = true;
+        private static object hasReadHelper = new object();
         DispatcherTimer timer;
         public PLCCommandQueue(PLCSerialPortInterface serialPortInterface)
         {
@@ -28,7 +30,6 @@ namespace PrinterManagerProject.Tools
         /// 线程安全的队列
         /// </summary>
         private ConcurrentQueue<string> queue { get; set; }
-        private DateTime dateTime = DateTime.Now;
         public int Enqueue(string command)
         {
             if (IsStart == false)
@@ -39,9 +40,18 @@ namespace PrinterManagerProject.Tools
             return queue.Count;
         }
 
-        public bool IsEmpty() {
+        public  bool IsEmpty() {
             return queue.IsEmpty;
         }
+
+        public static void SetHasRead()
+        {
+            lock (hasReadHelper)
+            {
+                HasRead = true;
+            }
+        }
+        DateTime prevSendTime = DateTime.Now;
 
         public void Start()
         {
@@ -59,31 +69,50 @@ namespace PrinterManagerProject.Tools
             IsStart = true;
             Task.Run(() =>
             {
-                while (IsStart || queue.IsEmpty==false)
+                while (IsStart)
                 {
+                    if (queue.IsEmpty)
+                    {
+                        continue;
+                    }
+                    lock (hasReadHelper)
+                    {
+                        if(HasRead == false)
+                        {
+                            continue;
+                        }
+                    }
                     string command = "";
                     if (queue.TryDequeue(out command))
                     {
-                        //myEventLog.LogInfo($"发送信号时间间隔：{(DateTime.Now - dateTime).TotalMilliseconds}");
-                        //dateTime = DateTime.Now;
+                        lock (hasReadHelper)
+                        {
+                            HasRead = false;
+                        }
                         if (command.Contains("WDD0090100901"))
                         {
-                            myEventLog.LogInfo($"正在发送内容：{command}");
+                            myEventLog.LogInfo($"正在发送CCD成功或失败：{command}");
+                            //myEventLog.LogInfo($"发送信号时间间隔：CCD结果：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
                         }
+                        else
                         if (command.Contains("00201"))
                         {
-                            myEventLog.LogInfo($"正在发送内容：{command}");
+                            myEventLog.LogInfo($"正在发送开始打印命令：{command}");
+                            //myEventLog.LogInfo($"发送信号时间间隔：发送：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
                         }
+                        else
                         if (command.Contains("00291"))
                         {
-                            myEventLog.LogInfo($"正在发送内容：{command}");
+                            myEventLog.LogInfo($"正在发送停止打印命令：{command}");
+                            //myEventLog.LogInfo($"发送信号时间间隔：停止：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
                         }
+                        else
+                        {
+                            //myEventLog.LogInfo($"发送信号时间间隔：读取：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
+                        }
+                        //prevSendTime = DateTime.Now;
                         PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(command);
-                        Thread.Sleep(25);
-                    }
-                    else
-                    {
-                        Thread.Sleep(5);
+                        //Thread.Sleep(30);
                     }
                 }
             });

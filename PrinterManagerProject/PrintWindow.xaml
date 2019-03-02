@@ -232,7 +232,7 @@
                                 </Grid>
                             </Grid>
                         </TabItem>
-                        <TabItem Cursor="Hand" Header="成品异常队列" Style="{StaticResource controlTabItem}">
+                        <TabItem Cursor="Hand" Header="成品异常队列" Style="{StaticResource controlTabItem}" Visibility="Hidden">
                             <Grid>
                                 <Grid.ColumnDefinitions>
                                     <ColumnDefinition Width="*"/>

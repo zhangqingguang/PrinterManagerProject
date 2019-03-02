@@ -286,6 +286,8 @@ namespace PrinterManagerProject
                 //myEventLog.LogInfo($"PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
                 byte[] ReDatas = new byte[sp.BytesToRead];
                 sp.Read(ReDatas, 0, ReDatas.Length);//读取数据
+            // 收到信号后，设置PLC可写
+            PLCCommandQueue.SetHasRead();
             lock (LockReceiveBuffer)
             {
                 var result = Encoding.UTF8.GetString(ReDatas);
@@ -369,7 +371,7 @@ namespace PrinterManagerProject
                             }
                         }
                         // 读取信号间隔时间
-                        Thread.Sleep(20);
+                        Thread.Sleep(5);
                     }
                 });
                 return true;
