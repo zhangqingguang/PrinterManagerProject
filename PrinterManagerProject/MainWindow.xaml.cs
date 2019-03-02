@@ -65,7 +65,7 @@ namespace PrinterManagerProject
                     foreach (Window window in collections)
                     {
                         if (window != this)
-                            window.Close();
+                            window.Hide();
                     }
                     base.OnClosed(e);
                     e.Cancel = false;

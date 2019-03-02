@@ -39,7 +39,7 @@ namespace PrinterManagerProject.EF
 
                 if (dateTime.Date >= DateTime.Now.Date)
                 {
-                    if (DBContext.tOrders.Any(s => s.use_date == date) == false)
+                    if (DBContext.tOrders.Any(s => s.use_date == date && s.batch == batch) == false)
                     {
                         new DataSync().SyncOrder(dateTime,batch);
                     }

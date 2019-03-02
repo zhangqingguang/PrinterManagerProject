@@ -464,6 +464,10 @@ namespace PrinterManagerProject
                             myEventLog.LogInfo($"接收CCD：{data}，CCD2已超时，不再处理");
                             return;
                         }
+                        if (CheckQueueAddRemoveCCD2())
+                        {
+                            return;
+                        }
 
                         // 这里设置显示串口正常
                         Dispatcher.Invoke(() =>
@@ -617,7 +621,7 @@ namespace PrinterManagerProject
                                     myEventLog.LogInfo($"生成打印命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     success = true;
                                 }
-                                catch(Exception ex)
+                                catch (Exception ex)
                                 {
                                     myEventLog.LogError($"获取Printer出错:{ex.Message}", ex);
                                     success = false;
@@ -655,7 +659,7 @@ namespace PrinterManagerProject
                                         myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
 
                                         // 入队空信息，占位
-                                        AddQueue(null, null, null, null, "",DateTime.Now);
+                                        AddQueue(null, null, null, null, "", DateTime.Now);
                                     }
                                 }
                                 else
@@ -697,31 +701,33 @@ namespace PrinterManagerProject
 
                                 // 二维码损坏，无效，漏扫，药品和规格不匹配，毫升数不匹配， 剔除
                                 if (string.IsNullOrEmpty(model.ScanData) || model.ScanData != model.QRData || !model.Drug.drug_name.Contains(spec[0]) || !model.Drug.drug_spec.Contains(spec[1]))
+                                {
+                                    if (string.IsNullOrEmpty(model.ScanData))
                                     {
-                                        if (string.IsNullOrEmpty(model.ScanData))
-                                        {
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
-                                            warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
-                                        else
-                                        if (model.ScanData != model.QRData)
-                                        {
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
-                                            warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
-
-                                        if (!model.Drug.drug_name.Contains(spec[0]))
-                                        {
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}-{spec[1]}");
-                                            warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
-                                        else if (!model.Drug.drug_spec.Contains(spec[1]))
-                                        {
-                                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
-                                            warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        }
-                                        success = false;
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
                                     }
+                                    else
+                                    if (model.ScanData != model.QRData)
+                                    {
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+
+                                        ClearQueue();
+                                    }
+
+                                    if (!model.Drug.drug_name.Contains(spec[0]))
+                                    {
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}-{spec[1]}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                    }
+                                    else if (!model.Drug.drug_spec.Contains(spec[1]))
+                                    {
+                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                    }
+                                    success = false;
+                                }
                                 if (success == true)
                                 {
                                     // 修改到数据库，修改失败则判为失败
@@ -733,7 +739,7 @@ namespace PrinterManagerProject
                                     }
                                     catch (Exception ex)
                                     {
-                                        myEventLog.LogError($"更新到数据库出错",ex);
+                                        myEventLog.LogError($"更新到数据库出错", ex);
                                     }
                                     if (updateDataSuccess)
                                     {
@@ -747,6 +753,13 @@ namespace PrinterManagerProject
                                         tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
                                         // 2#位通过
                                         myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
+
+                                        // 检查是否错位，错位则剔除，否则继续
+                                        if (CheckQueueAddRemoveCCD2())
+                                        {
+                                            return;
+                                        }
+
                                         SendCCD2Success();
 
                                         // 回写数据
@@ -789,7 +802,7 @@ namespace PrinterManagerProject
                                 // --- 删除对比失败的信息 ---
                                 RemoveCCD2();
                             }
-                        } 
+                        }
                         #endregion
                     }
                     // 数据错误
@@ -805,6 +818,22 @@ namespace PrinterManagerProject
                 new LogHelper().ErrorLog($"处理接收CCD数据出错。" + ex.Message);
             }
         }
+        /// <summary>
+        /// 检查当天液体是否处于错误队列中，是则直接从CCD2剔除
+        /// </summary>
+        private bool CheckQueueAddRemoveCCD2()
+        {
+            if (DateTime.Now < ccd2IsErrorBefore)
+            {
+                myEventLog.LogInfo($"队列已错位，剔除当前液体");
+
+                // 从2#位剔除药袋
+                SendCCD2Out();
+                return true;
+            }
+            return false;
+        }
+
         /// <summary>
         /// 拼接CCD1成功发送的命令，已弃用
         /// </summary>
@@ -967,7 +996,12 @@ namespace PrinterManagerProject
                             {
                                 myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
                                 var item = queue.FirstOrDefault();
-                                if ((DateTime.Now - item.ScannerLightTime).TotalMilliseconds <AppConfig.ScannerToCCD2LightMinTime)
+                                if (item == null)
+                                {
+                                    // 队列为空，直接剔除
+                                    SendCCD2Out();
+                                }
+                                else if ((DateTime.Now - item.ScannerLightTime).TotalMilliseconds <AppConfig.ScannerToCCD2LightMinTime)
                                 {
                                     // 收到CCD2信号时间小于光幕信号到CCD2最小时间，异常信号
                                     myEventLog.LogInfo($"84： PLC接收有效84信号，CCD2开始拍照");
@@ -1396,9 +1430,11 @@ namespace PrinterManagerProject
         private void SetScanResult(string result)
         {
             // 找到第一条刚过光幕的数据，赋值
-                myEventLog.LogInfo($"扫描到二维码");
-                OrderQueueModel model = queue.LastOrDefault(m => m.ScannerLightScan == true && string.IsNullOrEmpty(m.ScanData));
-                if (model != null)
+            myEventLog.LogInfo($"扫描到二维码");
+            OrderQueueModel model = queue.LastOrDefault(m => m.ScannerLightScan == true && string.IsNullOrEmpty(m.ScanData));
+            if (model != null)
+            {
+                if (model.QRData == result)
                 {
                     model.ScanData = result;
                     model.PrinterLightScan = true;
@@ -1406,8 +1442,13 @@ namespace PrinterManagerProject
                 }
                 else
                 {
-                    myEventLog.LogInfo($"未找到记录光幕的液体");
+                    ClearQueue();
                 }
+            }
+            else
+            {
+                myEventLog.LogInfo($"未找到记录光幕的液体");
+            }
         }
 
 
@@ -2569,6 +2610,61 @@ namespace PrinterManagerProject
             return queue.Count(s => s.PrinterLightScan == false) >= AppConfig.MaxNotPrintQueueCount || queue.Count() >= AppConfig.MaxQueueCount;
         }
         #endregion
+
+        /// <summary>
+        /// 检查出队列错位，在这个时间之前的CCD2判断都是错的
+        /// </summary>
+        DateTime ccd2IsErrorBefore = DateTime.Now;
+        /// <summary>
+        /// 队列错位时，清除队列
+        /// </summary>
+        private void ClearQueue()
+        {
+            /***
+             * 发现打印内容与扫描到的二维码不一致，清空队列
+             * 1、给PLC发送清空队列指令
+             * 2、停止前端传送带
+             * 3、清空队列
+             */
+            Task.Run(()=> {
+                myEventLog.LogInfo($"检测到标签错位，开始执行清空队列流程");
+                // 从现在开始，8000毫秒内的液体都会被CCD2删除
+                ccd2IsErrorBefore = DateTime.Now.AddMilliseconds(8000);
+                myEventLog.LogInfo($"检测到标签错位，第一次清空打印机内容");
+                printerManager.ClearAll();
+                myEventLog.LogInfo($"检测到标签错位，停止传送带");
+                StopConveryorBelt();
+                OrderQueueModel item;
+                myEventLog.LogInfo($"检测到标签错位，第一次清空队列");
+                while (queue.TryDequeue(out item))
+                {
+
+                }
+                Thread.Sleep(3000);
+                // 再清一次队列，把刚加进去的数据清除
+                myEventLog.LogInfo($"检测到标签错位，第二次清空打印机内容");
+                printerManager.ClearAll();
+                myEventLog.LogInfo($"检测到标签错位，第二次清空队列");
+                while (queue.TryDequeue(out item))
+                {
+
+                }
+                // 保证所有液体都过了打印机，重置PLC的队列
+                myEventLog.LogInfo($"检测到标签错位，发送清空PLC队列命令");
+                plcCommandSendQueueHelper.Enqueue($"%01#WCSR00011**");
+                Thread.Sleep(500);
+
+                // 清空打印机的内容
+                myEventLog.LogInfo($"检测到标签错位，清空打印机内容");
+                printerManager.ClearAll();
+                // 取消重置PLC队列状态
+                myEventLog.LogInfo($"检测到标签错位，发送重置PLC队列命令");
+                plcCommandSendQueueHelper.Enqueue($"%01#WCSR00010**");
+                // 传送带继续
+                StartConveryorBelt();
+                myEventLog.LogInfo($"检测到标签错位，结束清空队列流程");
+            });
+        }
     }
 
 }

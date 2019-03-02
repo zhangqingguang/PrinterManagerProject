@@ -77,7 +77,7 @@ namespace PrinterManagerProject.Tools
 
         #region CCD2前卡药配置
         /// <summary>
-        /// 是否启用挡板处卡药检测
+        /// 是否启用CCD2前未拨药数量检测
         /// </summary>
         public static bool BeforeCCD2BlockDetectictIsEnabled = false;
 
