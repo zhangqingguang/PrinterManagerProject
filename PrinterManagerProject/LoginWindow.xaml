@@ -43,21 +43,21 @@
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
                         <Label Width="80" Content="操作员" Style="{StaticResource controlLabel }"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200"  Style="{StaticResource controlTextBox }" Text="admin1" />
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtCZR" VerticalAlignment="Center" Width="200"  Style="{StaticResource controlTextBox }" Text="" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Width="80" Content="密码" Style="{StaticResource controlLabel }"/>
-                        <PasswordBox Width="200" x:Name="txtCZRPWD" Style="{StaticResource controlPasswordBox }" Password="123456" />
+                        <PasswordBox Width="200" x:Name="txtCZRPWD" Style="{StaticResource controlPasswordBox }" Password="" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Vertical" Margin="50,10,0,10">
                     <StackPanel Orientation="Horizontal">
                         <Label Width="80"  Content="审核员" Style="{StaticResource controlLabel }"/>
-                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Style="{StaticResource controlTextBox }" Text="admin2" />
+                        <TextBox Background="White" HorizontalAlignment="Center" x:Name="txtSHR" VerticalAlignment="Center" Width="200" Style="{StaticResource controlTextBox }" Text="" />
                     </StackPanel>
                     <StackPanel Orientation="Horizontal" Margin="0,10,0,0">
                         <Label Width="80"  Content="密码" Style="{StaticResource controlLabel }"/>
-                        <PasswordBox Width="200" x:Name="txtSHRPWD" Style="{StaticResource controlPasswordBox }" Password="123456" />
+                        <PasswordBox Width="200" x:Name="txtSHRPWD" Style="{StaticResource controlPasswordBox }" Password="" />
                     </StackPanel>
                 </StackPanel>
                 <StackPanel Orientation="Horizontal" HorizontalAlignment="Center" Margin="20,10,0,30">

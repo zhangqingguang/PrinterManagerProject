@@ -900,9 +900,9 @@ namespace PrinterManagerProject
                             var intervalTickets = (DateTime.Now - prevCCD1Time).TotalMilliseconds;
                             //myEventLog.LogInfo($"81信号间隔时间：{intervalTickets}");
                             var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // CCD1信号最小间隔时间=CCD1拨成功后等待时间+从拨成功位置走到初始值位置
-                            prevCCD1Time = DateTime.Now;
                             if (isLightSignalEffective == false)
                             {
+                                prevCCD1Time = DateTime.Now;
                                 if (AppConfig.IsStopOnCCD1ResultDelayed)
                                 {
                                     // 时间间隔小于AppConfig.LightTimeInterval，
@@ -921,7 +921,17 @@ namespace PrinterManagerProject
                             else
                             if (isLightSignalEffective && ccd1IsBusy == false)
                             {
-                                GoToCCD1();
+                                if ((DateTime.Now - preCCD1SuccessTime).TotalMilliseconds > AppConfig.TowMedicionMinInterval)
+                                {
+                                    StopConveryorBelt();
+                                    preCCD1SuccessTime = DateTime.Now;
+                                    prevCCD1Time = DateTime.Now;
+                                    GoToCCD1();
+                                }
+                                else
+                                {
+                                    StopConveryorBelt();
+                                }
                             }
                         }
 
@@ -1074,12 +1084,6 @@ namespace PrinterManagerProject
                 }
                 else
                 {
-                    //while ((DateTime.Now - preCCD1SuccessTime).TotalMilliseconds < AppConfig.TowMedicionMinInterval)
-                    //{
-                    //    Thread.Sleep(50);
-                    //}
-
-                    //preCCD1SuccessTime = DateTime.Now;
 
                     myEventLog.LogInfo($"Index：{queueIndex+1}，PLC接收81信号，CCD1开始拍照");
 

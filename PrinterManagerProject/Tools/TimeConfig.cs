@@ -78,7 +78,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 两个液体从CCD1推出的最小间隔时间
         /// </summary>
-        public static int TowMedicionMinInterval = 1500;
+        public static int TowMedicionMinInterval = 1700;
 
         #region CCD2前卡药配置
         /// <summary>
