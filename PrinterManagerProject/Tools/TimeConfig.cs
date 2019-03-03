@@ -75,6 +75,11 @@ namespace PrinterManagerProject.Tools
         /// </summary>
         public static int BlockDetectictInterval = 20;
 
+        /// <summary>
+        /// 两个液体从CCD1推出的最小间隔时间
+        /// </summary>
+        public static int TowMedicionMinInterval = 1500;
+
         #region CCD2前卡药配置
         /// <summary>
         /// 是否启用CCD2前未拨药数量检测
@@ -100,7 +105,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 从发送CCD1成功到收到打印机光幕时间
         /// </summary>
-        public static int PrinterLightExpireDetectictTimes = 1800;
+        public static int PrinterLightExpireDetectictTimes = 2200;  //1800
         #endregion
 
         #region 规定时间没到扫码枪光幕超时
@@ -112,7 +117,7 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 从收到打印机光幕时间到收到扫码枪光幕时间
         /// </summary>
-        public static int ScannerLightExpireDetectictTimes = 2300;
+        public static int ScannerLightExpireDetectictTimes = 2100; //2300
         #endregion
 
         #region 规定时间没到CCD2超时
@@ -124,26 +129,31 @@ namespace PrinterManagerProject.Tools
         /// <summary>
         /// 从收到收到扫码枪光幕时间到CCD2光幕时间
         /// </summary>
-        public static int CCD2ExpireDetectictTimes = 2000;
+        public static int CCD2ExpireDetectictTimes = 2200; //2000
         #endregion
 
         #region 信号间最小间隔时间，用于过滤无效信号
         /// <summary>
         /// 入队时间到打印光幕最小时间
         /// </summary>
-        public static int EnqueueToPrintLightMinTime = 1000;
+        public static int EnqueueToPrintLightMinTime = 900; // 1000
         /// <summary>
         /// 入队时间到扫码枪光幕时间
         /// </summary>
-        public static int EnqueueToScannerLightMinTime = 2700;
+        public static int EnqueueToScannerLightMinTime = 2600;// 2700
         /// <summary>
         /// 打印光幕时间到扫码枪光幕时间
         /// </summary>
-        public static int PrintToScannerLightMinTime = 1200;
+        public static int PrintToScannerLightMinTime = 1100;// 1200
         /// <summary>
         /// 扫码枪光幕到CCD2光幕最小时间
         /// </summary>
-        public static int ScannerToCCD2LightMinTime = 1300; 
+        public static int ScannerToCCD2LightMinTime = 1200; // 1300
+
+        /// <summary>
+        /// 入队时间到CCD2光幕最小时间
+        /// </summary>
+        public static int EnqueueToCCD2LightMinTime = 4200;
         #endregion
 
     }

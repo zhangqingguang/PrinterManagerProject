@@ -116,8 +116,8 @@ namespace PrinterManagerProject.Tools
 
         private string GetLabelCommand(string content, int fontSize, int x, int y)
         {
-            x = x * printMultiple;
-            y = y * printMultiple;
+            x = (x+50) * printMultiple*7/8;
+            y = (y) * printMultiple;
 
             int width = Convert.ToInt32(fontSize * 2.5);
             int height = Convert.ToInt32(fontSize * 2.5);
@@ -127,8 +127,8 @@ namespace PrinterManagerProject.Tools
 
         private string GetBarCodeCommand(string content, int x, int y)
         {
-            x = x * printMultiple;
-            y = y * printMultiple;
+            x = (x + 50) * printMultiple * 7 / 8;
+            y = (y) * printMultiple;
 
             return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
         }

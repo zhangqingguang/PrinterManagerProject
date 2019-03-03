@@ -84,5 +84,6 @@ namespace PrinterManagerProject.EF
         public string ydrug_id { get; set; }
         public string sex { get; set; }
         public string batch_name { get; set; }
+        public string xsyxj { get; set; }
     }
 }

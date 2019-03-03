@@ -72,12 +72,12 @@ namespace PrinterManagerProject.EF
                     s.use_date == order.use_date && s.use_time == order.use_time && s.group_num == order.group_num)
                 .Select(s => new
                 {
-                    s.sum_num,
+                    s.xsyxj,
                     drug_name = s.drug_name,
                     use_count = s.use_count,
                     id = s.drug_id
                 })
-                .OrderBy(s=>s.sum_num)
+                .OrderBy(s=>s.xsyxj)
                 .ToList()
                 .Select(s => new PrintDrugModel()
                 {

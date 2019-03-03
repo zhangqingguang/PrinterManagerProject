@@ -113,6 +113,7 @@
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
+          <Property Name="xsyxj" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -189,6 +190,7 @@
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
+          <Property Name="xsyxj" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -421,6 +423,7 @@
           <Property Name="is_print_snv" Type="varchar" MaxLength="23" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
+          <Property Name="xsyxj" Type="varchar" MaxLength="20" />
         </EntityType>
         <Function Name="P_BakHistoryData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
@@ -473,11 +476,11 @@
           <Parameter Name="use_date" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="P_InsertIntotOrderSelecttZHY">
-          <Parameter Name="use_date" Mode="In" Type="String" />
+            <Parameter Name="use_date" Mode="In" Type="String" />
             <Parameter Name="batch" Mode="In" Type="String" />
           </FunctionImport>
           <FunctionImport Name="P_UpdatetOrderFromtZHY">
-          <Parameter Name="use_date" Mode="In" Type="String" />
+            <Parameter Name="use_date" Mode="In" Type="String" />
             <Parameter Name="batch" Mode="In" Type="String" />
           </FunctionImport>
         </EntityContainer>
@@ -568,6 +571,7 @@
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="batch_name" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EnumType Name="PrintModelEnum" a:ExternalTypeName="PrinterManagerProject.EF.Models.PrintModelEnum" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
         <EnumType Name="PrintStatusEnum" a:ExternalTypeName="PrinterManagerProject.EF.Models.PrintStatusEnum" xmlns:a="http://schemas.microsoft.com/ado/2006/04/codegeneration" />
@@ -655,6 +659,7 @@
           <Property Name="ydrug_id" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="batch_name" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarning">
           <Key>
@@ -809,6 +814,7 @@
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="batch_name" Type="String" MaxLength="10" FixedLength="false" Unicode="false" />
+          <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -936,6 +942,7 @@
           <EntitySetMapping Name="tZHies">
             <EntityTypeMapping TypeName="PrintTagDbModel.tZHY">
               <MappingFragment StoreEntitySet="tZHY">
+                <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="batch_name" ColumnName="batch_name" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
@@ -1012,6 +1019,7 @@
           <EntitySetMapping Name="tOrders">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrder">
               <MappingFragment StoreEntitySet="tOrder">
+                <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="batch_name" ColumnName="batch_name" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="ydrug_id" ColumnName="ydrug_id" />
@@ -1167,6 +1175,7 @@
           <EntitySetMapping Name="tOrderBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrderBak">
               <MappingFragment StoreEntitySet="tOrderBak">
+                <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="batch_name" ColumnName="batch_name" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
