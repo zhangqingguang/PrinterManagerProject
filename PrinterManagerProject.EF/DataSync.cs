@@ -162,7 +162,7 @@ namespace PrinterManagerProject.EF
       ,[icatrepeat_indorm]
       ,[new_orders]
       ,[yebz]
-      ,[special_medicationtip]
+      ,config_name_jc [special_medicationtip]
       ,[size_specification]
       ,[pass_remark]
       ,[patient_id]

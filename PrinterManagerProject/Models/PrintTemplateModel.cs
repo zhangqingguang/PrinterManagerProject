@@ -8,6 +8,10 @@ namespace PrinterManagerProject.Models
 {
     public class PrintTemplateModel
     {
+        internal int is_print_snvFontX;
+        internal int is_print_snvFontSize;
+        internal int is_print_snvFontY;
+
         /// <summary>
         /// 页面宽度
         /// </summary>
@@ -500,5 +504,24 @@ namespace PrinterManagerProject.Models
         /// 二维码条码Y坐标
         /// </summary>
         public int BarCodeY { get; set; }
+        public int GroupNumFontSize { get; internal set; }
+        public int GroupNumFontX { get; internal set; }
+        public int GroupNumUnFontY { get; internal set; }
+        public int UsageNameFontSize { get; internal set; }
+        public int UsageNameFontX { get; internal set; }
+        public int UsageNameFontY { get; internal set; }
+        public int UserFrequentFontSize { get; internal set; }
+        public int UserFrequentFontX { get; internal set; }
+        public int UserFrequentFontY { get; internal set; }
+        public int CheckFontSize { get; internal set; }
+        public int CheckFontX { get; internal set; }
+        public int CheckFontY { get; internal set; }
+        public int DoseFontSize { get; internal set; }
+        public int DoseFontX { get; internal set; }
+        public int DoseFontY { get; internal set; }
+        public int QRCodeHeight { get; internal set; }
+        public int QRCodeX { get; internal set; }
+        public int QRCodeWidth { get; internal set; }
+        public int QRCodeY { get; internal set; }
     }
 }

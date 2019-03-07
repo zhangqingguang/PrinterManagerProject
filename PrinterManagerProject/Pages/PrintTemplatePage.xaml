@@ -827,19 +827,19 @@
                         <Border BorderThickness="0,1,0,0" BorderBrush="Black" Width="{Binding ElementName=sliderSplit3Width,Path=Value}"/>
                     </Border>
                     <Border x:Name="borderExamine" Canvas.Left="{Binding ElementName=txtExamineFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtExamineFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="审核：焦媛媛" FontWeight="Bold" FontSize="{Binding ElementName=sliderExamineFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="审方：焦媛媛" FontWeight="Bold" FontSize="{Binding ElementName=sliderExamineFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderSort" Canvas.Left="{Binding ElementName=txtSortFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtSortFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="排药：牛捷" FontWeight="Bold" FontSize="{Binding ElementName=sliderSortFontSize,Path=Value}" Padding="0"/>
+                        <Label Content="摆药：牛捷" FontWeight="Bold" FontSize="{Binding ElementName=sliderSortFontSize,Path=Value}" Padding="0"/>
+                    </Border>
+                    <Border x:Name="borderDispensing" Canvas.Left="{Binding ElementName=txtDispensingFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDispensingFontY, Path=Text, Mode=TwoWay}">
+                        <Label Content="配药：" FontWeight="Bold" FontSize="{Binding ElementName=sliderDispensingFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderDispensingDate" Canvas.Left="{Binding ElementName=txtDispensingDateFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDispensingDateFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="配液：___时___分" FontWeight="Bold" FontSize="{Binding ElementName=sliderDispensingDateFontSize,Path=Value}" Padding="0"/>
                     </Border>
                     <Border x:Name="borderReview" Canvas.Left="{Binding ElementName=txtReviewFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtReviewFontY, Path=Text, Mode=TwoWay}">
                         <Label Content="复核：" FontWeight="Bold" FontSize="{Binding ElementName=sliderReviewFontSize,Path=Value}" Padding="0"/>
-                    </Border>
-                    <Border x:Name="borderDispensing" Canvas.Left="{Binding ElementName=txtDispensingFontX, Path=Text, Mode=TwoWay}" Canvas.Top="{Binding ElementName=txtDispensingFontY, Path=Text, Mode=TwoWay}">
-                        <Label Content="配液：" FontWeight="Bold" FontSize="{Binding ElementName=sliderDispensingFontSize,Path=Value}" Padding="0"/>
                     </Border>
                 </Canvas>
             </Border>

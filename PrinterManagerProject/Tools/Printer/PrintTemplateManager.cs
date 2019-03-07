@@ -30,6 +30,10 @@ namespace PrinterManagerProject.Tools
         }
         public string GetPrintCommand(tOrder order)
         {
+            if (tempConfig == null)
+            {
+                GetPrintConfig();
+            }
             StringBuilder sb = new StringBuilder();
             var orderManager = new OrderManager();
             List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(order.Id);
@@ -44,69 +48,83 @@ namespace PrinterManagerProject.Tools
             sb.Append("^CWJ,E:001.FNT^FS");
             //sb.Append("^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS");
             sb.Append(GetBarCodeCommand(order.barcode, tempConfig.BarCodeX, tempConfig.BarCodeY));
+            sb.Append(GetQRCodeCommand(order.barcode, tempConfig.QRCodeX, tempConfig.QRCodeY));
             //g.DrawImage(bmp, ConvertInt(tempConfig.BarCodeX), ConvertInt(tempConfig.BarCodeY), ConvertInt(tempConfig.BarCodeWidth), ConvertInt(tempConfig.BarCodeHeight));
-            //sb.Append(GetLabelCommand("河南科技大学第一附属医院", tempConfig.HospitalNameFontSize, tempConfig.HospitalNameFontX, tempConfig.HospitalNameFontY));
-            //sb.Append(GetLabelCommand(order.order_type, tempConfig.OrderTypeFontSize, tempConfig.OrderTypeFontX, tempConfig.OrderTypeFontY));
-            //sb.Append(GetLabelCommand(order.special_medicationtip, tempConfig.special_medicationtipFontSize, tempConfig.special_medicationtipFontX, tempConfig.special_medicationtipFontY));
-            //sb.Append(GetLabelCommand(order.batch_name, tempConfig.BatchNameFontSize, tempConfig.BatchNameFontX, tempConfig.BatchNameFontY));
-            //sb.Append(GetLabelCommand(order.age, tempConfig.AgeFontSize, tempConfig.AgeFontX, tempConfig.AgeFontY));
-
+            sb.Append(GetLabelCommand("河南科技大学第一附属医院", tempConfig.HospitalNameFontSize, tempConfig.HospitalNameFontX, tempConfig.HospitalNameFontY));
+            sb.Append(GetLabelCommand(order.order_type, tempConfig.OrderTypeFontSize, tempConfig.OrderTypeFontX, tempConfig.OrderTypeFontY));
+            sb.Append(GetLabelCommand("【" + order.special_medicationtip + "】", tempConfig.special_medicationtipFontSize, tempConfig.special_medicationtipFontX, tempConfig.special_medicationtipFontY));
+            sb.Append(GetLabelCommand(order.batch_name, tempConfig.BatchNameFontSize, tempConfig.BatchNameFontX, tempConfig.BatchNameFontY));
             sb.Append(GetLabelCommand(order.departmengt_name, tempConfig.AreaFontSize, tempConfig.AreaFontX, tempConfig.AreaFontY));
-            sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
-            sb.Append(GetLabelCommand(order.is_print_snv, tempConfig.PageNumFontSize, tempConfig.PageNumFontX, tempConfig.PageNumFontY));
-            sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));
-            sb.Append(GetLabelCommand(order.group_num, tempConfig.DoctorAdviceFontSize, tempConfig.DoctorAdviceFontX, tempConfig.DoctorAdviceFontY));
-            sb.Append(GetLabelCommand(order.bed_number, tempConfig.BedFontSize, tempConfig.BedFontX, tempConfig.BedFontY));
             sb.Append(GetLabelCommand(order.patient_name, tempConfig.PatientFontSize, tempConfig.PatientFontX, tempConfig.PatientFontY));
+            sb.Append(GetLabelCommand(order.bed_number + "床", tempConfig.BedFontSize, tempConfig.BedFontX, tempConfig.BedFontY));
+            sb.Append(GetLabelCommand($"{order.age}", tempConfig.AgeFontSize, tempConfig.AgeFontX, tempConfig.AgeFontY));
             sb.Append(GetLabelCommand(order.sex, tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
-            sb.Append(GetLabelCommand(order.batch, tempConfig.BatchNumberFontSize, tempConfig.BatchNumberFontX, tempConfig.BatchNumberFontY));
-            sb.Append(GetLabelCommand(order.zone?.ToString(), tempConfig.SerialNumberFontSize, tempConfig.SerialNumberFontX, tempConfig.SerialNumberFontY));
-            //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split2X), ConvertInt(tempConfig.Split2Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split2X + tempConfig.Split2Width), ConvertInt(tempConfig.Split2Y)));
+            sb.Append(GetLabelCommand(order.group_num, tempConfig.GroupNumFontSize, tempConfig.GroupNumFontX, tempConfig.GroupNumUnFontY));
+            sb.Append(GetLabelCommand($"{order.use_frequency}({order.use_time})", tempConfig.UserFrequentFontSize, tempConfig.UserFrequentFontX, tempConfig.UserFrequentFontY));
+            sb.Append(GetLabelCommand($"no{order.is_print_snv}", tempConfig.is_print_snvFontSize, tempConfig.is_print_snvFontX, tempConfig.is_print_snvFontY));
+            sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
+
+            sb.Append(GetLabelCommand("备注:"+order.pass_remark, tempConfig.RemarkFontSize, tempConfig.RemarkFontX, tempConfig.RemarkFontY));
+            sb.Append(GetLabelCommand(order.usage_name, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY));
+
+            sb.Append(GetLabelCommand($"审方:{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
+            sb.Append(GetLabelCommand($"摆药:", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
+            sb.Append(GetLabelCommand($"配药:", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
+            sb.Append(GetLabelCommand($"核对:", tempConfig.CheckFontSize, tempConfig.CheckFontX, tempConfig.CheckFontY));
+            sb.Append(GetLabelCommand($"复核:", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
+            sb.Append(GetLabelCommand($"给药:", tempConfig.DoseFontSize, tempConfig.DoseFontX, tempConfig.DoseFontY));
+
+            sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.Split2Y - 5));
+            sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.Split3Y - 5));
+
             sb.Append(GetLabelCommand("药品名称", tempConfig.DrugsTitleFontSize, tempConfig.DrugsTitleFontX, tempConfig.DrugsTitleFontY));
             sb.Append(GetLabelCommand("规格", tempConfig.SpecTitleFontSize, tempConfig.SpecTitleFontX, tempConfig.SpecTitleFontY));
             sb.Append(GetLabelCommand("用量", tempConfig.UseSpTitleFontSize, tempConfig.UseSpTitleFontX, tempConfig.UseSpTitleFontY));
             sb.Append(GetLabelCommand("数量", tempConfig.UseTitleFontSize, tempConfig.UseTitleFontX, tempConfig.UseTitleFontY));
 
-            //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.SplitX), ConvertInt(tempConfig.SplitY)), new System.Drawing.Point(ConvertInt(tempConfig.SplitX + tempConfig.SplitWidth), ConvertInt(tempConfig.SplitY)));
-            var margin = 5;
-            var height = tempConfig.DrugsContentFontY + margin;
+            var margin = 25;
+            var height = tempConfig.DrugsContentFontY;
             var paperWidth = tempConfig.PageWidth;
             var paperHeight = tempConfig.PageHeight;
-
             #region 药品列表
             // 药品信息
             for (int i = 0; i < drugs.Count; i++)
             {
                 int fontHeight = tempConfig.DrugsContentFontSize;
                 // 药名
-                sb.Append(GetLabelCommand(drugs[i].drug_name, tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
+                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].drug_name,280,tempConfig.DrugsContentFontSize), tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
                 //规格
-                sb.Append(GetLabelCommand(drugs[i].spec.TrimEnd('0').TrimEnd('.'), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
+                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].spec,140, tempConfig.SpecValueFontSize), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
                 //用量
-                sb.Append(GetLabelCommand(drugs[i].durg_use_sp.TrimEnd('0').TrimEnd('.')+"100ml", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
-                // 用量增加下划线
-                sb.Append(GetLabelCommand("________", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+                if (drugs[i].durg_use_sp[0]==9608) 
+                {
+                    // 以实心方块开头的，用量增加下划线
+                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height+2));
+                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height+4));
+                    drugs[i].durg_use_sp = drugs[i].durg_use_sp.Trim((char)9608);
+                }
+                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].durg_use_sp,140, tempConfig.UseSpValueFontSize), tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
                 //数量
-                sb.Append(GetLabelCommand(drugs[i].use_count.TrimEnd('0').TrimEnd('.'), tempConfig.UseValueFontSize, tempConfig.UseValueFontX, height));
+                sb.Append(GetLabelCommand(drugs[i].use_count, tempConfig.UseValueFontSize, tempConfig.UseValueFontX, height));
 
                 // 只修改Y轴，向下平铺
                 height += tempConfig.DrugsContentFontSize + margin;
             }
             #endregion
 
-            sb.Append(GetLabelCommand($"处方医生：{order.doctor_name}", tempConfig.DoctorFontSize, tempConfig.DoctorFontX, tempConfig.DoctorFontY));
-            sb.Append(GetLabelCommand($"备注：{order.pass_remark}", tempConfig.RemarkFontSize, tempConfig.RemarkFontX, tempConfig.RemarkFontY));
-            sb.Append(GetLabelCommand($"滴速：{order.ml_speed}   {order.usage_name}   {order.use_frequency}({order.use_time})", tempConfig.SpeedFontSize, tempConfig.SpeedFontX, tempConfig.SpeedFontY));
+            //sb.Append(GetLabelCommand($"处方医生：{order.doctor_name}", tempConfig.DoctorFontSize, tempConfig.DoctorFontX, tempConfig.DoctorFontY));
+            //sb.Append(GetLabelCommand($"备注：{order.pass_remark}", tempConfig.RemarkFontSize, tempConfig.RemarkFontX, tempConfig.RemarkFontY));
+            //sb.Append(GetLabelCommand($"滴速：{order.ml_speed}   {order.usage_name}   {order.use_frequency}({order.use_time})", tempConfig.SpeedFontSize, tempConfig.SpeedFontX, tempConfig.SpeedFontY));
 
             //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split3X), ConvertInt(tempConfig.Split3Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split3X + tempConfig.Split3Width), ConvertInt(tempConfig.Split3Y)));
 
-            sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.Split3Y - 5));
-            sb.Append(GetLabelCommand($"审核：{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
-            sb.Append(GetLabelCommand($"复审：", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
-            sb.Append(GetLabelCommand($"排药：{order.deliveryer}", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
-            sb.Append(GetLabelCommand($"配液：{order.config_person}", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
-            sb.Append(GetLabelCommand($"配液：___时___分", tempConfig.DispensingDateFontSize, tempConfig.DispensingDateFontX, tempConfig.DispensingDateFontY));
+            //sb.Append(GetLabelCommand($"审核：{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
+            //sb.Append(GetLabelCommand($"复审：", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
+            //sb.Append(GetLabelCommand($"排药：{order.deliveryer}", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
+            //sb.Append(GetLabelCommand($"配液：{order.config_person}", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
+            //sb.Append(GetLabelCommand($"配液：___时___分", tempConfig.DispensingDateFontSize, tempConfig.DispensingDateFontX, tempConfig.DispensingDateFontY));
 
             sb.Append("^XZ");
             myEventLog.LogInfo($"生成打印模板命令时间:{(DateTime.Now - startTime).TotalMilliseconds}");
@@ -114,10 +132,36 @@ namespace PrinterManagerProject.Tools
             return sb.ToString();
         }
 
+        private string LimitTextWidth(string str,int width,int fontSize)
+        {
+            double strWidth = 0;
+            str = str ?? "";
+            var result = "";
+            for (int i = 0; i < str.Length; i++)
+            {
+                if (str[i] > 127)
+                {
+                    strWidth += fontSize*2;
+                }
+                else
+                {
+                    strWidth += fontSize*1.25;
+                }
+                if (strWidth > width)
+                {
+                    break;
+                }
+
+                    result += str[i];
+            }
+
+            return result;
+        }
+
         private string GetLabelCommand(string content, int fontSize, int x, int y)
         {
-            x = (x+50) * printMultiple*7/8;
-            y = (y) * printMultiple;
+            x = Convert.ToInt32((x+130)*printMultiple);
+            y = Convert.ToInt32(y *printMultiple);
 
             int width = Convert.ToInt32(fontSize * 2.5);
             int height = Convert.ToInt32(fontSize * 2.5);
@@ -127,14 +171,24 @@ namespace PrinterManagerProject.Tools
 
         private string GetBarCodeCommand(string content, int x, int y)
         {
-            x = (x + 50) * printMultiple * 7 / 8;
-            y = (y) * printMultiple;
+            x = Convert.ToInt32((x +130) * printMultiple);
+            y = Convert.ToInt32((y) * printMultiple);
 
-            return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
+            return $@"^By3,3^FO{x},{y},^B7N,7,3,2,13,N^FD{content}^FS";
+            //return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
+        }
+
+        private string GetQRCodeCommand(string content, int x, int y)
+        {
+            x = Convert.ToInt32((x + 130) * printMultiple);
+            y = Convert.ToInt32((y) * printMultiple);
+
+            return $@"^^FO{x},{y},^BQN,2,6^FDHM,N{content}^FS";
+            //return $@"^^FO{x},{y},^BQN,3,6^FDMM,{content}^FS";
         }
 
 
-        int printMultiple = 3;
+        double printMultiple = 1.15;
         /// <summary>
         /// 生成打印内容并推送到打印机
         /// </summary>
@@ -149,8 +203,8 @@ namespace PrinterManagerProject.Tools
 
                 string fontName = "SimSun";
 
-                var paperWidth = tempConfig.PageWidth * printMultiple;
-                var paperHeight = tempConfig.PageHeight * printMultiple;
+                var paperWidth = Convert.ToInt32(tempConfig.PageWidth * printMultiple);
+                var paperHeight = Convert.ToInt32(tempConfig.PageHeight * printMultiple);
 
                 var startTime = DateTime.Now;
                 Bitmap image = new Bitmap(paperWidth, paperHeight);
@@ -200,17 +254,38 @@ namespace PrinterManagerProject.Tools
 
                     g.DrawImage(bmp, ConvertInt(tempConfig.BarCodeX), ConvertInt(tempConfig.BarCodeY), ConvertInt(tempConfig.BarCodeWidth), ConvertInt(tempConfig.BarCodeHeight));
 
-                    g.DrawString(order.patient_name, new Font(fontName, ConvertFontInt(tempConfig.AreaFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.AreaFontX), ConvertInt(tempConfig.AreaFontY));
+                    g.DrawString("河南科技大学第一附属医院", new Font(fontName, ConvertFontInt(tempConfig.HospitalNameFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.HospitalNameFontX), ConvertInt(tempConfig.HospitalNameFontY));
+                    g.DrawString(order.order_type, new Font(fontName, ConvertFontInt(tempConfig.OrderTypeFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.OrderTypeFontX), ConvertInt(tempConfig.OrderTypeFontY));
+                    g.DrawString("【"+ order.special_medicationtip + "】", new Font(fontName, ConvertFontInt(tempConfig.special_medicationtipFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.special_medicationtipFontX), ConvertInt(tempConfig.special_medicationtipFontY));
+                    g.DrawString(order.batch_name, new Font(fontName, ConvertFontInt(tempConfig.BatchNumberFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.BatchNumberFontX), ConvertInt(tempConfig.BatchNumberFontY));
+                    g.DrawString(order.departmengt_name, new Font(fontName, ConvertFontInt(tempConfig.AreaFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.AreaFontX), ConvertInt(tempConfig.AreaFontY));
+                    g.DrawString(order.patient_name, new Font(fontName, ConvertFontInt(tempConfig.PatientFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.PatientFontX), ConvertInt(tempConfig.PatientFontY));
+                    g.DrawString(order.bed_number+"床", new Font(fontName, ConvertFontInt(tempConfig.BedFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.BedFontX), ConvertInt(tempConfig.BedFontY));
+                    g.DrawString(order.age, new Font(fontName, ConvertFontInt(tempConfig.AgeFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.AgeFontX), ConvertInt(tempConfig.AgeFontY));
+                    g.DrawString(order.sex, new Font(fontName, ConvertFontInt(tempConfig.GenderFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.GenderFontX), ConvertInt(tempConfig.GenderFontY));
+                    g.DrawString(order.group_num, new Font(fontName, ConvertFontInt(tempConfig.GroupNumFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.GroupNumFontX), ConvertInt(tempConfig.GroupNumUnFontY));
+                    g.DrawString( $"{order.use_frequency}({order.use_time})", new Font(fontName, ConvertFontInt(tempConfig.UserFrequentFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UserFrequentFontX), ConvertInt(tempConfig.UserFrequentFontY));
+                    g.DrawString(order.is_print_snv, new Font(fontName, ConvertFontInt(tempConfig.is_print_snvFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.is_print_snvFontX), ConvertInt(tempConfig.is_print_snvFontY));
                     g.DrawString(order.use_date, new Font(fontName, ConvertFontInt(tempConfig.DateFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DateFontX), ConvertInt(tempConfig.DateFontY));
+
+                    g.DrawString(order.pass_remark, new Font(fontName, ConvertFontInt(tempConfig.RemarkFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.RemarkFontX), ConvertInt(tempConfig.RemarkFontY));
+                    g.DrawString(order.usage_name, new Font(fontName, ConvertFontInt(tempConfig.UsageNameFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UsageNameFontX), ConvertInt(tempConfig.UsageNameFontY));
+
+                    g.DrawString("审方:", new Font(fontName, ConvertFontInt(tempConfig.ExamineFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ExamineFontX), ConvertInt(tempConfig.ExamineFontY));
+                    g.DrawString("摆药:", new Font(fontName, ConvertFontInt(tempConfig.SortFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.SortFontX), ConvertInt(tempConfig.SortFontY));
+                    g.DrawString("配药:", new Font(fontName, ConvertFontInt(tempConfig.DispensingFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DispensingFontX), ConvertInt(tempConfig.DispensingFontY));
+                    g.DrawString("核对:", new Font(fontName, ConvertFontInt(tempConfig.CheckFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.CheckFontX), ConvertInt(tempConfig.CheckFontY));
+                    g.DrawString("复核:", new Font(fontName, ConvertFontInt(tempConfig.ReviewFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ReviewFontX), ConvertInt(tempConfig.ReviewFontY));
+                    g.DrawString("给药:", new Font(fontName, ConvertFontInt(tempConfig.DoseFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DoseFontX), ConvertInt(tempConfig.DoseFontY));
+
+
+
                     g.DrawString("1/1", new Font(fontName, ConvertFontInt(tempConfig.PageNumFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.PageNumFontX), ConvertInt(tempConfig.PageNumFontY));
 
                     g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.SplitX), ConvertInt(tempConfig.SplitY)), new System.Drawing.Point(ConvertInt(tempConfig.SplitX + tempConfig.SplitWidth), ConvertInt(tempConfig.SplitY)));
 
-                    g.DrawString(order.group_num, new Font(fontName, ConvertFontInt(tempConfig.DoctorAdviceFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DoctorAdviceFontX), ConvertInt(tempConfig.DoctorAdviceFontY));
-                    g.DrawString(order.bed_number, new Font(fontName, ConvertFontInt(tempConfig.BedFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.BedFontX), ConvertInt(tempConfig.BedFontY));
                     g.DrawString(order.patient_name, new Font(fontName, ConvertFontInt(tempConfig.PatientFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.PatientFontX), ConvertInt(tempConfig.PatientFontY));
                     g.DrawString("男", new Font(fontName, ConvertFontInt(tempConfig.GenderFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.GenderFontX), ConvertInt(tempConfig.GenderFontY));
-                    g.DrawString(string.Format("{0}批", order.batch), new Font(fontName, ConvertFontInt(tempConfig.BatchNumberFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.BatchNumberFontX), ConvertInt(tempConfig.BatchNumberFontY));
                     g.DrawString(string.Format("[{0}]", order.zone), new Font(fontName, ConvertFontInt(tempConfig.SerialNumberFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.SerialNumberFontX), ConvertInt(tempConfig.SerialNumberFontY));
 
                     g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split2X), ConvertInt(tempConfig.Split2Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split2X + tempConfig.Split2Width), ConvertInt(tempConfig.Split2Y)));
@@ -255,17 +330,17 @@ namespace PrinterManagerProject.Tools
                     }
                     #endregion
 
-                    g.DrawString(string.Format("处方医生：{0}", order.doctor_name), new Font(fontName, ConvertFontInt(tempConfig.DoctorFontSize)), bush, ConvertInt(tempConfig.DoctorFontX), ConvertInt(tempConfig.DoctorFontY));
-                    g.DrawString(string.Format("备注：{0}", order.pass_remark), new Font(fontName, ConvertFontInt(tempConfig.RemarkFontSize)), bush, ConvertInt(tempConfig.RemarkFontX), ConvertInt(tempConfig.RemarkFontY));
-                    g.DrawString(string.Format("滴速：{0}   {1}   qd(8点)", order.ml_speed, order.usage_name), new Font(fontName, ConvertFontInt(tempConfig.SpeedFontSize)), bush, ConvertInt(tempConfig.SpeedFontX), ConvertInt(tempConfig.SpeedFontY));
+                    //g.DrawString(string.Format("处方医生：{0}", order.doctor_name), new Font(fontName, ConvertFontInt(tempConfig.DoctorFontSize)), bush, ConvertInt(tempConfig.DoctorFontX), ConvertInt(tempConfig.DoctorFontY));
+                    //g.DrawString(string.Format("备注：{0}", order.pass_remark), new Font(fontName, ConvertFontInt(tempConfig.RemarkFontSize)), bush, ConvertInt(tempConfig.RemarkFontX), ConvertInt(tempConfig.RemarkFontY));
+                    //g.DrawString(string.Format("滴速：{0}   {1}   qd(8点)", order.ml_speed, order.usage_name), new Font(fontName, ConvertFontInt(tempConfig.SpeedFontSize)), bush, ConvertInt(tempConfig.SpeedFontX), ConvertInt(tempConfig.SpeedFontY));
 
-                    g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split3X), ConvertInt(tempConfig.Split3Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split3X + tempConfig.Split3Width), ConvertInt(tempConfig.Split3Y)));
+                    //g.DrawLine(new System.Drawing.Pen(bush), new System.Drawing.Point(ConvertInt(tempConfig.Split3X), ConvertInt(tempConfig.Split3Y)), new System.Drawing.Point(ConvertInt(tempConfig.Split3X + tempConfig.Split3Width), ConvertInt(tempConfig.Split3Y)));
 
-                    g.DrawString(string.Format("审核：{0}", order.checker), new Font(fontName, ConvertFontInt(tempConfig.ExamineFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ExamineFontX), ConvertInt(tempConfig.ExamineFontY));
-                    g.DrawString(string.Format("复审：{0}", ""), new Font(fontName, ConvertFontInt(tempConfig.ReviewFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ReviewFontX), ConvertInt(tempConfig.ReviewFontY));
-                    g.DrawString(string.Format("排药：{0}", order.deliveryer), new Font(fontName, ConvertFontInt(tempConfig.SortFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.SortFontX), ConvertInt(tempConfig.SortFontY));
-                    g.DrawString(string.Format("配液：{0}", order.config_person), new Font(fontName, ConvertFontInt(tempConfig.DispensingFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DispensingFontX), ConvertInt(tempConfig.DispensingFontY));
-                    g.DrawString("配液：___时___分", new Font(fontName, ConvertFontInt(tempConfig.DispensingDateFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DispensingDateFontX), ConvertInt(tempConfig.DispensingDateFontY));
+                    //g.DrawString(string.Format("审核：{0}", order.checker), new Font(fontName, ConvertFontInt(tempConfig.ExamineFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ExamineFontX), ConvertInt(tempConfig.ExamineFontY));
+                    //g.DrawString(string.Format("复审：{0}", ""), new Font(fontName, ConvertFontInt(tempConfig.ReviewFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.ReviewFontX), ConvertInt(tempConfig.ReviewFontY));
+                    //g.DrawString(string.Format("排药：{0}", order.deliveryer), new Font(fontName, ConvertFontInt(tempConfig.SortFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.SortFontX), ConvertInt(tempConfig.SortFontY));
+                    //g.DrawString(string.Format("配液：{0}", order.config_person), new Font(fontName, ConvertFontInt(tempConfig.DispensingFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DispensingFontX), ConvertInt(tempConfig.DispensingFontY));
+                    //g.DrawString("配液：___时___分", new Font(fontName, ConvertFontInt(tempConfig.DispensingDateFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DispensingDateFontX), ConvertInt(tempConfig.DispensingDateFontY));
 
                     //ZebraImageI imageI = ZebraImageFactory.GetImage(image);
 

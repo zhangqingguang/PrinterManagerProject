@@ -17,6 +17,8 @@ namespace PrinterManagerProject.Tools
         public PrintTemplateModel GetConfig()
         {
             PrintTemplateModel model;
+            model = DefaultConfig();
+            return model;
             string path = configPath + fileName;
             try
             {
@@ -72,15 +74,81 @@ namespace PrinterManagerProject.Tools
         private PrintTemplateModel DefaultConfig()
         {
             PrintTemplateModel model = new PrintTemplateModel();
+
+            #region 页面大小
             /// <summary>
             /// 页面宽度
             /// </summary>
-            model.PageWidth = 310;
+            model.PageWidth = 700;
             /// <summary>
             /// 页面高度
             /// </summary>
-            model.PageHeight = 315;
+            model.PageHeight = 800; 
+            #endregion
 
+            #region 医院名称
+
+            /// <summary>
+            /// 医院名称文字
+            /// </summary>
+            model.HospitalNameFontSize = 12;
+            /// <summary>
+            /// 医院名称文字X坐标
+            /// </summary>
+            model.HospitalNameFontX = 20;
+            /// <summary>
+            /// 医院名称文字Y坐标
+            /// </summary>
+            model.HospitalNameFontY = 20;
+
+            #endregion
+
+            #region 医嘱类型
+            /// <summary>
+            /// 医嘱类型文字
+            /// </summary>
+            model.OrderTypeFontSize = 14;
+            /// <summary>
+            /// 医嘱类型文字X坐标
+            /// </summary>
+            model.OrderTypeFontX = 410;
+            /// <summary>
+            /// 医嘱类型文字Y坐标
+            /// </summary>
+            model.OrderTypeFontY = 20;
+            #endregion
+
+            #region 特殊用药文字
+            /// <summary>
+            /// 特殊用药文字
+            /// </summary>
+            model.special_medicationtipFontSize = 14;
+            /// <summary>
+            /// 特殊用药文字X坐标
+            /// </summary>
+            model.special_medicationtipFontX = 480;
+            /// <summary>
+            /// 特殊用药文字Y坐标
+            /// </summary>
+            model.special_medicationtipFontY = 20;
+            #endregion
+
+            #region 批次名称
+            /// <summary>
+            /// 批次名称文字
+            /// </summary>
+            model.BatchNameFontSize = 14;
+            /// <summary>
+            /// 批次名称文字X坐标
+            /// </summary>
+            model.BatchNameFontX = 590;
+            /// <summary>
+            /// 批次名称文字Y坐标
+            /// </summary>
+            model.BatchNameFontY = 20;
+            #endregion
+
+            #region 病区
             /// <summary>
             /// 病区文字
             /// </summary>
@@ -88,24 +156,180 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 病区文字X坐标
             /// </summary>
-            model.AreaFontX = 10;
+            model.AreaFontX = 20;
             /// <summary>
             /// 病区文字Y坐标
             /// </summary>
-            model.AreaFontY = 5;
+            model.AreaFontY = 65;
+            #endregion
 
+            #region 床位
+            /// <summary>
+            /// 床位文字
+            /// </summary>
+            model.BedFontSize = 16;
+            /// <summary>
+            /// 床位文字X坐标
+            /// </summary>
+            model.BedFontX = 20;
+            /// <summary>
+            /// 床位文字Y坐标
+            /// </summary>
+            model.BedFontY = 110;
+            #endregion
+
+            #region 患者名称
+            /// <summary>
+            /// 患者名称文字
+            /// </summary>
+            model.PatientFontSize = 16;
+            /// <summary>
+            /// 患者名称文字X坐标
+            /// </summary>
+            model.PatientFontX = 120;
+            /// <summary>
+            /// 患者名称文字Y坐标
+            /// </summary>
+            model.PatientFontY = 110;
+            #endregion
+
+            #region 年龄
+            /// <summary>
+            /// 年龄文字
+            /// </summary>
+            model.AgeFontSize = 12;
+            /// <summary>
+            /// 年龄文字X坐标
+            /// </summary>
+            model.AgeFontX = 20;
+            /// <summary>
+            /// 年龄文字Y坐标
+            /// </summary>
+            model.AgeFontY = 155;
+            #endregion
+
+            #region 性别
+            /// <summary>
+            /// 性别文字
+            /// </summary>
+            model.GenderFontSize = 12;
+            /// <summary>
+            /// 性别文字X坐标
+            /// </summary>
+            model.GenderFontX = 85;
+            /// <summary>
+            /// 性别文字Y坐标
+            /// </summary>
+            model.GenderFontY = 155; 
+            #endregion
+
+            #region 医嘱编号
+            /// <summary>
+            /// 医嘱编号文字
+            /// </summary>
+            model.GroupNumFontSize = 12;
+            /// <summary>
+            /// 医嘱编号文字X坐标
+            /// </summary>
+            model.GroupNumFontX = 120;
+            /// <summary>
+            /// 医嘱编号文字Y坐标
+            /// </summary>
+            model.GroupNumUnFontY = 155; 
+            #endregion
+
+            #region 日期
             /// <summary>
             /// 日期文字
             /// </summary>
-            model.DateFontSize = 14;
+            model.DateFontSize = 12;
             /// <summary>
             /// 日期文字X坐标
             /// </summary>
-            model.DateFontX = 110;
+            model.DateFontX = 350;
             /// <summary>
             /// 日期文字Y坐标
             /// </summary>
-            model.DateFontY = 5;
+            model.DateFontY = 70;
+            #endregion
+
+            #region 使用频率（use_time）
+            /// <summary>
+            /// 使用频率文字
+            /// </summary>
+            model.UserFrequentFontSize = 12;
+            /// <summary>
+            /// 使用频率文字X坐标
+            /// </summary>
+            model.UserFrequentFontX = 520;
+            /// <summary>
+            /// 使用频率文字Y坐标
+            /// </summary>
+            model.UserFrequentFontY = 70;
+            #endregion
+
+            #region is_print_sn
+
+            /// <summary>
+            /// is_print_snv文字
+            /// </summary>
+            model.is_print_snvFontSize = 12;
+            /// <summary>
+            /// is_print_snv文字X坐标
+            /// </summary>
+            model.is_print_snvFontX = 280;
+            /// <summary>
+            /// is_print_snv文字Y坐标
+            /// </summary>
+            model.is_print_snvFontY = 70;
+            #endregion
+
+            #region 第一条分割线
+            /// <summary>
+            /// 第一条分割线宽度
+            /// </summary>
+            model.SplitWidth = 300;
+            /// <summary>
+            /// 第一条分割线X坐标
+            /// </summary>
+            model.SplitX = 5;
+            /// <summary>
+            /// 第一条分割线Y坐标
+            /// </summary>
+            model.SplitY = 180;
+            #endregion
+
+            #region 第二条分割线
+
+            /// <summary>
+            /// 第二条分割线宽度
+            /// </summary>
+            model.Split2Width = 700;
+            /// <summary>
+            /// 第二条分割线X坐标
+            /// </summary>
+            model.Split2X = 0;
+            /// <summary>
+            /// 第二条分割线Y坐标
+            /// </summary>
+            model.Split2Y = 235;
+            #endregion
+
+            #region 第三条分割线
+            /// <summary>
+            /// 第三条分割线宽度
+            /// </summary>
+            model.Split3Width = 730;
+            /// <summary>
+            /// 第三条分割线X坐标
+            /// </summary>
+            model.Split3X = 0;
+            /// <summary>
+            /// 第三条分割线Y坐标
+            /// </summary>
+            model.Split3Y = 685; 
+            #endregion
+
 
             /// <summary>
             /// 页码文字
@@ -120,18 +344,6 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.PageNumFontY = 5;
 
-            /// <summary>
-            /// 第一条分割线宽度
-            /// </summary>
-            model.SplitWidth = 300;
-            /// <summary>
-            /// 第一条分割线X坐标
-            /// </summary>
-            model.SplitX = 5;
-            /// <summary>
-            /// 第一条分割线Y坐标
-            /// </summary>
-            model.SplitY = 25;
 
             /// <summary>
             /// 医嘱号文字
@@ -146,44 +358,7 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.DoctorAdviceFontY = 30;
 
-            /// <summary>
-            /// 床位文字
-            /// </summary>
-            model.BedFontSize = 14;
-            /// <summary>
-            /// 床位文字X坐标
-            /// </summary>
-            model.BedFontX = 105;
-            /// <summary>
-            /// 床位文字Y坐标
-            /// </summary>
-            model.BedFontY = 30;
 
-            /// <summary>
-            /// 患者名称文字
-            /// </summary>
-            model.PatientFontSize = 14;
-            /// <summary>
-            /// 患者名称文字X坐标
-            /// </summary>
-            model.PatientFontX = 10;
-            /// <summary>
-            /// 患者名称文字Y坐标
-            /// </summary>
-            model.PatientFontY = 50;
-
-            /// <summary>
-            /// 性别文字
-            /// </summary>
-            model.GenderFontSize = 14;
-            /// <summary>
-            /// 性别文字X坐标
-            /// </summary>
-            model.GenderFontX = 70;
-            /// <summary>
-            /// 性别文字Y坐标
-            /// </summary>
-            model.GenderFontY = 50;
 
             /// <summary>
             /// 批号文字
@@ -211,18 +386,8 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.SerialNumberFontY = 70;
 
-            /// <summary>
-            /// 第二条分割线宽度
-            /// </summary>
-            model.Split2Width = 300;
-            /// <summary>
-            /// 第二条分割线X坐标
-            /// </summary>
-            model.Split2X = 5;
-            /// <summary>
-            /// 第二条分割线Y坐标
-            /// </summary>
-            model.Split2Y = 90;
+
+            #region 药品名称标题
 
             /// <summary>
             /// 药名标题文字
@@ -231,12 +396,14 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 药名标题文字X坐标
             /// </summary>
-            model.DrugsTitleFontX = 25;
+            model.DrugsTitleFontX = 10;
             /// <summary>
             /// 药名标题文字Y坐标
             /// </summary>
-            model.DrugsTitleFontY = 95;
+            model.DrugsTitleFontY = 200;
+            #endregion
 
+            #region 药品名称内容
             /// <summary>
             /// 药品名称文字
             /// </summary>
@@ -248,9 +415,12 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 药品名称文字Y坐标
             /// </summary>
-            model.DrugsContentFontY = 115;
+            model.DrugsContentFontY = 255;
+            #endregion
+
             #region 规格
 
+            #region 规格标题
             /// <summary>
             /// 规格标题文字
             /// </summary>
@@ -258,11 +428,12 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 规格标题文字X坐标
             /// </summary>
-            model.SpecTitleFontX = 190;
+            model.SpecTitleFontX = 310;
             /// <summary>
             /// 规格标题文字Y坐标
             /// </summary>
-            model.SpecTitleFontY = 105;
+            model.SpecTitleFontY = 200; 
+            #endregion
 
             /// <summary>
             /// 规格值文字
@@ -271,11 +442,11 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 规格值文字X坐标
             /// </summary>
-            model.SpecValueFontX = 190;
+            model.SpecValueFontX = 310;
             /// <summary>
             /// 规格值文字Y坐标
             /// </summary>
-            model.SpecValueFontY = 120;
+            model.SpecValueFontY = 255;
             #endregion
 
             #region 用量
@@ -286,11 +457,11 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量标题文字X坐标
             /// </summary>
-            model.UseSpTitleFontX = 225;
+            model.UseSpTitleFontX = 460;
             /// <summary>
             /// 用量标题文字Y坐标
             /// </summary>
-            model.UseSpTitleFontY = 105;
+            model.UseSpTitleFontY = 200;
 
             /// <summary>
             /// 用量值文字
@@ -299,13 +470,12 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量值文字X坐标
             /// </summary>
-            model.UseSpValueFontX = 225;
+            model.UseSpValueFontX = 460;
             /// <summary>
             /// 用量值文字Y坐标
             /// </summary>
-            model.UseSpValueFontY = 125;
+            model.UseSpValueFontY = 255;
             #endregion
-
 
             #region 数量
             /// <summary>
@@ -315,11 +485,11 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量标题文字X坐标
             /// </summary>
-            model.UseTitleFontX = 265;
+            model.UseTitleFontX = 610;
             /// <summary>
             /// 数量标题文字Y坐标
             /// </summary>
-            model.UseTitleFontY = 105;
+            model.UseTitleFontY = 200;
 
             /// <summary>
             /// 数量值文字
@@ -328,90 +498,13 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量值文字X坐标
             /// </summary>
-            model.UseValueFontX = 250;
+            model.UseValueFontX = 610;
             /// <summary>
             /// 数量值文字Y坐标
             /// </summary>
-            model.UseValueFontY = 125;
+            model.UseValueFontY = 255;
             #endregion
 
-            /// <summary>
-            /// 医院名称文字
-            /// </summary>
-            model.HospitalNameFontSize = 14;
-            /// <summary>
-            /// 医院名称文字X坐标
-            /// </summary>
-            model.HospitalNameFontX = 0;
-            /// <summary>
-            /// 医院名称文字Y坐标
-            /// </summary>
-            model.HospitalNameFontY = 0;
-
-            ///// <summary>
-            ///// is_print_snv文字
-            ///// </summary>
-            //model.is_print_snvFontSize = 14;
-            ///// <summary>
-            ///// is_print_snv文字X坐标
-            ///// </summary>
-            //model.is_print_snvFontX = 0;
-            ///// <summary>
-            ///// is_print_snv文字Y坐标
-            ///// </summary>
-            //model.is_print_snvFontY = 0;
-
-            /// <summary>
-            /// 医嘱类型文字
-            /// </summary>
-            model.OrderTypeFontSize = 14;
-            /// <summary>
-            /// 医嘱类型文字X坐标
-            /// </summary>
-            model.OrderTypeFontX = 0;
-            /// <summary>
-            /// 医嘱类型文字Y坐标
-            /// </summary>
-            model.OrderTypeFontY = 0;
-
-            /// <summary>
-            /// 特殊用药文字
-            /// </summary>
-            model.special_medicationtipFontSize = 14;
-            /// <summary>
-            /// 特殊用药文字X坐标
-            /// </summary>
-            model.special_medicationtipFontX = 0;
-            /// <summary>
-            /// 特殊用药文字Y坐标
-            /// </summary>
-            model.special_medicationtipFontY = 0;
-
-            /// <summary>
-            /// 批次名称文字
-            /// </summary>
-            model.BatchNameFontSize = 14;
-            /// <summary>
-            /// 批次名称文字X坐标
-            /// </summary>
-            model.BatchNameFontX = 0;
-            /// <summary>
-            /// 批次名称文字Y坐标
-            /// </summary>
-            model.BatchNameFontY = 0;
-
-            /// <summary>
-            /// 年龄文字
-            /// </summary>
-            model.AgeFontSize = 14;
-            /// <summary>
-            /// 年龄文字X坐标
-            /// </summary>
-            model.AgeFontX = 0;
-            /// <summary>
-            /// 年龄文字Y坐标
-            /// </summary>
-            model.AgeFontY = 0;
 
 
             /// <summary>
@@ -427,6 +520,7 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.DoctorFontY = 238;
 
+            #region 医嘱备注
             /// <summary>
             /// 备注文字
             /// </summary>
@@ -434,11 +528,27 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 备注文字X坐标
             /// </summary>
-            model.RemarkFontX = 130;
+            model.RemarkFontX = 10;
             /// <summary>
             /// 备注文字Y坐标
             /// </summary>
-            model.RemarkFontY = 238;
+            model.RemarkFontY = 650;
+            #endregion
+
+            #region 用法
+            /// <summary>
+            /// 用法文字
+            /// </summary>
+            model.UsageNameFontSize = 14;
+            /// <summary>
+            /// 用法文字X坐标
+            /// </summary>
+            model.UsageNameFontX = 570;
+            /// <summary>
+            /// 用法文字Y坐标
+            /// </summary>
+            model.UsageNameFontY = 120; 
+            #endregion
 
             /// <summary>
             /// 滴速文字
@@ -453,32 +563,70 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.SpeedFontY = 253;
 
-            /// <summary>
-            /// 第三条分割线宽度
-            /// </summary>
-            model.Split3Width = 300;
-            /// <summary>
-            /// 第三条分割线X坐标
-            /// </summary>
-            model.Split3X = 5;
-            /// <summary>
-            /// 第三条分割线Y坐标
-            /// </summary>
-            model.Split3Y = 270;
 
+
+            #region 审方
             /// <summary>
-            /// 审核文字
+            /// 审方文字
             /// </summary>
             model.ExamineFontSize = 14;
             /// <summary>
-            /// 审核文字X坐标
+            /// 审方文字X坐标
             /// </summary>
             model.ExamineFontX = 10;
             /// <summary>
-            /// 审核文字Y坐标
+            /// 审方文字Y坐标
             /// </summary>
-            model.ExamineFontY = 275;
+            model.ExamineFontY = 710;
+            #endregion
 
+            #region MyRegion
+            /// <summary>
+            /// 摆药文字
+            /// </summary>
+            model.SortFontSize = 14;
+            /// <summary>
+            /// 摆文字X坐标
+            /// </summary>
+            model.SortFontX = 430;
+            /// <summary>
+            /// 摆文字Y坐标
+            /// </summary>
+            model.SortFontY = 710;
+            #endregion
+
+            #region 配药
+            /// <summary>
+            /// 配药文字
+            /// </summary>
+            model.DispensingFontSize = 14;
+            /// <summary>
+            /// 配药文字X坐标
+            /// </summary>
+            model.DispensingFontX = 10;
+            /// <summary>
+            /// 配药文字Y坐标
+            /// </summary>
+            model.DispensingFontY = 750;
+            #endregion
+
+
+            #region 核对
+            /// <summary>
+            /// 核对文字
+            /// </summary>
+            model.CheckFontSize = 14;
+            /// <summary>
+            /// 核对文字X坐标
+            /// </summary>
+            model.CheckFontX = 430;
+            /// <summary>
+            /// 核对文字Y坐标
+            /// </summary>
+            model.CheckFontY = 750;
+            #endregion
+
+            #region 复核 
             /// <summary>
             /// 复核文字
             /// </summary>
@@ -490,33 +638,24 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 复核文字Y坐标
             /// </summary>
-            model.ReviewFontY = 290;
+            model.ReviewFontY = 790;
+            #endregion
 
+            #region 给药 
             /// <summary>
-            /// 排药文字
+            /// 给药文字
             /// </summary>
-            model.SortFontSize = 14;
+            model.DoseFontSize = 14;
             /// <summary>
-            /// 排药文字X坐标
+            /// 给药文字X坐标
             /// </summary>
-            model.SortFontX = 110;
+            model.DoseFontX = 430;
             /// <summary>
-            /// 排药文字Y坐标
+            /// 给药文字Y坐标
             /// </summary>
-            model.SortFontY = 275;
+            model.DoseFontY = 790;
+            #endregion
 
-            /// <summary>
-            /// 配液文字
-            /// </summary>
-            model.DispensingFontSize = 14;
-            /// <summary>
-            /// 配液文字X坐标
-            /// </summary>
-            model.DispensingFontX = 110;
-            /// <summary>
-            /// 配液文字Y坐标
-            /// </summary>
-            model.DispensingFontY = 290;
 
             /// <summary>
             /// 配液时间文字
@@ -533,6 +672,7 @@ namespace PrinterManagerProject.Tools
             /// </summary>
             model.DispensingDateFontY = 275;
 
+            #region PDF417码
             /// <summary>
             /// 二维码条码宽度
             /// </summary>
@@ -544,11 +684,32 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 二维码条码X坐标
             /// </summary>
-            model.BarCodeX = 100;
+            model.BarCodeX = 290;
             /// <summary>
             /// 二维码条码Y坐标
             /// </summary>
-            model.BarCodeY = 42;
+            model.BarCodeY = 100;
+            #endregion
+
+            #region 二维码
+            /// <summary>
+            /// 二维码条码宽度
+            /// </summary>
+            model.QRCodeWidth = 150;
+            /// <summary>
+            /// 二维码条码高度
+            /// </summary>
+            model.QRCodeHeight = 34;
+            /// <summary>
+            /// 二维码条码X坐标
+            /// </summary>
+            model.QRCodeX = 250;
+            /// <summary>
+            /// 二维码条码Y坐标
+            /// </summary>
+            model.QRCodeY =700;
+            #endregion
+
 
             return model;
         }

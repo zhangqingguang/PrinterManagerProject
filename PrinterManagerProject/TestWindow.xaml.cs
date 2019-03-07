@@ -134,8 +134,11 @@ namespace PrinterManagerProject
                 connection.Open();
                 var printer = ZebraPrinterFactory.GetInstance(connection);
 
+                //printer.SendCommand("~JA");
+
+
                 var startTime = DateTime.Now;
-                var command = GetCommand();
+                var command = GetCommandFromDb();
                 Console.WriteLine($"生成打印命令花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
                 startTime = DateTime.Now;
 
@@ -152,6 +155,14 @@ namespace PrinterManagerProject
                 connection.Close();
             }
             
+        }
+
+        private string GetCommandFromDb()
+        {
+            var currentOrder = new OrderManager().FirstOrDefault(s=>true);
+            var printCommand = new PrintTemplateManager().GetPrintCommand(currentOrder);
+
+            return printCommand;
         }
 
         private string GetCommand()
@@ -262,10 +273,10 @@ namespace PrinterManagerProject
         private void ViewCard()
         {
 
-            if (printer == null)
-            {
-                printer = printerManager.GetPrinter();
-            }
+            //if (printer == null)
+            //{
+            //    printer = printerManager.GetPrinter();
+            //}
 
             PrintTemplateModel model = new PrintTemplateHelper().GetConfig();
             if (model == null)
@@ -345,25 +356,25 @@ namespace PrinterManagerProject
 
                 //image.Save(AppDomain.CurrentDomain.BaseDirectory + @"Config\test" + DateTime.Now.Millisecond + ".jpg");
 
-                //IntPtr myImagePtr = image.GetHbitmap();     //创建GDI对象，返回指针
-                //BitmapSource imgsource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(myImagePtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());  //创建imgSource
+                IntPtr myImagePtr = image.GetHbitmap();     //创建GDI对象，返回指针
+                BitmapSource imgsource = System.Windows.Interop.Imaging.CreateBitmapSourceFromHBitmap(myImagePtr, IntPtr.Zero, Int32Rect.Empty, BitmapSizeOptions.FromEmptyOptions());  //创建imgSource
 
-                //DeleteObject(myImagePtr);
+                DeleteObject(myImagePtr);
 
-                //imgTest.Source = imgsource;
+                imgTest.Source = imgsource;
 
                 //var fileName = Guid.NewGuid().ToString();
-                //var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory,"Config", fileName + ".jpg");
+                //var path = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", fileName + ".jpg");
                 //var pathTarget = System.IO.Path.Combine(AppDomain.CurrentDomain.BaseDirectory, "Config", fileName + "-bak.jpg");
                 //image.Save(path);
 
                 //ImageHelper.KiSaveAsJPEG(image,pathTarget, 20);
 
-                ZebraImageI imageI = ZebraImageFactory.GetImage(image);
-                myEventLog.LogInfo($"画图花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                startTime = DateTime.Now;
-                printer.PrintImage(imageI, 0, 0, paperWidth, paperHeight, false);
-                myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                //ZebraImageI imageI = ZebraImageFactory.GetImage(image);
+                //myEventLog.LogInfo($"画图花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                //startTime = DateTime.Now;
+                //printer.PrintImage(imageI, 0, 0, paperWidth, paperHeight, false);
+                //myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
             }
             finally
