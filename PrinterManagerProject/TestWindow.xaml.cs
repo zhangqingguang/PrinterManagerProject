@@ -4,21 +4,12 @@ using PrinterManagerProject.Tools.Serial;
 using System;
 using System.Collections.Generic;
 using System.Drawing;
-using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
 using System.Windows;
-using System.Windows.Controls;
-using System.Windows.Data;
-using System.Windows.Documents;
-using System.Windows.Input;
-using System.Windows.Media;
 using System.Windows.Media.Imaging;
-using System.Windows.Shapes;
 using PrinterManagerProject.EF;
 using PrinterManagerProject.EF.Models;
 using Zebra.Sdk.Comm;
-using Zebra.Sdk.Graphics;
 using Zebra.Sdk.Printer;
 using Zebra.Sdk.Printer.Discovery;
 using ZXing;
@@ -41,7 +32,20 @@ namespace PrinterManagerProject
             //commandPrint();
             //PLCCommandTest();
             //ViewCard();
+
+            //printer.SendCommand("~JA");
+            for (int i = 0; i < 20; i++)
+            {
+                Thread.Sleep(500);
+
+                commandPrint();
+
+                Thread.Sleep(500);
+            }
+            Thread.Sleep(500);
+
             commandPrint();
+            //commandPrint();
         }
 
         private void PLCCommandTest()
@@ -140,10 +144,22 @@ namespace PrinterManagerProject
                 var startTime = DateTime.Now;
                 var command = GetCommandFromDb();
                 Console.WriteLine($"生成打印命令花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
+
+
+                System.Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff"));
                 startTime = DateTime.Now;
 
-                printer.SendCommand(command);
-                Console.WriteLine($"打印内容发送成功！花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
+                for (int i = 0; i < 20; i++)
+                {
+                    printer.SendCommand(command);
+                    Console.WriteLine($"打印内容发送成功！花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
+                    Thread.Sleep(200);
+                startTime = DateTime.Now;
+                }
+                //System.Console.WriteLine(DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss fff"));
+
+                //printer.SendCommand(command);
+                //Console.WriteLine($"打印内容发送成功！花费时间：{(DateTime.Now - startTime).TotalMilliseconds}ms");
 
 
                 //Thread.Sleep(5000);

@@ -20,6 +20,7 @@ using PrinterManagerProject.EF.Models;
 using PrinterManagerProject.EF.Bll;
 using System.Windows.Threading;
 using System.Collections.Concurrent;
+using PrinterManagerProject.Tools.Serial;
 
 namespace PrinterManagerProject
 {
@@ -69,10 +70,29 @@ namespace PrinterManagerProject
         /// </summary>
         private bool ccd2IsBusy = false;
         #endregion
+        private readonly TaskScheduler _syncContextTaskScheduler = TaskScheduler.FromCurrentSynchronizationContext();
+        #region 设备连接状态
 
-            /// <summary>
-            /// CCD连接状态
-            /// </summary>
+        /// <summary>
+        /// 上一次检测CCD连接状态
+        /// </summary>
+        private static bool PrevCCDConnected = false;
+        /// <summary>
+        /// 上一次检测PLC连接状态
+        /// </summary>
+        private static bool PrevPCLConnected = false;
+        /// <summary>
+        /// 上一次检测自动扫码枪连接状态
+        /// </summary>
+        private static bool PrevAutoScannerConnected = false;
+        /// <summary>
+        /// 上一次检测手动扫码枪连接状态
+        /// </summary>
+        private static bool PrevHanderScannerConnected = false;
+
+        /// <summary>
+        /// CCD连接状态
+        /// </summary>
         private static bool CCDConnected = false;
         /// <summary>
         /// PLC连接状态
@@ -85,7 +105,8 @@ namespace PrinterManagerProject
         /// <summary>
         /// 手动扫码枪连接状态
         /// </summary>
-        private static bool HanderScannerConnected = false;
+        private static bool HanderScannerConnected = false; 
+        #endregion
 
 
         private OrderManager orderManager = new OrderManager();
@@ -120,10 +141,52 @@ namespace PrinterManagerProject
 
         public PrintWindow()
         {
+            needCloseWindowConfirm = true;
             InitializeComponent();
             base.Loaded += PrintWindow_Loaded;
             plcCommandSendQueueHelper = new PLCCommandQueue(this);
+            Task.Run(()=> { scanDeviceState(); });
 
+            //Task.Factory.StartNew(() =>
+            //{
+            //    var i = 1;
+            //    while (i<4)
+            //    {
+            //        spcViewPanel.SetCCD2State(i % 2 + 1);
+            //        i++;
+            //        Thread.Sleep(2000);
+            //    }
+            //}, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
+        }
+
+        private void scanDeviceState()
+        {
+            while (true)
+            {
+                if(PrevCCDConnected!= CCDConnected)
+                {
+                    spcViewPanel.SetCCD2State(CCDConnected);
+                    spcViewPanel.SetCCD1State(CCDConnected);
+                }
+                //if (PrevPCLConnected != PCLConnected)
+                //{
+                //    spcViewPanel.SetPlcState(PCLConnected);
+                //}
+                //spcViewPanel.SetDbState(CheckDBConnection);
+                if (PrevPCLConnected != PCLConnected)
+                {
+                    spcViewPanel.SetPlcState(PCLConnected);
+                }
+                if (PrevAutoScannerConnected != AutoScannerConnected)
+                {
+                    spcViewPanel.SetAutoScannerState(AutoScannerConnected);
+                }
+                if (PrevHanderScannerConnected != HanderScannerConnected)
+                {
+                    spcViewPanel.SetHanderScannerState(HanderScannerConnected);
+                }
+                Thread.Sleep(1000);
+            }
         }
 
         protected override void OnInitialized(EventArgs e)
@@ -312,19 +375,24 @@ namespace PrinterManagerProject
         /// <returns></returns>
         private bool SendCCD1Success(string cmdData)
         {
-            Task.Run(() =>
-            {
-                Thread.Sleep(AppConfig.Ccd1SuccessSleepTime);
-                myEventLog.LogInfo($"发送指令等待时间:{AppConfig.Ccd1SuccessSleepTime}");
-                ccd1SuccessTime = DateTime.Now;
-                int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
 
-                    //plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
-
-                    myEventLog.LogInfo($"发送CCD1继续命令,消息队列数：{queueCount}");
-            });
+            CCDSendData sendData = new CCDSendData();
+            sendData.Command = $"%01#WDD0090100901{cmdData}**";
+            sendData.Send += SendCCD1Success_Callback;
+            plcCommandSendQueueHelper.Enqueue(sendData);
+            //int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
             return true;
         }
+
+        private void SendCCD1Success_Callback(object sender, EventArgs e)
+        {
+            Thread.Sleep(AppConfig.Ccd1SuccessSleepTime);
+            myEventLog.LogInfo($"发送指令等待时间:{AppConfig.Ccd1SuccessSleepTime}");
+            ccd1SuccessTime = DateTime.Now;
+
+            myEventLog.LogInfo($"发送CCD1继续命令");
+        }
+
         /// <summary>
         /// 发送CCD2成功命令
         /// </summary>
@@ -333,40 +401,69 @@ namespace PrinterManagerProject
         {
             try
             {
-                plcCommandSendQueueHelper.Enqueue("%01#WDD00900009003459**");
+
+                CCDSendData sendData = new CCDSendData();
+                sendData.Command = "%01#WDD00900009003459**";
+                sendData.Send += SendCCD2Success_Callback; ;
+                plcCommandSendQueueHelper.Enqueue(sendData);
                 //plcCommandSendQueueHelper.Enqueue("%01#WDD00900009003459**");
-                myEventLog.LogInfo($"发送CCD1继续命令");
-                SetCCD2IsNotBusy();
                 return true;
             }
             catch (Exception ex)
             {
-                myEventLog.LogError($"发送CCD1继续命令出错：" + ex.Message, ex);
+                myEventLog.LogError($"发送CCD2继续命令出错：" + ex.Message, ex);
                 return false;
             }
         }
+
+        private void SendCCD2Success_Callback(object sender, EventArgs e)
+        {
+            prevCCD2IsSuccess = true;
+            myEventLog.LogInfo($"发送CCD2继续命令");
+            SetCCD2IsNotBusy();
+        }
+
         private static int IndexOf81AfterCCD1IsNotBusy = 0;
         /// <summary>
         /// 发送CCD1失败命令
         /// </summary>
         private void SendCCD1Out()
         {
-            plcCommandSendQueueHelper.Enqueue("%01#WDD0090100901324E**");  // 1N:CCD1剔除
+            CCDSendData sendData = new CCDSendData();
+            sendData.Command = $"%01#WDD0090100901324E**";
+            sendData.Send += SendCCD1Out_Callback; ;
+            plcCommandSendQueueHelper.Enqueue(sendData);
+
             //plcCommandSendQueueHelper.Enqueue("%01#WDD0090100901324E**");  // 1N:CCD1剔除
+            //plcCommandSendQueueHelper.Enqueue("%01#WDD0090100901324E**");  // 1N:CCD1剔除
+        }
+
+        private void SendCCD1Out_Callback(object sender, EventArgs e)
+        {
             myEventLog.LogInfo($"发送CCD1剔除命令");
             SetCCD1IsNotBusy();
         }
 
+        DateTime ccd2EndTime = DateTime.Now;
         /// <summary>
         /// 发送CCD2失败命令
         /// </summary>
         private void SendCCD2Out()
         {
-            plcCommandSendQueueHelper.Enqueue("%01#WDD0090000900344E**"); //4N：CCD2剔除
+            CCDSendData sendData = new CCDSendData();
+            sendData.Command = "%01#WDD0090000900344E**";
+            sendData.Send += SendCCD2Out_Callback; 
+            plcCommandSendQueueHelper.Enqueue(sendData);
             //plcCommandSendQueueHelper.Enqueue("%01#WDD0090000900344E**"); //4N：CCD2剔除
+        }
+
+        private void SendCCD2Out_Callback(object sender, EventArgs e)
+        {
+            prevCCD2IsSuccess = false;
             myEventLog.LogInfo($"发送CCD2剔除命令");
             SetCCD2IsNotBusy();
         }
+
         /// <summary>
         /// 设置CCD1空闲
         /// </summary>
@@ -379,6 +476,7 @@ namespace PrinterManagerProject
                 IndexOf81AfterCCD1IsNotBusy = 0;
             });
         }
+        bool prevCCD2IsSuccess = true;
         /// <summary>
         /// 设置CCD2空闲
         /// </summary>
@@ -388,6 +486,7 @@ namespace PrinterManagerProject
             {
                 Thread.Sleep(AppConfig.FreeCCDBusyState);
                 ccd2IsBusy = false;
+                ccd2EndTime = DateTime.Now;
             });
         }
         #region 接收串口信息
@@ -422,14 +521,6 @@ namespace PrinterManagerProject
                             return;
                         }
 
-                        // 这里设置显示串口正常
-                        Dispatcher.Invoke(() =>
-                        {
-                            Ellipse ellipse = spcViewPanel.FindName("elCCD1") as Ellipse;
-                            ellipse.Fill = complate;
-                            Label label = spcViewPanel.FindName("lblCCD1") as Label;
-                            label.Content = "CCD1通讯正常";
-                        });
 
                         if (ccd1ErrorCount < AppConfig.CCD1TakePhotoMaxTimes - 1)
                         {
@@ -468,19 +559,15 @@ namespace PrinterManagerProject
                             myEventLog.LogInfo($"接收CCD：{data}，CCD2已超时，不再处理");
                             return;
                         }
-                        if (CheckQueueAddRemoveCCD2())
+                        if (CheckQueueError())
                         {
+                            // 从2#位剔除药袋
+                            SendCCD2Out();
+                            // 删除队列
+                            RemoveCCD2();
                             return;
                         }
 
-                        // 这里设置显示串口正常
-                        Dispatcher.Invoke(() =>
-                        {
-                            Ellipse ellipse = spcViewPanel.FindName("elCCD2") as Ellipse;
-                            ellipse.Fill = complate;
-                            Label label = spcViewPanel.FindName("lblCCD2") as Label;
-                            label.Content = "CCD2通讯正常";
-                        });
 
                         // CCD2是流程最后一步，取出第一个
 
@@ -528,24 +615,6 @@ namespace PrinterManagerProject
                 // CCD1识别结果处理，且不是错误信息
                 else if (data.Length == CCDSerialPortData.CCD1_ERROR.Length)
                 {
-
-                    #region 设置串口状态
-                    // 这里设置显示串口正常
-                    Dispatcher.Invoke(() =>
-                    {
-                        Ellipse ellipse1 = spcViewPanel.FindName("elCCD1") as Ellipse;
-                        ellipse1.Fill = complate;
-                        Label label1 = spcViewPanel.FindName("lblCCD1") as Label;
-                        label1.Content = "CCD1通讯正常";
-
-                        Ellipse ellipse2 = spcViewPanel.FindName("elCCD2") as Ellipse;
-                        ellipse2.Fill = complate;
-                        Label label2 = spcViewPanel.FindName("lblCCD2") as Label;
-                        label2.Content = "CCD2通讯正常";
-                    });
-                    #endregion
-
-
                     string[] datas = data.Split(' ');
 
                     #region 过滤拍照超时，记录CCD1拍照次数，停止CCD超时计时
@@ -578,16 +647,9 @@ namespace PrinterManagerProject
                         }
                     }
                     #endregion
-
-                    StringBuilder b = new StringBuilder();
-
-                    b.AppendLine(string.Format("{0}：开始处理", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-
-                    b.AppendLine(string.Format("{0}：分割完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
                     // 数据正确
                     if (datas[0] == "FE" && datas[datas.Length - 1] == "EF")
                     {
-                        b.AppendLine(string.Format("{0}：对比指令正确性完成", DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
                         // CCD1的反馈
                         if (datas[1] == "A1")
                         {
@@ -603,14 +665,14 @@ namespace PrinterManagerProject
 
                             if (currentOrder != null)
                             {
-                                myEventLog.LogInfo($"CCD1医嘱:{currentOrder.Id}");
+                                //myEventLog.LogInfo($"CCD1医嘱:{currentOrder.Id}");
 
                                 // 获取水和药品信息
 
                                 List<PrintDrugModel> drugs = orderManager.GetPrintDrugs(currentOrder.Id);
                                 //if (drugs != null && drugs.Count > 0)
                                 //{
-                                myEventLog.LogInfo($"药品数量:{drugs.Count}");
+                                //myEventLog.LogInfo($"药品数量:{drugs.Count}");
 
                                 string mlCmd = PLCSerialPortData.GetSizeCmd(datas[2], datas[3]);
 
@@ -621,10 +683,10 @@ namespace PrinterManagerProject
                                 try
                                 {
                                     printer = printerManager.GetPrinter();
-                                    myEventLog.LogInfo($"获取Printer花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                    //myEventLog.LogInfo($"获取Printer花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     startTime = DateTime.Now;
                                     printCommand = printTemplateManager.GetPrintCommand(currentOrder);
-                                    myEventLog.LogInfo($"生成打印命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                    //myEventLog.LogInfo($"生成打印命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
                                     success = true;
                                 }
                                 catch (Exception ex)
@@ -638,38 +700,52 @@ namespace PrinterManagerProject
 
                                     //var specCmdData = GetSepcData(currentCmdData);
                                     var currentCmdData = $"3{mlCmd.ToCharArray()[0]}3{mlCmd.ToCharArray()[1]}";
-                                    myEventLog.LogInfo($"发送CCD1继续命令");
-                                    if (SendCCD1Success(currentCmdData)) // 71-78
-                                    {
-                                        Task.Run(() => {
+                                    //myEventLog.LogInfo($"发送CCD1继续命令");
 
-                                            startTime = DateTime.Now;
-                                            var ccd1SuccessTime = DateTime.Now;
-                                            myEventLog.LogInfo($"发送CCD1继续命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                                            startTime = DateTime.Now;
+                                    //Task.Run(() =>
+                                    //{
+                                        
+                                        while ((DateTime.Now - ccd1SuccessTime).TotalMilliseconds < AppConfig.TowMedicionMinInterval)
+                                        {
+                                            // 保证从CCD1发出去的时间间隔固定在AppConfig.TowMedicionMinInterval
+                                            Thread.Sleep(20);
+                                        }
 
-                                            printer.SendCommand(printCommand);
-                                            myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
-                                            SetCCD1IsNotBusy();
-                                            startTime = DateTime.Now;
+                                    startTime = DateTime.Now;
+                                    //printer.SendCommand(printCommand);
+                                    printer.SendCommand(printCommand);
+                                    myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
-                                            //插入到队列中
-                                            AddQueue(currentOrder, data, spec[0], spec[1], currentCmdData, ccd1SuccessTime);
-                                            myEventLog.LogInfo($"插入队列花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                                            b.AppendLine(string.Format("{0}：打印过程完成",
-                                                DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss.fff")));
-                                        });
-                                    }
-                                    else
-                                    {
-                                        // else中代码可能永远不会被执行
-                                        new LogHelper().PrinterLog($"向PLC发送打印尺寸命令失败");
-                                        myEventLog.LogInfo($"向PLC发送打印尺寸命令失败");
+                                    CCDSendData sendData = new CCDSendData();
+                                    sendData.Command = $"%01#WDD0090100901{currentCmdData}**";
+                                    sendData.order = currentOrder;
+                                    sendData.specData = spec;
+                                    sendData.CCDData = data;
+                                    sendData.CurrentCommandData = currentCmdData;
+                                    sendData.PrintCommand = printCommand;
+                                    sendData.Send += SendCCD1Command_Send;
 
-                                        // 入队空信息，占位
-                                        AddQueue(null, null, null, null, "", DateTime.Now);
-                                    }
+                                    plcCommandSendQueueHelper.Enqueue(sendData);
+
+                                        //int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{currentCmdData}**");
+                                        //myEventLog.LogInfo($"距离上次发送时间间隔:{(DateTime.Now - ccd1SuccessTime).TotalMilliseconds}");
+                                        //ccd1SuccessTime = DateTime.Now;
+                                        //startTime = DateTime.Now;
+                                        ////myEventLog.LogInfo($"发送CCD1继续命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                        //startTime = DateTime.Now;
+
+                                    ////printer.SendCommand(printCommand);
+                                    //printer.SendCommand(printCommand);
+                                    ////myEventLog.LogInfo($"发送打印内容花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+
+                                    //SetCCD1IsNotBusy();
+                                    //startTime = DateTime.Now;
+
+                                    ////插入到队列中
+                                    //AddQueue(currentOrder, data, spec[0], spec[1], currentCmdData, ccd1SuccessTime);
+                                    ////myEventLog.LogInfo($"插入队列花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                    //});
                                 }
                                 else
                                 {
@@ -684,7 +760,6 @@ namespace PrinterManagerProject
                                 SendCCD1Out();
                             }
 
-                            new LogHelper().PrinterLog(b.ToString());
                             #endregion
                         }
                         // CCD2的反馈
@@ -695,7 +770,7 @@ namespace PrinterManagerProject
                             string[] spec = CCDSerialPortData.GetNameAndML(datas[2]); // 规格和毫升数
                             string batchNumber = datas[4] + datas[5] + datas[6]; //批号
                             myEventLog.LogInfo($"CCD2识别到液体规格：{spec[0]}-{spec[1]}");
-                            myEventLog.LogInfo($"CCD2识别到批号：{batchNumber}");
+                            //myEventLog.LogInfo($"CCD2识别到批号：{batchNumber}");
 
 
 
@@ -737,64 +812,9 @@ namespace PrinterManagerProject
                                     }
                                     success = false;
                                 }
-                                if (success == true)
+                                if (success)
                                 {
-                                    // 修改到数据库，修改失败则判为失败
-                                    bool updateDataSuccess = false;
-                                    try
-                                    {
-                                        orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        updateDataSuccess = true;
-                                    }
-                                    catch (Exception ex)
-                                    {
-                                        myEventLog.LogError($"Index：{model.Index}，更新到数据库出错", ex);
-                                    }
-                                    if (updateDataSuccess)
-                                    {
-                                        myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
-                                        countModel.AutoCount++;
-                                        countModel.PrintedTotalCount++;
-                                        countModel.NotPrintTotalCount--;
-                                        UpdateSummaryLabel();
-
-                                        // 处理到数据源
-                                        tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
-                                        // 2#位通过
-                                        myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
-
-                                        // 检查是否错位，错位则剔除，否则继续
-                                        if (CheckQueueAddRemoveCCD2())
-                                        {
-                                            return;
-                                        }
-
-                                        SendCCD2Success();
-
-                                        // 回写数据
-                                        PrintSuccess(autoPrintModel, batchNumber);
-                                        // --- 设置为CCD2识别通过的状态 ---
-                                        Success();
-
-                                        myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
-                                        //if (autoPrintModel != null)
-                                        //{
-                                        //}
-                                        //else
-                                        //{
-                                        //    success = false;
-                                        //    myEventLog.LogInfo($"数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                        //}
-                                    }
-                                    else // 数据库操作失败
-                                    {
-                                        // --- 删除对比失败的信息 ---
-                                        myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                        myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
-                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                        success = false;
-                                    }
+                                    success = SetCCD2IsSuccess(spec, batchNumber, success, model);
                                 }
                             }
                             else
@@ -828,16 +848,123 @@ namespace PrinterManagerProject
             }
         }
         /// <summary>
-        /// 检查当天液体是否处于错误队列中，是则直接从CCD2剔除
+        /// CCD1成功指令发送成功回调函数
         /// </summary>
-        private bool CheckQueueAddRemoveCCD2()
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void SendCCD1Command_Send(object sender, EventArgs e)
+        {
+            var model = sender as CCDSendData;
+            myEventLog.LogInfo($"距离上次发送时间间隔:{(DateTime.Now - ccd1SuccessTime).TotalMilliseconds}");
+            ccd1SuccessTime = DateTime.Now;
+            //var startTime = DateTime.Now;
+            //myEventLog.LogInfo($"发送CCD1继续命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+
+
+            SetCCD1IsNotBusy();
+            //startTime = DateTime.Now;
+
+            //插入到队列中
+            AddQueue(model.order, model.CCDData, model.specData[0], model.specData[1], model.CurrentCommandData, ccd1SuccessTime);
+            //myEventLog.LogInfo($"插入队列花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+        }
+
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="spec"></param>
+        /// <param name="batchNumber"></param>
+        /// <param name="success"></param>
+        /// <param name="model"></param>
+        /// <returns></returns>
+        private bool SetCCD2IsSuccess(string[] spec, string batchNumber, bool success, OrderQueueModel model)
+        {
+            if (success == true)
+            {
+                // 修改到数据库，修改失败则判为失败
+                bool updateDataSuccess = false;
+                try
+                {
+                    // 检查是否错位，错位则剔除，否则继续
+                    //if (CheckQueueAddRemoveCCD2())
+                    //{
+                    //    return;
+                    //}
+
+                    if (CheckQueueError())
+                    {
+
+                        myEventLog.LogInfo($"Index:{model?.Index},检测到队列错位，未更新到数据库：ID={model.Drug.Id}");
+                        return false;  // 检测到标签错位时已经发送CCD2出错命令
+                        //return false;
+                    }
+                    var ccd2startTime = DateTime.Now;
+                    orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+
+                    //myEventLog.LogInfo($"CCD2更新到数据库花费时间:{(DateTime.Now - ccd2startTime).TotalMilliseconds}");
+
+                    myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：Id={model.Drug.Id},BarCode={model.Drug.barcode},GroupNum={model.Drug.group_num}");
+
+                    SendCCD2Success();
+                    // --- 设置为CCD2识别通过的状态 ---
+                    Success();
+
+                    updateDataSuccess = true;
+
+                }
+                catch (Exception ex)
+                {
+                    myEventLog.LogError($"Index：{model.Index}，更新到数据库出错", ex);
+                }
+                if (updateDataSuccess)
+                {
+
+
+                    //myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
+                    countModel.AutoCount++;
+                    countModel.PrintedTotalCount++;
+                    countModel.NotPrintTotalCount--;
+                    UpdateSummaryLabel();
+
+                    // 处理到数据源
+                    tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
+
+                    // 回写数据
+                    PrintSuccess(autoPrintModel, batchNumber);
+
+                    //myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                    //myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
+                    //if (autoPrintModel != null)
+                    //{
+                    //}
+                    //else
+                    //{
+                    //    success = false;
+                    //    myEventLog.LogInfo($"数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                    //}
+                }
+                else // 数据库操作失败
+                {
+                    // --- 删除对比失败的信息 ---
+                    //myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
+                    myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
+                    warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                    success = false;
+                }
+            }
+
+            return success;
+        }
+
+        /// <summary>
+        /// 检查当前液体是否处于错误队列中，是则直接从CCD2剔除
+        /// </summary>
+        private bool CheckQueueError()
         {
             if (DateTime.Now < ccd2IsErrorBefore)
             {
                 myEventLog.LogInfo($"队列已错位，剔除当前液体");
 
-                // 从2#位剔除药袋
-                SendCCD2Out();
                 return true;
             }
             return false;
@@ -895,6 +1022,126 @@ namespace PrinterManagerProject
                         var printStatus = dataArray[12];
                         var ccd2Status = dataArray[13];
 
+                        if (ccd2Status == '1')
+                        {
+                            var intervalTickets = (DateTime.Now - prevCCD2Time).TotalMilliseconds;
+                            //myEventLog.LogInfo($"84信号间隔时间：{intervalTickets}");
+                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // CCD2最小间隔时间=CCD2拨成功后等待时间+从拨成功位置走到初始值位置
+                            prevCCD2Time = DateTime.Now;
+                            if (isLightSignalEffective && ccd2IsBusy == false)
+                            {
+                                myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
+
+                                ccd2IsBusy = true;
+                                //GoToCCD2();
+                                #region 处理CCD2信号
+
+                                if (CheckQueueError() == false)
+                                {
+
+                                    var item = queue.FirstOrDefault(s => s.CCD2LightScan == false && (DateTime.Now - s.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToCCD2LightMinTime);
+                                    if (item == null)
+                                    {
+                                        myEventLog.LogInfo($"队列中无数据，直接剔除");
+                                        SendCCD2Out();
+                                        ccd2IsBusy = false;
+                                    }
+                                    else
+                                    {
+
+                                        if ((DateTime.Now - item.EnqueueTime).TotalMilliseconds < AppConfig.EnqueueToCCD2LightMinTime)
+                                        {
+                                            // 收到CCD2信号时间小于光幕信号到CCD2最小时间，异常信号
+                                            //myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收有效84信号，CCD2开始拍照");
+                                            myEventLog.LogInfo($"Index：{item.Index}，入队到CCD2时间小于{AppConfig.ScannerToCCD2LightMinTime}，无效信号");
+                                            ccd2IsBusy = false;
+                                        }
+                                        else
+                                        {
+                                            if (item.CCD2LightScan)
+                                            {
+                                                myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收无效84信号，当前项已在CCD2拍照，无效信号");
+                                                ccd2IsBusy = true;
+                                            }
+                                            else
+                                            {
+                                                myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收有效84信号，CCD2开始拍照");
+                                                item.CCD2Time = DateTime.Now;
+                                                //myEventLog.LogInfo($"Index：{item.Index}，记录CCD2时间：{item.CCD2Time.ToString("yyyy-MM-dd HH:mm:ss fff")}");
+                                                item.CCD2LightScan = true;
+                                                if (string.IsNullOrEmpty(item.ScanData) || item.ScanData != item.Drug.barcode)
+                                                {
+                                                    if (string.IsNullOrEmpty(item.ScanData))
+                                                    {
+                                                        myEventLog.LogInfo($"Index：{item.Index}，扫码枪未扫描到二维码，直接剔除");
+                                                    }
+                                                    else
+                                                    if (item.ScanData != item.Drug.barcode)
+                                                    {
+                                                        myEventLog.LogInfo($"Index：{item.Index}，扫码枪扫描到二维码与液体的二维码不一致，直接剔除");
+                                                    }
+                                                    SendCCD2Out();
+                                                    RemoveCCD2();
+                                                }
+                                                else
+                                                {
+
+                                                    if (AppConfig.CCD2IsEnabled)
+                                                    {
+                                                        ccd2IsBusy = true;
+                                                        Task.Run(() =>
+                                                        {
+                                                            // 停一段时间稳定液体
+                                                            Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
+                                                            // 开始拍照
+                                                            lock (ccd2LockHelper)
+                                                            {
+                                                                ccd2ErrorCount = 0;
+                                                            }
+                                                            CCD2TakePicture();
+                                                        });
+                                                    }
+                                                    else
+                                                    {
+                                                        bool success = true;
+                                                        OrderQueueModel model;
+                                                        if (queue.TryPeek(out model))
+                                                        {
+                                                            myEventLog.LogInfo($"Index：{item.Index}，从队列中读出数据");
+
+                                                            string[] spec = new string[] { "", "" };
+                                                            success = SetCCD2IsSuccess(spec, "", success, model);
+
+                                                            if (success == false)
+                                                            {
+                                                                // 从2#位剔除信息对比失败的药袋
+                                                                SendCCD2Out();
+                                                                // --- 删除对比失败的信息 ---
+                                                                RemoveCCD2();
+                                                            }
+                                                        }
+                                                        else
+                                                        {
+                                                            myEventLog.LogInfo($"队列中无数据-未更新到数据库");
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+
+                                }
+                                else
+                                {
+                                    // 队列错位时，直接剔除
+                                    SendCCD2Out();
+                                    ccd2IsBusy = false;
+                                    return;
+                                } 
+                                #endregion
+                            }
+                        }
+
                         if (ccd1Status == '1')
                         {
                             var intervalTickets = (DateTime.Now - prevCCD1Time).TotalMilliseconds;
@@ -923,33 +1170,25 @@ namespace PrinterManagerProject
                             {
                                 if ((DateTime.Now - preCCD1SuccessTime).TotalMilliseconds > AppConfig.TowMedicionMinInterval)
                                 {
-                                    StopConveryorBelt();
+
+                                    if (CanStartConveryorBelt())
+                                    {
+                                        StartConveryorBelt();
+                                    }
                                     preCCD1SuccessTime = DateTime.Now;
                                     prevCCD1Time = DateTime.Now;
                                     GoToCCD1();
                                 }
                                 else
                                 {
-                                    StopConveryorBelt();
+                                    if (CanStartConveryorBelt())
+                                    {
+                                        StartConveryorBelt();
+                                    }
                                 }
                             }
                         }
 
-                        if (ccd2Status == '1')
-                        {
-                            var intervalTickets = (DateTime.Now - prevCCD2Time).TotalMilliseconds;
-                            //myEventLog.LogInfo($"84信号间隔时间：{intervalTickets}");
-                            var isLightSignalEffective = intervalTickets > AppConfig.LightTimeInterval; // CCD2最小间隔时间=CCD2拨成功后等待时间+从拨成功位置走到初始值位置
-                            prevCCD2Time = DateTime.Now;
-                            if (isLightSignalEffective && ccd2IsBusy == false)
-                            {
-                                myEventLog.LogInfo($"84： PLC接收84信号，CCD2开始拍照");
-                                Task.Run(() =>
-                                {
-                                    GoToCCD2();
-                                });
-                            }
-                        }
 
                         if (printStatus == '1')
                         {
@@ -975,10 +1214,10 @@ namespace PrinterManagerProject
                             prevScannerLightTime = DateTime.Now;
                             if (isLightSignalEffective)
                             {
-                                Task.Run(() =>
-                                {
+                                //Task.Run(() =>
+                                //{
                                     GoToScannerLight();
-                                });
+                                //});
                             }
                         }
 
@@ -1087,7 +1326,7 @@ namespace PrinterManagerProject
 
                     myEventLog.LogInfo($"Index：{queueIndex+1}，PLC接收81信号，CCD1开始拍照");
 
-                    myEventLog.LogInfo($"Index：{queueIndex+1}，PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
+                    //myEventLog.LogInfo($"Index：{queueIndex+1}，PLC接收数据：{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss ffff")}");
 
                     // 停一段时间稳定液体
                     Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
@@ -1104,133 +1343,14 @@ namespace PrinterManagerProject
 
         private void GoToCCD2()
         {
-            var item = queue.FirstOrDefault(s => (DateTime.Now- s.EnqueueTime).TotalMilliseconds>AppConfig.EnqueueToCCD2LightMinTime);
-            if (item == null)
-            {
-                // 队列为空，直接剔除
-                SendCCD2Out();
-            }
-            else if ((DateTime.Now - item.ScannerLightTime).TotalMilliseconds < AppConfig.ScannerToCCD2LightMinTime)
-            {
-                // 收到CCD2信号时间小于光幕信号到CCD2最小时间，异常信号
-                myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收有效84信号，CCD2开始拍照");
-                myEventLog.LogInfo($"Index：{item.Index}，幕信号到CCD2时间小于{AppConfig.ScannerToCCD2LightMinTime}，无效信号");
-            }
-            else
-            {
-                myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收有效84信号，CCD2开始拍照");
-                item.CCD2Time = DateTime.Now;
-                myEventLog.LogInfo($"Index：{item.Index}，记录CCD2时间：{item.CCD2Time.ToString("yyyy-MM-dd HH:mm:ss fff")}");
-                item.CCD2LightScan = true;
-                if (string.IsNullOrEmpty(item.ScanData) || item.ScanData != item.Drug.barcode)
-                {
-                    SendCCD2Out();
-                    RemoveCCD2();
-                    if (string.IsNullOrEmpty(item.ScanData))
-                    {
-                        myEventLog.LogInfo($"Index：{item.Index}，扫码枪未扫描到二维码，直接剔除");
-                    }else
-                    if (item.ScanData != item.Drug.barcode)
-                    {
-                        myEventLog.LogInfo($"Index：{item.Index}，扫码枪扫描到二维码与液体的二维码不一致，直接剔除");
-                    }
-                    return;
-                }
-                if (AppConfig.CCD2IsEnabled)
-                {
-                    ccd2IsBusy = true;
-                    Task.Run(() =>
-                    {
-                        // 停一段时间稳定液体
-                        Thread.Sleep(AppConfig.CcdTakePhotoSleepTime);
-                        // 开始拍照
-                        lock (ccd2LockHelper)
-                        {
-                            ccd2ErrorCount = 0;
-                        }
-                        CCD2TakePicture();
-                    });
-                }
-                else
-                {
-                    bool success = true;
-
-                    OrderQueueModel model;
-                    if (queue.TryPeek(out model))
-                    {
-
-                        if (string.IsNullOrEmpty(model.ScanData))
-                        {
-                            success = false;
-                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
-                            warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                        }
-                        else
-                            if (model.ScanData != model.QRData)
-                        {
-                            success = false;
-                            myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
-                            warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                        }
-
-                        if (success)
-                        {
-                            bool updateDataSuccess = false;
-                            try
-                            {
-                                orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, "无", UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                updateDataSuccess = true;
-                            }
-                            catch (Exception ex)
-                            {
-                                myEventLog.LogError($"Index：{item.Index}，更新到数据库出错", ex);
-                            }
-
-                            if (updateDataSuccess)
-                            {
-                                myEventLog.LogInfo($"Index:{model?.Index},更新到数据库：ID={model.Drug.Id}");
-                                countModel.AutoCount++;
-                                countModel.PrintedTotalCount++;
-                                countModel.NotPrintTotalCount--;
-                                UpdateSummaryLabel();
-
-                                // 处理到数据源
-                                tOrder autoPrintModel = autoPrintList.FirstOrDefault(m => m.Id == model.Drug.Id);
-                                // 2#位通过
-                                myEventLog.LogInfo($"Index:{model?.Index},发送CCD2继续命令");
-                                SendCCD2Success();
-
-                                // 回写数据
-                                PrintSuccess(autoPrintModel, "无");
-                                // --- 设置为CCD2识别通过的状态 ---
-                                Success();
-
-                                myEventLog.LogInfo($"Index:{model?.Index},数据回写成功：Id={autoPrintModel.Id},BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                myEventLog.LogInfo($"Index:{model?.Index},CCD2成功");
-                            }
-                            else
-                            {
-                                // --- 删除对比失败的信息 ---
-                                myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
-                                myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
-                                warningManager.AddWarning(model.Drug, "无", "无", WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
-                                success = false;
-                            }
-                        }
-
-                        if (success == false)
-                        {
-                            // 从2#位剔除信息对比失败的药袋
-                            SendCCD2Out();
-
-                            // --- 删除对比失败的信息 ---
-                            RemoveCCD2();
-                        }
-                    }
-                }
-            }
+            myEventLog.LogInfo($"84： PLC疑似接收84信");
+            //SendCCD2Success();
+            //Success();
+            //return;
         }
 
+                string prevScanCode = "";
+        DateTime prevScanCodeTime = DateTime.Now;
         /// <summary>
         /// 扫码枪扫码结果
         /// </summary>
@@ -1239,15 +1359,17 @@ namespace PrinterManagerProject
         {
             try
             {
+                if(data == prevScanCode && (DateTime.Now - prevScanCodeTime).TotalMilliseconds<2000)
+                {
+                    myEventLog.LogInfo($"接收重复扫码枪：{data}，不处理");
+                    return;
+                }
+
+                prevScanCode = data;
+                prevScanCodeTime = DateTime.Now;
+
                 myEventLog.LogInfo($"接收扫码枪：{data}");
                 // 这里设置显示串口通讯
-                Dispatcher.Invoke(() =>
-                {
-                    Ellipse ellipse = spcViewPanel.FindName("elScan1") as Ellipse;
-                    ellipse.Fill = errorColor;
-                    Label label = spcViewPanel.FindName("lblScan1") as Label;
-                    label.Content = "扫描系统1通讯正常";
-                });
 
                 SetScanResult(data);
             }
@@ -1281,14 +1403,6 @@ namespace PrinterManagerProject
                     }
                 });
 
-                // 这里设置显示串口通讯
-                Dispatcher.Invoke(() =>
-                {
-                    Ellipse ellipse = spcViewPanel.FindName("elScan2") as Ellipse;
-                    ellipse.Fill = errorColor;
-                    Label label = spcViewPanel.FindName("lblScan2") as Label;
-                    label.Content = "扫描系统2通讯正常";
-                });
 
             }
             catch (Exception ex)
@@ -1325,6 +1439,10 @@ namespace PrinterManagerProject
                     PrintQueueTimes(qModel);
                     myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}，BarCode={qModel.Drug.barcode}");
                 }
+                else
+                {
+                    myEventLog.LogInfo($"队列数量： {queue.Count}！");
+                }
 
                 if (queue.IsEmpty)
                 {
@@ -1334,7 +1452,7 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"队列数量： {queue.Count}！");
                 if (CanStartConveryorBelt())
                 {
-                    myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                    //myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
                     StartConveryorBelt();
                 }
             }
@@ -1374,7 +1492,7 @@ namespace PrinterManagerProject
                 qModel.Index = queueIndex++;
                 qModel.SpecCmd = specCmd;
                 qModel.EnqueueTime = ccd1SuccessTime;
-                myEventLog.LogInfo($"记录入队时间：{qModel.EnqueueTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
+                //myEventLog.LogInfo($"记录入队时间：{qModel.EnqueueTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
 
                 myEventLog.LogInfo($"将Index:{qModel.Index},液体信息插入队列:Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug.group_num}，BarCode={qModel.Drug.barcode}");
             }
@@ -1392,7 +1510,7 @@ namespace PrinterManagerProject
                 if(CanStopConveryorBelt())
                 {
                     // 入队后，队列中液体数量大于队列中液体最大数，或未打印液体数量大于队列中允许的最大未打印数量，停止第一个传送带
-                    myEventLog.LogInfo($"停止传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                    //myEventLog.LogInfo($"停止传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
                     StopConveryorBelt();
                 }
 
@@ -1400,20 +1518,20 @@ namespace PrinterManagerProject
 
         private void PrintQueueTimes(OrderQueueModel model)
         {
-            var now = DateTime.Now;
-            myEventLog.LogInfo($"CCD1-打印光幕时间： {(model.PrintLightTime - model.EnqueueTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"CCD1-扫码枪光幕时间： {(model.ScannerLightTime - model.EnqueueTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"CCD1-CCD2光幕时间： {(model.CCD2Time - model.EnqueueTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"CCD1-完成时间： {(now - model.EnqueueTime).TotalMilliseconds}！");
+            //var now = DateTime.Now;
+            //myEventLog.LogInfo($"CCD1-打印光幕时间： {(model.PrintLightTime - model.EnqueueTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"CCD1-扫码枪光幕时间： {(model.ScannerLightTime - model.EnqueueTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"CCD1-CCD2光幕时间： {(model.CCD2Time - model.EnqueueTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"CCD1-完成时间： {(now - model.EnqueueTime).TotalMilliseconds}！");
 
-            myEventLog.LogInfo($"打印光幕时间-扫码枪光幕时间： {(model.ScannerLightTime - model.PrintLightTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"打印光幕时间-CCD2光幕时间： {(model.CCD2Time - model.PrintLightTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"打印光幕时间-完成时间： {(now - model.PrintLightTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"打印光幕时间-扫码枪光幕时间： {(model.ScannerLightTime - model.PrintLightTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"打印光幕时间-CCD2光幕时间： {(model.CCD2Time - model.PrintLightTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"打印光幕时间-完成时间： {(now - model.PrintLightTime).TotalMilliseconds}！");
 
-            myEventLog.LogInfo($"扫码枪光幕时间-CCD2光幕时间： {(model.CCD2Time - model.ScannerLightTime).TotalMilliseconds}！");
-            myEventLog.LogInfo($"扫码枪光幕时间-完成时间： {(now - model.ScannerLightTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"扫码枪光幕时间-CCD2光幕时间： {(model.CCD2Time - model.ScannerLightTime).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"扫码枪光幕时间-完成时间： {(now - model.ScannerLightTime).TotalMilliseconds}！");
 
-            myEventLog.LogInfo($"CCD2光幕时间-完成时间： {(now - model.CCD2Time).TotalMilliseconds}！");
+            //myEventLog.LogInfo($"CCD2光幕时间-完成时间： {(now - model.CCD2Time).TotalMilliseconds}！");
         }
         /// <summary>
         /// CCD2错误时删除对象
@@ -1440,7 +1558,7 @@ namespace PrinterManagerProject
 
                     if (CanStartConveryorBelt())
                     {
-                        myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
+                        //myEventLog.LogInfo($"开启传送带，队列数量：{queue.Count()}/{AppConfig.MaxQueueCount}，未打印数量：{queue.Count(s => s.PrinterLightScan == false)}/{AppConfig.MaxNotPrintQueueCount}");
                         StartConveryorBelt();
                     }
                 }
@@ -1455,13 +1573,34 @@ namespace PrinterManagerProject
         private void SetScanResult(string result)
         {
             // 找到第一条刚过光幕的数据，赋值
-            myEventLog.LogInfo($"扫描到二维码");
-            OrderQueueModel model = queue.LastOrDefault(m => m.ScannerLightScan == true && string.IsNullOrEmpty(m.ScanData));
+            //myEventLog.LogInfo($"扫描到二维码:{result}");
+            //OrderQueueModel model = queue.LastOrDefault(m => m.ScannerLightScan == true && string.IsNullOrEmpty(m.ScanData));
+            var model = queue.LastOrDefault(m=>m.ScannerLightScan == true); // 最后一个记录扫码枪光幕的
+            if(model != null)
+            {
+                if (string.IsNullOrEmpty(model.ScanData) == false)
+                {
+                    // 如果最后一个已经记录二维码，将model=null，尝试匹配下一个Model
+                    model = null;
+                }
+            }
+            if(model == null)
+            {
+                // 尝试寻找第一个没有记录扫码枪光幕的（这里认为不会同时出现未记录扫码枪光幕且未扫到二维码的情况）
+                model = queue.FirstOrDefault(m => m.ScannerLightScan == false);
+            }
+
             if (model != null)
             {
+                if(model.QRData.Length * 2==result.Length && model.QRData+model.QRData == result)
+                {
+                    result = model.QRData;
+                }
+
                 if (model.QRData == result)
                 {
                     model.ScanData = result;
+                    model.ScannerLightScan = true;
                     //model.PrinterLightScan = true;
                     myEventLog.LogInfo($"Index:{model.Index}，BarCode:{model.Drug.barcode}，修改液体扫描到的二维码：{result}");
                 }
@@ -1491,11 +1630,11 @@ namespace PrinterManagerProject
                 //var printLightMinTime = 1000;   // 最小时间=入队到CCD1推到传送带时间+(CCD1到打印机光幕移动距离)/传送带移动速度=（48-22）/43=600
                 if ((DateTime.Now - model.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToPrintLightMinTime)
                 {
-                    myEventLog.LogInfo($"82： PLC接收有效82信号，开始打印");
+                    //myEventLog.LogInfo($"82： PLC接收有效82信号，开始打印");
                     model.PrintLightTime = DateTime.Now;
-                    myEventLog.LogInfo($"Index：{model.Index}，GroupNum：{model.Drug.group_num}，BarCode={model.Drug.barcode}，记录打印机光幕时间：{model.PrintLightTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
+                    //myEventLog.LogInfo($"Index：{model.Index}，GroupNum：{model.Drug.group_num}，BarCode={model.Drug.barcode}，记录打印机光幕时间：{model.PrintLightTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
                     model.PrinterLightScan = true;
-                    myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
+                    //myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
                     if (CanStartConveryorBelt())
                     {
                         // 打印过之后，判断是否可以可以启动
@@ -1529,25 +1668,28 @@ namespace PrinterManagerProject
             {
                 myEventLog.LogInfo($"83： PLC接收83信号，记录扫码信息");
 
-                var item = queue.FirstOrDefault(s => s.PrinterLightScan && s.ScannerLightScan == false && (DateTime.Now - s.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime);
+                //var item = queue.FirstOrDefault(s => s.PrinterLightScan && s.ScannerLightScan == false && (DateTime.Now - s.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime);
+                //var item = queue.FirstOrDefault(s => s.PrinterLightScan && s.ScannerLightScan == false && (DateTime.Now - s.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime);
+                //var item = queue.FirstOrDefault(s => s.ScannerLightScan == false && (DateTime.Now - s.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime);
+                var item = queue.FirstOrDefault(s => s.ScannerLightScan == false);
                 if (item != null)
                 {
                     //var enqueueToScannerMinTime = 2700;// 最小时间=入队到CCD1推到传送带时间+(入队到扫码枪光幕移动距离)/传送带移动速度=（85-22）/43=1650
                     //var printerToScannerMinTime = 1200; // 最小时间=入队到CCD1推到传送带时间+(CCD1到扫码枪光幕移动距离)/传送带移动速度=（36-22）/43=581
                     var now = DateTime.Now;
 
-                    if ((DateTime.Now - item.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToScannerLightMinTime)
+                    if ((now - item.EnqueueTime).TotalMilliseconds > AppConfig.EnqueueToScannerLightMinTime)
                     {
-                        if ((DateTime.Now - item.PrintLightTime).TotalMilliseconds > AppConfig.PrintToScannerLightMinTime)
+                        if (item.PrinterLightScan == true && (now - item.PrintLightTime).TotalMilliseconds < AppConfig.PrintToScannerLightMinTime)
+                        {
+                            myEventLog.LogInfo($"Index：{item.Index}，GroupNum：{item.Drug.group_num}，BarCode={item.Drug.barcode}，过扫码枪光幕，小于从打印机光幕到扫码枪光幕的最小时间，无效信号");
+                        }
+                        else
                         {
                             item.ScannerLightScan = true;
                             item.ScannerLightTime = DateTime.Now;
                             myEventLog.LogInfo($"Index：{item.Index}，GroupNum：{item.Drug.group_num}，BarCode={item.Drug.barcode}，记录扫码枪光幕时间：{item.ScannerLightTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
-                            myEventLog.LogInfo($"83： PLC接收有效83信号，记录扫码信息");
-                        }
-                        else
-                        {
-                            myEventLog.LogInfo($"Index：{item.Index}，GroupNum：{item.Drug.group_num}，BarCode={item.Drug.barcode}，过扫码枪光幕，小于从打印机光幕到扫码枪光幕的最小时间，无效信号");
+                            //myEventLog.LogInfo($"83： PLC接收有效83信号，记录扫码信息");
                         }
                     }
                     else
@@ -1566,77 +1708,29 @@ namespace PrinterManagerProject
 
         #region 串口链接检查
 
-        // 串口状态，灰色-失败
-        SolidColorBrush errorColor = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#dddddd"));
-        // 串口状态，绿色-成功
-        SolidColorBrush complate = new SolidColorBrush((System.Windows.Media.Color)System.Windows.Media.ColorConverter.ConvertFromString("#8cea00"));
 
         public void OnCCD1Error(string msg)
         {
                 CCDConnected = false;
-            // 这里设置显示串口连接失败
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elCCD1") as Ellipse;
-                ellipse.Fill = errorColor;
-                Label label = spcViewPanel.FindName("lblCCD1") as Label;
-                label.Content = "CCD1连接失败";
-            });
         }
         public void OnCCD1Complated()
         {
                 CCDConnected = true;
-            // 这里设置显示串口连接成功
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elCCD1") as Ellipse;
-                ellipse.Fill = complate;
-                Label label = spcViewPanel.FindName("lblCCD1") as Label;
-                label.Content = "CCD1连接成功";
-            });
-
-            // 发送测试指令
-
         }
 
         public void OnCCD2Error(string msg)
         {
                 CCDConnected = false;
-            // 这里设置显示串口连接失败
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elCCD2") as Ellipse;
-                ellipse.Fill = errorColor;
-                Label label = spcViewPanel.FindName("lblCCD2") as Label;
-                label.Content = "CCD2连接失败";
-            });
         }
 
         public void OnCCD2Complated()
         {
-                CCDConnected = true;
-            // 这里设置显示串口连接成功
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elCCD2") as Ellipse;
-                ellipse.Fill = complate;
-                Label label = spcViewPanel.FindName("lblCCD2") as Label;
-                label.Content = "CCD2连接成功";
-            });
         }
 
 
         public void OnPLCError(string msg)
         {
             PCLConnected = false;
-            // 这里设置显示串口连接失败
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elControlSystem") as Ellipse;
-                ellipse.Fill = errorColor;
-                Label label = spcViewPanel.FindName("lblControlSystem") as Label;
-                label.Content = "控制系统连接失败";
-            });
         }
         public void OnPLCComplated(int type)
         {
@@ -1649,67 +1743,26 @@ namespace PrinterManagerProject
                 PCLConnected = false;
                 PlcReaderTimer?.Stop();
             }
-
-            // 这里设置显示串口连接成功
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elControlSystem") as Ellipse;
-                ellipse.Fill = complate;
-                Label label = spcViewPanel.FindName("lblControlSystem") as Label;
-                label.Content = "控制系统连接成功";
-            });
         }
 
 
         public void OnScannerError(string msg)
         {
             AutoScannerConnected = false;
-            // 这里设置显示串口连接失败
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elScan1") as Ellipse;
-                ellipse.Fill = errorColor;
-                Label label = spcViewPanel.FindName("lblScan1") as Label;
-                label.Content = "扫描系统1连接失败";
-            });
         }
         public void OnScannerComplated()
         {
             AutoScannerConnected = true;
-            // 这里设置显示串口连接成功
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elScan1") as Ellipse;
-                ellipse.Fill = complate;
-                Label label = spcViewPanel.FindName("lblScan1") as Label;
-                label.Content = "扫描系统1连接成功";
-            });
         }
 
 
         public void OnScannerHandlerError(string msg)
         {
             HanderScannerConnected = false;
-            // 这里设置显示串口连接失败
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elScan2") as Ellipse;
-                ellipse.Fill = errorColor;
-                Label label = spcViewPanel.FindName("lblScan2") as Label;
-                label.Content = "扫描系统2连接失败";
-            });
         }
         public void OnScannerHandlerComplated()
         {
             HanderScannerConnected = true;
-            // 这里设置显示串口连接成功
-            Dispatcher.Invoke(() =>
-            {
-                Ellipse ellipse = spcViewPanel.FindName("elScan2") as Ellipse;
-                ellipse.Fill = complate;
-                Label label = spcViewPanel.FindName("lblScan2") as Label;
-                label.Content = "扫描系统2连接成功";
-            });
         }
 
         /// <summary>
@@ -1731,7 +1784,7 @@ namespace PrinterManagerProject
             model.SetPropertyChanged("printing_model");
             model.SetPropertyChanged("printing_status");
 
-            myEventLog.LogInfo($"更新列表内容");
+            //myEventLog.LogInfo($"更新列表内容");
 
             // 绑定药品汇总列表
             BindDurgSummary(autoPrintList);
@@ -1750,13 +1803,7 @@ namespace PrinterManagerProject
             if (ConnectionManager.CheckConnetionStatus() == false)
             {
                 // 这里设置显示串口正常
-                Dispatcher.Invoke(() =>
-                {
-                    Ellipse ellipse = spcViewPanel.FindName("elDb") as Ellipse;
-                    ellipse.Fill = errorColor;
-                    Label label = spcViewPanel.FindName("lblDb") as Label;
-                    label.Content = "数据库连接失败";
-                });
+                spcViewPanel.SetDbState(false);
 
                 MessageBox.Show("数据库连接失败，请检查数据库服务是否开启！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return false;
@@ -1764,13 +1811,7 @@ namespace PrinterManagerProject
             else
             {
                 // 这里设置显示串口正常
-                Dispatcher.Invoke(() =>
-                {
-                    Ellipse ellipse = spcViewPanel.FindName("elDb") as Ellipse;
-                    ellipse.Fill = complate;
-                    Label label = spcViewPanel.FindName("lblDb") as Label;
-                    label.Content = "数据库连接正常";
-                });
+                spcViewPanel.SetDbState(true);
                 return true;
             }
         }
@@ -2101,26 +2142,23 @@ namespace PrinterManagerProject
 
         private void BaseWindow_Closing(object sender, CancelEventArgs e)
         {
-            if (needCloseWindowConfirm)
+            StopPrint();
+
+            // 打开主窗口
+            var collections = Application.Current.Windows;
+            foreach (Window window in collections)
             {
-
-                StopPrint();
-
-                // 打开主窗口
-                var collections = Application.Current.Windows;
-                foreach (Window window in collections)
+                BaseWindow win = window as BaseWindow;
+                if (win != null)
                 {
-                    BaseWindow win = window as BaseWindow;
-                    if (win != null)
+                    // 其他Window直接关闭
+                    if (win.ToString().Contains("MainWindow"))
                     {
-                        // 其他Window直接关闭
-                        if (win.ToString().Contains("MainWindow"))
-                        {
-                            win.Show();
-                        }
+                        win.Show();
                     }
                 }
             }
+
         }
 
 
@@ -2234,7 +2272,7 @@ namespace PrinterManagerProject
                             queueIndex = 0;
 
                             // 清空队列
-                            myEventLog.LogInfo($"队列数量： {queue.Count}！");
+                            //myEventLog.LogInfo($"队列数量： {queue.Count}！");
                             queue = new ConcurrentQueue<OrderQueueModel>();
                             myEventLog.LogInfo($"清空队列！");
 
@@ -2348,7 +2386,7 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void PlcReaderTimer_Tick(object sender, EventArgs e)
         {
-            plcCommandSendQueueHelper.Enqueue("%01#RCP8R0090R0095R0096R0007R0098R0170R000DR0173**");
+            plcCommandSendQueueHelper.Enqueue("%01#RCP8R0090R0095R0096R0007R0098R0170R0009R0173**");
         }
 
         /// <summary>
@@ -2609,8 +2647,9 @@ namespace PrinterManagerProject
             {
                 return;
             }
+            IsConveryorBeltRunning = true;
             // 启动传送带
-            myEventLog.LogInfo($"发送启动传送带命令");
+            //myEventLog.LogInfo($"发送启动传送带命令");
             plcCommandSendQueueHelper.Enqueue("%01#WCSR00050**");
         }
         /// <summary>
@@ -2620,9 +2659,11 @@ namespace PrinterManagerProject
         {
             if (IsConveryorBeltRunning)
             {
-                myEventLog.LogInfo($"发送停止传送单命令");
+                //myEventLog.LogInfo($"发送停止传送单命令");
                 // 停止传送带
                 plcCommandSendQueueHelper.Enqueue("%01#WCSR00051**");
+
+                IsConveryorBeltRunning = false;
             }
         }
         /// <summary>

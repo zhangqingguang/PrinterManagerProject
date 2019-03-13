@@ -121,7 +121,7 @@ namespace PrinterManagerProject
             {
                 if (sp.IsOpen)
                 {
-                    return true;
+                    sp.Close();
                 }
                 sp.Open();
 

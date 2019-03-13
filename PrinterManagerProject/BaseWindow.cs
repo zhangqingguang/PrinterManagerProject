@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections.Generic;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -38,6 +39,7 @@ namespace PrinterManagerProject
         private MenuItem menu;
 
         private DispatcherTimer dispatcherTimer;
+
 
         public BaseWindow()
         {
@@ -233,6 +235,13 @@ namespace PrinterManagerProject
         /// <param name="e"></param>
         private void CloseButton_Click(object sender, System.Windows.RoutedEventArgs e)
         {
+            foreach (Window window in Application.Current.Windows)
+            {
+                if(window.GetType() == this.GetType())
+                {
+                    window.Close();
+                }
+            }
             Close();
         }
         /// <summary>

@@ -99,20 +99,45 @@ namespace PrinterManagerProject.EF
         /// <param name="sbatches"></param>
         public bool PrintSuccess(int id, PrintModelEnum printModel, string sbatches, int czrUserId, string czrUserName, int shrUserId, string shrUserName)
         {
-            var item = DBContext.tOrders.FirstOrDefault(s => s.Id == id);
-            item.printing_status = PrintStatusEnum.Success;
-            item.printing_model = printModel;
-            item.printing_time = DateTime.Now;
-            item.sbatches = "";
+            using (var db = new PrintTagDbEntities())
+            {
+                var orderIdParam = new SqlParameter("@orderId", id);
 
-            item.PrintUserId = czrUserId;
-            item.PrintUserName = czrUserName;
-            item.CheckUserId = shrUserId;
-            item.CheckUserName = shrUserName;
+                var statusParam = new SqlParameter("@status", PrintStatusEnum.Success);
+                var modelParam = new SqlParameter("@model", printModel);
+                var datetimeParam = new SqlParameter("@datetime", DateTime.Now);
+                var printerUserIdParam = new SqlParameter("@printerUserId", czrUserId);
+                var printerUserNameParam = new SqlParameter("@printerUserName", czrUserName);
+                var checkUserIdParam = new SqlParameter("@checkUserId", shrUserId);
+                var checkerUserNameParam = new SqlParameter("@checkerUserName", shrUserName);
 
-            DBContext.SaveChanges();
+                var execCount = db.Database.ExecuteSqlCommand(@"update tOrder set 
+printing_status = @status,
+printing_model = @model,
+printing_time = @datetime,
+sbatches = '',
+PrintUserId = @printerUserId,
+PrintUserName = @printerUserName,
+CheckUserId = @checkUserId,
+CheckUserName = @checkerUserName
+where id=@orderId
+", statusParam
+, modelParam, datetimeParam, printerUserIdParam, printerUserNameParam, checkUserIdParam, checkerUserNameParam, orderIdParam);
 
-            return true;
+                return execCount > 0;
+
+                //var item = db.tOrders.FirstOrDefault(s => s.Id == id);
+                //item.printing_status = PrintStatusEnum.Success;
+                //item.printing_model = printModel;
+                //item.printing_time = DateTime.Now;
+                //item.sbatches = "";
+
+                //item.PrintUserId = czrUserId;
+                //item.PrintUserName = czrUserName;
+                //item.CheckUserId = shrUserId;
+                //item.CheckUserName = shrUserName;
+                //DBContext.SaveChanges();
+            }
         }
     }
 }

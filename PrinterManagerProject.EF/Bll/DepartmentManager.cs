@@ -16,7 +16,10 @@ namespace PrinterManagerProject.EF
         /// </summary>
         public void SyncDepartment()
         {
-            var ds = PivasDbHelperSQL.Query("select * from v_for_ydwl_dept where Name like '%2%' or isuse=1");
+            var ds = PivasDbHelperSQL.Query(@"select [Code]
+      ,[Name]
+      ,[ShortCut]
+      ,[Isuse] from v_for_ydwl_dept where Name like '%2%' or isuse=1");
             var dt = ds.Tables[0];
 
             var deptList = DBContext.tDepts.ToList();

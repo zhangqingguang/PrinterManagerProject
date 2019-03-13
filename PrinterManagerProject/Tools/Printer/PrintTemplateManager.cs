@@ -45,7 +45,8 @@ namespace PrinterManagerProject.Tools
             //^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS
             //^XZ";
             sb.Append("^XA");
-            sb.Append("^CWJ,E:001.FNT^FS");
+            // E:001.FNT 华文仿宋
+            sb.Append("^CWJ,E:000.FNT^FS"); // E:000.FNT 微软雅黑
             //sb.Append("^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS");
             sb.Append(GetBarCodeCommand(order.barcode, tempConfig.BarCodeX, tempConfig.BarCodeY));
             sb.Append(GetQRCodeCommand(order.barcode, tempConfig.QRCodeX, tempConfig.QRCodeY));
@@ -157,11 +158,13 @@ namespace PrinterManagerProject.Tools
 
             return result;
         }
+        int paddingLeft = 130 ;
+        int paddingTop = 35 ;
 
         private string GetLabelCommand(string content, int fontSize, int x, int y)
         {
-            x = Convert.ToInt32((x+130)*printMultiple);
-            y = Convert.ToInt32(y *printMultiple);
+            x = Convert.ToInt32((x+ paddingLeft) *printMultiple);
+            y = Convert.ToInt32((y+ paddingTop) *printMultiple);
 
             int width = Convert.ToInt32(fontSize * 2.5);
             int height = Convert.ToInt32(fontSize * 2.5);
@@ -171,8 +174,8 @@ namespace PrinterManagerProject.Tools
 
         private string GetBarCodeCommand(string content, int x, int y)
         {
-            x = Convert.ToInt32((x +130) * printMultiple);
-            y = Convert.ToInt32((y) * printMultiple);
+            x = Convert.ToInt32((x + paddingLeft) * printMultiple);
+            y = Convert.ToInt32((y + paddingTop) * printMultiple);
 
             return $@"^By3,3^FO{x},{y},^B7N,7,3,2,13,N^FD{content}^FS";
             //return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
@@ -180,15 +183,15 @@ namespace PrinterManagerProject.Tools
 
         private string GetQRCodeCommand(string content, int x, int y)
         {
-            x = Convert.ToInt32((x + 130) * printMultiple);
-            y = Convert.ToInt32((y) * printMultiple);
+            x = Convert.ToInt32((x + paddingLeft) * printMultiple);
+            y = Convert.ToInt32((y + paddingTop) * printMultiple);
 
             return $@"^^FO{x},{y},^BQN,2,6^FDHM,N{content}^FS";
             //return $@"^^FO{x},{y},^BQN,3,6^FDMM,{content}^FS";
         }
 
 
-        double printMultiple = 1.15;
+        double printMultiple = 1.1;
         /// <summary>
         /// 生成打印内容并推送到打印机
         /// </summary>

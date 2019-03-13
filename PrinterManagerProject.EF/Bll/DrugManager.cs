@@ -18,7 +18,14 @@ namespace PrinterManagerProject.EF.Bll
         /// </summary>
         public void SyncDrug()
         {
-            var ds = PivasDbHelperSQL.Query("select * from v_for_ydwl_drug");
+            var ds = PivasDbHelperSQL.Query(@"select [drug_code]
+      ,[drug_name]
+      ,[drug_spec]
+      ,[drug_units]
+      ,[drug_use_spec]
+      ,[drug_use_units]
+      ,[drug_form]
+      ,[input_code] from v_for_ydwl_drug");
             var dt = ds.Tables[0];
 
             var drugList = DBContext.tDrugs.ToList();

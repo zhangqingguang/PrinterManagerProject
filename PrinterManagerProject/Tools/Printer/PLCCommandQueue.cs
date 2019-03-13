@@ -1,4 +1,5 @@
-﻿using System;
+﻿using PrinterManagerProject.Tools.Serial;
+using System;
 using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.Linq;
@@ -22,6 +23,7 @@ namespace PrinterManagerProject.Tools
             this.serialPortInterface = serialPortInterface;
             IsStart = false;
             queue = new ConcurrentQueue<string>();
+            priorityQueue = new ConcurrentQueue<CCDSendData>();
             timer = new DispatcherTimer();
         }
         PLCSerialPortInterface serialPortInterface;
@@ -30,14 +32,26 @@ namespace PrinterManagerProject.Tools
         /// 线程安全的队列
         /// </summary>
         private ConcurrentQueue<string> queue { get; set; }
+        private ConcurrentQueue<CCDSendData> priorityQueue { get; set; }
         public int Enqueue(string command)
         {
             if (IsStart == false)
             {
                 return 0;
             }
+
             queue.Enqueue(command);
             return queue.Count;
+        }
+        public int Enqueue(CCDSendData command)
+        {
+            if (IsStart == false)
+            {
+                return 0;
+            }
+
+            priorityQueue.Enqueue(command);
+            return priorityQueue.Count;
         }
 
         public  bool IsEmpty() {
@@ -71,16 +85,29 @@ namespace PrinterManagerProject.Tools
             {
                 while (IsStart)
                 {
-                    if (queue.IsEmpty)
-                    {
-                        continue;
-                    }
                     lock (hasReadHelper)
                     {
-                        if(HasRead == false)
+                        if (HasRead == false)
                         {
                             continue;
                         }
+                    }
+                    if (priorityQueue.IsEmpty == false)
+                    {
+
+                        CCDSendData prevCommand;
+                        if (priorityQueue.TryDequeue(out prevCommand))
+                        {
+                            myEventLog.LogInfo($"正在发送CCD成功或失败：{prevCommand.Command}");
+                            PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(prevCommand.Command);
+                            prevCommand.OnSend();
+
+                            continue;
+                        }
+                    }
+                    if (queue.IsEmpty)
+                    {
+                        continue;
                     }
                     string command = "";
                     if (queue.TryDequeue(out command))
@@ -104,6 +131,16 @@ namespace PrinterManagerProject.Tools
                         if (command.Contains("00291"))
                         {
                             myEventLog.LogInfo($"正在发送停止打印命令：{command}");
+                            //myEventLog.LogInfo($"发送信号时间间隔：停止：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
+                        }                        else
+                        if (command.Contains("R00050"))
+                        {
+                            myEventLog.LogInfo($"发送启动传送带命令：{command}");
+                            //myEventLog.LogInfo($"发送信号时间间隔：停止：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
+                        }
+                        if (command.Contains("R00051"))
+                        {
+                            myEventLog.LogInfo($"发送停止传送单命令：{command}");
                             //myEventLog.LogInfo($"发送信号时间间隔：停止：{(DateTime.Now - prevSendTime).TotalMilliseconds}");
                         }
                         else

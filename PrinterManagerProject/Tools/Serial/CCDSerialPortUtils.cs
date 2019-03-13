@@ -99,14 +99,7 @@ namespace PrinterManagerProject
         /// <returns></returns>
         public static string[] GetNameAndML(string cmd)
         {
-            foreach (var item in specDic)
-            {
-                if (item.Key == cmd)
-                {
-                    return item.Value.Split('|');
-                }
-            }
-            return null;
+            return specDic[cmd]?.Split('|');
         }
 
         /// <summary>
@@ -115,14 +108,7 @@ namespace PrinterManagerProject
         /// <returns></returns>
         public static string GetTypeValue(string cmd)
         {
-            foreach (var item in typeDic)
-            {
-                if (item.Key == cmd)
-                {
-                    return item.Value;
-                }
-            }
-            return null;
+            return typeDic[cmd];
         }
 
         #endregion
@@ -225,7 +211,7 @@ namespace PrinterManagerProject
             {
                 if (sp.IsOpen)
                 {
-                    return true;
+                    sp.Close();
                 }
                 sp.Open();
                 if (mSerialPortInterface != null)

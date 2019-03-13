@@ -67,8 +67,10 @@ namespace PrinterManagerProject
                         if (window != this)
                             window.Hide();
                     }
-                    base.OnClosed(e);
+                    //base.OnClosed(e);
                     e.Cancel = false;
+
+                    Application.Current.Shutdown();
                 }
 
                 //不关闭窗口

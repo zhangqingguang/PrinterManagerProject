@@ -15,7 +15,10 @@ namespace PrinterManagerProject.EF
         /// </summary>
         public void SyncBatch()
         {
-            var ds = PivasDbHelperSQL.Query("select * from v_for_ydwl_batch");
+            var ds = PivasDbHelperSQL.Query(@"select [batch]
+      ,[batch_name]
+      ,[start_time]
+      ,[end_time] from v_for_ydwl_batch");
             var dt = ds.Tables[0];
 
             var batchList = DBContext.tBatches.ToList();
