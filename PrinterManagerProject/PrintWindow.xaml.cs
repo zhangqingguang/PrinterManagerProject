@@ -204,6 +204,15 @@ namespace PrinterManagerProject
                 return;
             }
 
+            try
+            {
+                new DrugManager().SyncDrug();
+            }
+            catch (Exception ex)
+            {
+                myEventLog.LogError("同步医嘱信息出错",ex);
+            }
+
             InitDate();
             InitBatch();
 
@@ -2078,26 +2087,16 @@ namespace PrinterManagerProject
         /// <param name="dataSource"></param>
         private void BindMainDrug(ObservableCollection<tOrder> dataSource)
         {
+            var batch = cb_batch.SelectedValue.ToString();
             // 绑定主药
-            var drugIds = dataSource.Select(s => s.ydrug_id).Distinct().ToList();
-            DrugManager drugManager = new DrugManager();
-            var drugList = drugManager.GetAll(s => drugIds.Contains(s.drug_code))
-                .OrderBy(s => s.drug_name)
-                .ThenBy(s => s.drug_form)
-                .ThenBy(s => s.drug_spec)
-                .Select(s => new
-                {
-                    ydrug_id = s.drug_code,
-                    ydrug_name = s.drug_name + " " + s.drug_spec + " " + s.drug_form
-                }).ToList();
-            //var drugList = dataSource.GroupBy(m => new { m.ydrug_name, m.ydrug_spec }).Select(a => new { ydrug_name = string.Format("{0}({1})", a.Key.ydrug_name, a.Key.ydrug_spec), ydrug_id = string.Format("{0}|{1}", a.Key.ydrug_name, a.Key.ydrug_spec) }).ToList();
-            drugList.Insert(0, new { ydrug_id = "", ydrug_name = "全部" });
+            var list = string.IsNullOrEmpty(batch) ? new List<tDrug>() : new DrugManager().GetMainDrugListForPrintWindow(use_date.SelectedDate.Value, batch);
+            list.Insert(0, new tDrug() { drug_code = "", drug_name = "全部" });
 
             Dispatcher.Invoke(() =>
             {
-                this.cb_drug.DisplayMemberPath = "ydrug_name";
-                this.cb_drug.SelectedValuePath = "ydrug_id";
-                this.cb_drug.ItemsSource = drugList;
+                this.cb_drug.DisplayMemberPath = "drug_name";
+                this.cb_drug.SelectedValuePath = "drug_code";
+                this.cb_drug.ItemsSource = list;
                 this.cb_drug.SelectedIndex = 0;
             });
         } 

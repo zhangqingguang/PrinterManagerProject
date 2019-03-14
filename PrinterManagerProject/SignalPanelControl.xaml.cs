@@ -47,7 +47,7 @@ namespace PrinterManagerProject
             Task.Factory.StartNew(() =>
             {
                 elCCD1.Fill = (state ? complate : errorColor);
-                StatusModel.CCD1Text = (state ? "CCD2连接成功" : "CCD2连接失败");
+                StatusModel.CCD1Text = (state ? "CCD1连接成功" : "CCD1连接失败");
 
             }, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
         }

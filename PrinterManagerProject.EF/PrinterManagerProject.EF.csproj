@@ -152,6 +152,7 @@
       <DependentUpon>PrintTagDb.edmx</DependentUpon>
       <LastGenOutput>PrintTagDb.cs</LastGenOutput>
     </Content>
+    <Content Include="Sql\分拣机数据库升级脚本-201902141909.sql" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\DBUtility\PrinterManagerProject.DBUtility.csproj">
@@ -159,8 +160,6 @@
       <Name>PrinterManagerProject.DBUtility</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Sql\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>
