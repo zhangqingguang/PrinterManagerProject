@@ -221,8 +221,8 @@ namespace PrinterManagerProject.Tools
 
             return result;
         }
-        int paddingLeft = 130 ;
-        int paddingTop = 35 ;
+        int paddingLeft = 0 ;
+        int paddingTop = 0 ;
 
         private string GetLabelCommand(string content, int fontSize, int x, int y)
         {
