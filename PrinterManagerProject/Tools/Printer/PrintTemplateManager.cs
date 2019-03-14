@@ -28,6 +28,10 @@ namespace PrinterManagerProject.Tools
             }
             return tempConfig;
         }
+        /// <summary>
+        /// 药品行间距
+        /// </summary>
+        int drugLineMargin = 25;
         public string GetPrintCommand(tOrder order)
         {
             if (tempConfig == null)
@@ -60,7 +64,7 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand(order.bed_number + "床", tempConfig.BedFontSize, tempConfig.BedFontX, tempConfig.BedFontY));
             sb.Append(GetLabelCommand($"{order.age}", tempConfig.AgeFontSize, tempConfig.AgeFontX, tempConfig.AgeFontY));
             sb.Append(GetLabelCommand(order.sex, tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
-            sb.Append(GetLabelCommand(order.group_num, tempConfig.GroupNumFontSize, tempConfig.GroupNumFontX, tempConfig.GroupNumUnFontY));
+            sb.Append(GetLabelCommand(order.patient_id, tempConfig.GroupNumFontSize, tempConfig.GroupNumFontX, tempConfig.GroupNumUnFontY));
             sb.Append(GetLabelCommand($"{order.use_frequency}({order.use_time})", tempConfig.UserFrequentFontSize, tempConfig.UserFrequentFontX, tempConfig.UserFrequentFontY));
             sb.Append(GetLabelCommand($"no{order.is_print_snv}", tempConfig.is_print_snvFontSize, tempConfig.is_print_snvFontX, tempConfig.is_print_snvFontY));
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
@@ -84,7 +88,6 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand("用量", tempConfig.UseSpTitleFontSize, tempConfig.UseSpTitleFontX, tempConfig.UseSpTitleFontY));
             sb.Append(GetLabelCommand("数量", tempConfig.UseTitleFontSize, tempConfig.UseTitleFontX, tempConfig.UseTitleFontY));
 
-            var margin = 25;
             var height = tempConfig.DrugsContentFontY;
             var paperWidth = tempConfig.PageWidth;
             var paperHeight = tempConfig.PageHeight;
@@ -92,26 +95,28 @@ namespace PrinterManagerProject.Tools
             // 药品信息
             for (int i = 0; i < drugs.Count; i++)
             {
+                var rowCount = 1;
+
                 int fontHeight = tempConfig.DrugsContentFontSize;
-                // 药名
-                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].drug_name,280,tempConfig.DrugsContentFontSize), tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
+                GetDrugNameCommand(sb, drugs, height, i, ref rowCount);
                 //规格
-                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].spec,140, tempConfig.SpecValueFontSize), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
+                //sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].spec, 130, tempConfig.SpecValueFontSize), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
+                GetDrugSpecCommand(sb, drugs, height, i, ref rowCount);
                 //用量
-                if (drugs[i].durg_use_sp[0]==9608) 
+                if (drugs[i].durg_use_sp[0] == 9608)
                 {
                     // 以实心方块开头的，用量增加下划线
                     sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
-                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height+2));
-                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height+4));
+                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height + 2));
+                    sb.Append(GetLabelCommand("_____", tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height + 4));
                     drugs[i].durg_use_sp = drugs[i].durg_use_sp.Trim((char)9608);
                 }
-                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].durg_use_sp,140, tempConfig.UseSpValueFontSize), tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+                sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].durg_use_sp, 140, tempConfig.UseSpValueFontSize), tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
                 //数量
-                sb.Append(GetLabelCommand(drugs[i].use_count, tempConfig.UseValueFontSize, tempConfig.UseValueFontX, height));
+                sb.Append(GetLabelCommand(drugs[i].use_count.Replace(".0000", ""), tempConfig.UseValueFontSize, tempConfig.UseValueFontX, height));
 
                 // 只修改Y轴，向下平铺
-                height += tempConfig.DrugsContentFontSize + margin;
+                height += (tempConfig.DrugsContentFontSize + drugLineMargin) * rowCount;
             }
             #endregion
 
@@ -131,6 +136,64 @@ namespace PrinterManagerProject.Tools
             myEventLog.LogInfo($"生成打印模板命令时间:{(DateTime.Now - startTime).TotalMilliseconds}");
 
             return sb.ToString();
+        }
+        /// <summary>
+        /// 显示药品规格
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="drugs"></param>
+        /// <param name="height"></param>
+        /// <param name="i"></param>
+        /// <param name="rowCount"></param>
+        private void GetDrugSpecCommand(StringBuilder sb, List<PrintDrugModel> drugs, int height, int i, ref int rowCount)
+        {
+            //sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].durg_use_sp, 140, tempConfig.UseSpValueFontSize), tempConfig.UseSpValueFontSize, tempConfig.UseSpValueFontX, height));
+            //sb.Append(GetLabelCommand(LimitTextWidth(drugs[i].spec, 130, tempConfig.SpecValueFontSize), tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
+
+            var row = 0;
+            var drugSpec = drugs[i].spec;
+            var remainDrugSpec = drugSpec;
+            while (string.IsNullOrEmpty(remainDrugSpec) == false)
+            {
+                var showSpec = LimitTextWidth(remainDrugSpec, 190, tempConfig.SpecValueFontSize);
+                // 药名
+                sb.Append(GetLabelCommand(showSpec, tempConfig.SpecValueFontSize, tempConfig.SpecValueFontX, height));
+                remainDrugSpec = remainDrugSpec.Replace(showSpec, "");
+                row++;
+                height += (tempConfig.SpecValueFontSize + drugLineMargin);
+            }
+            if (row >= rowCount)
+            {
+                rowCount = row;
+            }
+        }
+
+        /// <summary>
+        /// 显示药品名称
+        /// </summary>
+        /// <param name="sb"></param>
+        /// <param name="drugs"></param>
+        /// <param name="height"></param>
+        /// <param name="i"></param>
+        /// <param name="rowCount"></param>
+        private void GetDrugNameCommand(StringBuilder sb, List<PrintDrugModel> drugs, int height, int i,ref int rowCount)
+        {
+            var row = 0;
+            var drugName = drugs[i].drug_name;
+            var remainDrugName = drugName;
+            while (string.IsNullOrEmpty(remainDrugName)==false)
+            {
+                var showName = LimitTextWidth(remainDrugName, 250, tempConfig.DrugsContentFontSize);
+                // 药名
+                sb.Append(GetLabelCommand(showName, tempConfig.DrugsContentFontSize, tempConfig.DrugsContentFontX, height));
+                remainDrugName = remainDrugName.Replace(showName, "");
+                row++;
+                height += (tempConfig.DrugsContentFontSize + drugLineMargin);
+            }
+            if (row >= rowCount)
+            {
+                rowCount = row;
+            }
         }
 
         private string LimitTextWidth(string str,int width,int fontSize)

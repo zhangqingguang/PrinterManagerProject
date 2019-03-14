@@ -457,7 +457,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量标题文字X坐标
             /// </summary>
-            model.UseSpTitleFontX = 460;
+            model.UseSpTitleFontX = 510;
             /// <summary>
             /// 用量标题文字Y坐标
             /// </summary>
@@ -470,7 +470,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量值文字X坐标
             /// </summary>
-            model.UseSpValueFontX = 460;
+            model.UseSpValueFontX = 510;
             /// <summary>
             /// 用量值文字Y坐标
             /// </summary>
@@ -485,7 +485,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量标题文字X坐标
             /// </summary>
-            model.UseTitleFontX = 610;
+            model.UseTitleFontX = 630;
             /// <summary>
             /// 数量标题文字Y坐标
             /// </summary>
@@ -498,7 +498,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量值文字X坐标
             /// </summary>
-            model.UseValueFontX = 610;
+            model.UseValueFontX = 660;
             /// <summary>
             /// 数量值文字Y坐标
             /// </summary>
