@@ -72,7 +72,7 @@ namespace PrinterManagerProject.EF
                     s.use_date == order.use_date && s.use_time == order.use_time && s.group_num == order.group_num)
                 .Select(s => new
                 {
-                    s.durg_use_sp,
+                    durg_use_sp=s.durg_use_sp+" "+s.drug_use_units,
                     s.drug_spec,
                     s.xsyxj,
                     drug_name = s.drug_name,
