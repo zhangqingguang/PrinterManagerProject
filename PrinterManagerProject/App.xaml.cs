@@ -17,6 +17,7 @@ namespace PrinterManagerProject
     {
         protected override void OnStartup(StartupEventArgs e)
         {
+            System.Threading.Thread.Sleep(3000);
             base.OnStartup(e);
             MapperConfig.Config();
         }

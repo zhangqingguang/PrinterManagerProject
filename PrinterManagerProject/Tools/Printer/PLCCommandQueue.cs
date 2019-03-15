@@ -15,6 +15,20 @@ namespace PrinterManagerProject.Tools
     /// </summary>
     public class PLCCommandQueue
     {
+        private static PLCCommandQueue pLCCommandQueue;
+
+        public static PLCCommandQueue GetInstance(PLCSerialPortInterface serialPortInterface)
+        {
+            if (pLCCommandQueue == null)
+            {
+                pLCCommandQueue = new PLCCommandQueue( serialPortInterface);
+            }
+            return pLCCommandQueue;
+        }
+
+
+
+
         private static bool HasRead = true;
         private static object hasReadHelper = new object();
         DispatcherTimer timer;
@@ -22,6 +36,7 @@ namespace PrinterManagerProject.Tools
         {
             this.serialPortInterface = serialPortInterface;
             IsStart = false;
+            HasRead = true;
             queue = new ConcurrentQueue<string>();
             priorityQueue = new ConcurrentQueue<CCDSendData>();
             timer = new DispatcherTimer();

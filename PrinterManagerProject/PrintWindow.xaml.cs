@@ -144,7 +144,7 @@ namespace PrinterManagerProject
             needCloseWindowConfirm = true;
             InitializeComponent();
             base.Loaded += PrintWindow_Loaded;
-            plcCommandSendQueueHelper = new PLCCommandQueue(this);
+            plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
             Task.Run(()=> { scanDeviceState(); });
 
             //Task.Factory.StartNew(() =>
@@ -238,9 +238,10 @@ namespace PrinterManagerProject
                 CCDSerialPortUtils.GetInstance(this).Open();
                 ScannerSerialPortUtils.GetInstance(this).Open();
                 ScanHandlerSerialPortUtils.GetInstance(this).Open();
+
+                plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
                 plcCommandSendQueueHelper.Start();
 
-                plcCommandSendQueueHelper = new PLCCommandQueue(this);
 
 
                 // 检查数据库状态
@@ -2180,12 +2181,13 @@ namespace PrinterManagerProject
 
             // 尝试开启串口，已开启的不重新开启
             PLCSerialPortUtils.GetInstance(this).Open();
-            plcCommandSendQueueHelper = new PLCCommandQueue(this);
-            plcCommandSendQueueHelper.Start();
 
             CCDSerialPortUtils.GetInstance(this).Open();
             ScannerSerialPortUtils.GetInstance(this).Open();
             ScanHandlerSerialPortUtils.GetInstance(this).Open();
+
+            plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
+            plcCommandSendQueueHelper.Start();
 
             if (CCDConnected == false)
             {
