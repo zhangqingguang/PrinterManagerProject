@@ -194,6 +194,7 @@
     <Compile Include="TestWindow.xaml.cs">
       <DependentUpon>TestWindow.xaml</DependentUpon>
     </Compile>
+    <Compile Include="Tools\AppConfigManager.cs" />
     <Compile Include="Tools\CCDTimer.cs" />
     <Compile Include="Tools\HistoryHelper.cs" />
     <Compile Include="Tools\ImageHelper.cs" />

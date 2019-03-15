@@ -30,6 +30,15 @@ namespace PrinterManagerProject
         public LoginWindow()
         {
             InitializeComponent();
+
+            if (AppConfig.IsDebug)
+            {
+                txtCZR.Text = "admin1";
+                txtSHR.Text = "admin2";
+
+                txtCZRPWD.Password = "password01!";
+                txtSHRPWD.Password = "password01!";
+            }
         }
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
