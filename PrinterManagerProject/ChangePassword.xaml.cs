@@ -31,10 +31,10 @@ namespace PrinterManagerProject
             this.Closed += ChangePassword_Closed;
         }
 
-        private void BaseWindow_Closing(object sender, CancelEventArgs e)
-        {
+        //private void BaseWindow_Closing(object sender, CancelEventArgs e)
+        //{
 
-        }
+        //}
         private void ChangePassword_Closed(object sender, EventArgs e)
         {
             MainWindow mainWindow = new MainWindow();
@@ -112,7 +112,7 @@ namespace PrinterManagerProject
         {
             MainWindow mainWindow = new MainWindow();
             mainWindow.Show();
-            this.needCloseWindowConfirm = false;
+            //this.needCloseWindowConfirm = false;
             this.Close();
         }
     }

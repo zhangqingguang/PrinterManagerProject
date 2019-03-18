@@ -127,25 +127,25 @@ namespace PrinterManagerProject
 
         #region 事件
 
-        private void BaseWindow_Closing(object sender, CancelEventArgs e)
-        {
-            if (needCloseWindowConfirm)
-            {
-                var collections = Application.Current.Windows;
-                foreach (Window window in collections)
-                {
-                    BaseWindow win = window as BaseWindow;
-                    if (win != null)
-                    {
-                        // 其他Window直接关闭
-                        if (win.ToString().Contains("MainWindow"))
-                        {
-                            win.Show();
-                        }
-                    }
-                }
-            }
-        }
+        //private void BaseWindow_Closing(object sender, CancelEventArgs e)
+        //{
+        //    if (needCloseWindowConfirm)
+        //    {
+        //        var collections = Application.Current.Windows;
+        //        foreach (Window window in collections)
+        //        {
+        //            BaseWindow win = window as BaseWindow;
+        //            if (win != null)
+        //            {
+        //                // 其他Window直接关闭
+        //                if (win.ToString().Contains("MainWindow"))
+        //                {
+        //                    win.Show();
+        //                }
+        //            }
+        //        }
+        //    }
+        //}
         #endregion
 
         private void Cb_dept_SelectionChanged(object sender, SelectionChangedEventArgs e)

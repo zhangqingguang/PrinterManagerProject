@@ -141,7 +141,7 @@ namespace PrinterManagerProject
 
         public PrintWindow()
         {
-            needCloseWindowConfirm = true;
+            //needCloseWindowConfirm = true;
             InitializeComponent();
             base.Loaded += PrintWindow_Loaded;
             plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
@@ -2140,26 +2140,26 @@ namespace PrinterManagerProject
 
         #region 事件响应
 
-        private void BaseWindow_Closing(object sender, CancelEventArgs e)
-        {
-            StopPrint();
+        //private void BaseWindow_Closing(object sender, CancelEventArgs e)
+        //{
+        //    StopPrint();
 
-            // 打开主窗口
-            var collections = Application.Current.Windows;
-            foreach (Window window in collections)
-            {
-                BaseWindow win = window as BaseWindow;
-                if (win != null)
-                {
-                    // 其他Window直接关闭
-                    if (win.ToString().Contains("MainWindow"))
-                    {
-                        win.Show();
-                    }
-                }
-            }
+        //    // 打开主窗口
+        //    var collections = Application.Current.Windows;
+        //    foreach (Window window in collections)
+        //    {
+        //        BaseWindow win = window as BaseWindow;
+        //        if (win != null)
+        //        {
+        //            // 其他Window直接关闭
+        //            if (win.ToString().Contains("MainWindow"))
+        //            {
+        //                win.Show();
+        //            }
+        //        }
+        //    }
 
-        }
+        //}
 
 
         #region 开始打印/暂停打印事件

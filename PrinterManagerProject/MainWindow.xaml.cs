@@ -53,31 +53,31 @@ namespace PrinterManagerProject
             this.Hide();
         }
 
-        private void BaseWindow_Closing(object sender, CancelEventArgs e)
-        {
-            if (needCloseWindowConfirm)
-            {
-                MessageBoxResult result = MessageBox.Show("确定要退出系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
-                //关闭窗口
-                if (result == MessageBoxResult.Yes)
-                {
-                    var collections = Application.Current.Windows;
-                    foreach (Window window in collections)
-                    {
-                        if (window != this)
-                            window.Hide();
-                    }
-                    //base.OnClosed(e);
-                    e.Cancel = false;
+        //private void BaseWindow_Closing(object sender, CancelEventArgs e)
+        //{
+        //    if (needCloseWindowConfirm)
+        //    {
+        //        MessageBoxResult result = MessageBox.Show("确定要退出系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+        //        //关闭窗口
+        //        if (result == MessageBoxResult.Yes)
+        //        {
+        //            var collections = Application.Current.Windows;
+        //            foreach (Window window in collections)
+        //            {
+        //                if (window != this)
+        //                    window.Hide();
+        //            }
+        //            //base.OnClosed(e);
+        //            e.Cancel = false;
 
-                    Application.Current.Shutdown();
-                }
+        //            Application.Current.Shutdown();
+        //        }
 
-                //不关闭窗口
-                if (result == MessageBoxResult.No)
-                    e.Cancel = true;
-            }
-        }
+        //        //不关闭窗口
+        //        if (result == MessageBoxResult.No)
+        //            e.Cancel = true;
+        //    }
+        //}
 
         private void BtnUserWindow_Click(object sender, RoutedEventArgs e)
         {

@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -144,7 +145,7 @@ namespace PrinterManagerProject
             PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblPrintTemplate");
             userManageWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
 
         /// <summary>
@@ -159,7 +160,7 @@ namespace PrinterManagerProject
                 PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblSizeSetting");
                 userManageWindow.Show();
                 this.needCloseWindowConfirm = false;
-                this.Close();
+                CloseCurrentWindow();
             }
         }
 
@@ -175,7 +176,7 @@ namespace PrinterManagerProject
                 PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblParamSetting");
                 userManageWindow.Show();
                 this.needCloseWindowConfirm = false;
-                this.Close();
+                CloseCurrentWindow();
             }
         }
 
@@ -189,7 +190,7 @@ namespace PrinterManagerProject
             PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblDrugSetting");
             userManageWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
 
         /// <summary>
@@ -202,7 +203,7 @@ namespace PrinterManagerProject
             PrinterManagerProject.SettingsWindow userManageWindow = new PrinterManagerProject.SettingsWindow("lblTimeSetting");
             userManageWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
         /// <summary>
         /// 点击用户管理
@@ -214,7 +215,7 @@ namespace PrinterManagerProject
             PrinterManagerProject.UserManage userManageWindow = new PrinterManagerProject.UserManage();
             userManageWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
         /// <summary>
         /// 当前时间
@@ -265,7 +266,7 @@ namespace PrinterManagerProject
             changePasswordWindow.Init(UserCache.Printer.ID);
             changePasswordWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
         /// <summary>
         /// 点击修改密码按钮
@@ -278,7 +279,7 @@ namespace PrinterManagerProject
             changePasswordWindow.Init(UserCache.Checker.ID);
             changePasswordWindow.Show();
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
         /// <summary>
         /// 点击注销按钮
@@ -308,7 +309,7 @@ namespace PrinterManagerProject
             }
             // 设置不需要关闭页面提示
             this.needCloseWindowConfirm = false;
-            this.Close();
+            CloseCurrentWindow();
         }
         /// <summary>
         /// 点击退出按钮
@@ -336,7 +337,7 @@ namespace PrinterManagerProject
                 PrintWindow printWindow = new PrintWindow();
                 printWindow.Show();
                 this.needCloseWindowConfirm = false;
-                this.Close();
+                CloseCurrentWindow();
             }
         }
         /// <summary>
@@ -351,6 +352,18 @@ namespace PrinterManagerProject
                 QueryWindow queryWindow = new QueryWindow();
                 queryWindow.Show();
                 this.needCloseWindowConfirm = false;
+                CloseCurrentWindow();
+            }
+        }
+
+        private void CloseCurrentWindow()
+        {
+            if (this.ToString().Contains("MainWindow"))
+            {
+                this.Hide();
+            }
+            else
+            {
                 this.Close();
             }
         }
@@ -406,6 +419,68 @@ namespace PrinterManagerProject
             CloseButton.IsEnabled = true;
             //设置菜单可用
             menu.IsEnabled = true;
+        }
+
+
+
+        public void BaseWindow_Closing(object sender, CancelEventArgs e)
+        {
+
+            if (needCloseWindowConfirm)
+            {
+                if (this.ToString().Contains("MainWindow"))
+                {
+
+                    MessageBoxResult result = MessageBox.Show("确定要退出系统吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    //关闭窗口
+                    if (result == MessageBoxResult.Yes)
+                    {
+                        Environment.Exit(0);
+                    }
+                    return;
+                }
+                else
+                {
+                    var collections = Application.Current.Windows;
+                    foreach (Window window in collections)
+                    {
+                        BaseWindow win = window as BaseWindow;
+                        if (win != null)
+                        {
+                            // 其他Window直接关闭
+                            if (win.ToString().Contains("MainWindow"))
+                            {
+                                win.Show();
+                            }
+                        }
+                    }
+
+                    //MessageBoxResult result = MessageBox.Show("确定关闭当前窗口吗？", "提示", MessageBoxButton.YesNo, MessageBoxImage.Question);
+                    ////关闭窗口
+                    //if (result == MessageBoxResult.Yes)
+                    //{
+                    //    // 打开主窗口
+                    //    var collections = Application.Current.Windows;
+                    //    foreach (Window window in collections)
+                    //    {
+                    //        BaseWindow win = window as BaseWindow;
+                    //        if (win != null)
+                    //        {
+                    //            // 其他Window直接关闭
+                    //            if (win.ToString().Contains("MainWindow"))
+                    //            {
+                    //                win.Show();
+                    //            }
+                    //        }
+                    //    }
+
+                    //    e.Cancel = false;
+                    //}
+                    ////不关闭窗口
+                    //if (result == MessageBoxResult.No)
+                    //    e.Cancel = true;
+                }
+            }
         }
     }
 }

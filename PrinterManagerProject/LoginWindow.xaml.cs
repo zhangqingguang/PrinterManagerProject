@@ -36,8 +36,8 @@ namespace PrinterManagerProject
                 txtCZR.Text = "admin1";
                 txtSHR.Text = "admin2";
 
-                txtCZRPWD.Password = "password01!";
-                txtSHRPWD.Password = "password01!";
+                txtCZRPWD.Password = "123456";
+                txtSHRPWD.Password = "123456";
             }
         }
 
