@@ -43,7 +43,7 @@ namespace PrinterManagerProject
 
         private void btnLogin_Click(object sender, RoutedEventArgs e)
         {
-            var userManager = new UserManager();
+            var userManager = new PivasUserManager();
 
             var crzName = txtCZR.Text.Trim();
             var crzPassword = txtCZRPWD.Password.Trim();
@@ -94,35 +94,6 @@ namespace PrinterManagerProject
                 MessageBox.Show("请输入审核员密码！");
                 return;
             }
-            var czrUser = userManager.FirstOrDefault(s => s.user_name == crzName && s.password == crzPassword);
-            var fhrUser = userManager.FirstOrDefault(s => s.user_name == shrName && s.password == shrPassword);
-            if (czrUser == null)
-            {
-                MessageBox.Show("操作员账户或密码不正确！");
-                return;
-            }
-            else
-            {
-                if (czrUser.type_name != "操作员" && czrUser.type_name == "管理员")
-                {
-                    MessageBox.Show($"{crzName}不是操作员！");
-                    return;
-                }
-            }
-
-            if (fhrUser == null)
-            {
-                MessageBox.Show("审核员账户或密码不正确！");
-                return;
-            }
-            else
-            {
-                if (fhrUser.type_name != "审核员")
-                {
-                    MessageBox.Show($"{crzName}不是审核员！");
-                    return;
-                }
-            }
 
             if (ConnectionManager.CheckPivasConnetionStatus() == false)
             {
@@ -130,11 +101,25 @@ namespace PrinterManagerProject
             }
             else
             {
+                var czrUser = userManager.GetUser(crzName);
+                var fhrUser = userManager.GetUser(shrName);
+                if (czrUser == null || czrUser.password != crzPassword)
+                {
+                    MessageBox.Show("操作员账户或密码不正确！");
+                    return;
+                }
+
+                if (fhrUser == null || fhrUser.password != shrPassword)
+                {
+                    MessageBox.Show("审核员账户或密码不正确！");
+                    return;
+                }
+
                 UserCache.Printer = czrUser;
                 UserCache.Checker = fhrUser;
 
 
-                new LogHelper().Log("测试用户登录！");
+                new LogHelper().Log($"分拣人：{czrUser.true_name}，复核人：{fhrUser.true_name}登录！");
                 this.Hide();
 
                 MainWindow window = new MainWindow();

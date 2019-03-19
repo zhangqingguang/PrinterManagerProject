@@ -78,12 +78,12 @@
 
                         <Menu Background="Transparent">
                             <MenuItem Name="printerHeader" Header="管理员" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xe655;">
-                                <MenuItem Name="miPrinterChangePassword" Icon="&#xe64a;" Header="修改密码" />
+                                <!--<MenuItem Name="miPrinterChangePassword" Icon="&#xe64a;" Header="修改密码" />-->
                             </MenuItem>
                         </Menu>
                         <Menu Background="Transparent">
                             <MenuItem Name="checkerHeader" Header="管理员" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xe655;">
-                                <MenuItem Name="miCheakerChangePassword" Icon="&#xe64a;" Header="修改密码" />
+                                <!--<MenuItem Name="miCheakerChangePassword" Icon="&#xe64a;" Header="修改密码" />-->
                             </MenuItem>
                         </Menu>
                         
@@ -99,7 +99,7 @@
                         <Menu Background="Transparent">
                             <MenuItem Name="Menu" Header="菜单" Style="{StaticResource DefaultMenuItem}" Foreground="White" Padding="0" Icon="&#xE643;">
                                 <MenuItem Name="miPrint" Icon="&#x78;"  Header="贴签系统" />
-                                <MenuItem Name="miUserManager" Icon="&#xe655;"  Header="用户管理" />
+                                <!--<MenuItem Name="miUserManager" Icon="&#xe655;"  Header="用户管理" />-->
                                 <MenuItem Name="miQuery" Icon="&#xe628;" Header="综合查询" />
                                 <MenuItem Icon="&#xE633;"  Header="系统设置" >
                                     <MenuItem Name="miBatch" Icon="&#xe65F;"  Header="批次时间同步" />

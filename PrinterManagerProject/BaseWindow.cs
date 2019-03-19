@@ -20,14 +20,14 @@ namespace PrinterManagerProject
         private TextBlock WindowTitleTbl;
 
         private Label lblTime;
-        private MenuItem miPrinterChangePassword;
-        private MenuItem miCheakerChangePassword;
+        //private MenuItem miPrinterChangePassword;
+        //private MenuItem miCheakerChangePassword;
         private MenuItem miPrinterLogout;
         private MenuItem miExit;
         private MenuItem miPrint;
         private MenuItem miQuery;
 
-        private MenuItem miUserManager;
+        //private MenuItem miUserManager;
         private MenuItem miBatch;
         private MenuItem miDrug;
         private MenuItem miOperatorParam;
@@ -77,14 +77,14 @@ namespace PrinterManagerProject
                     lblTime = metroWindowTemplate.FindName("lblTime", this) as Label;
                     printerHeader = metroWindowTemplate.FindName("printerHeader", this) as MenuItem;
                     checkerHeader = metroWindowTemplate.FindName("checkerHeader", this) as MenuItem;
-                    miPrinterChangePassword = metroWindowTemplate.FindName("miPrinterChangePassword", this) as MenuItem;
-                    miCheakerChangePassword = metroWindowTemplate.FindName("miCheakerChangePassword", this) as MenuItem;
+                    //miPrinterChangePassword = metroWindowTemplate.FindName("miPrinterChangePassword", this) as MenuItem;
+                    //miCheakerChangePassword = metroWindowTemplate.FindName("miCheakerChangePassword", this) as MenuItem;
                     miPrinterLogout = metroWindowTemplate.FindName("miPrinterLogout", this) as MenuItem;
                     miExit = metroWindowTemplate.FindName("miExit", this) as MenuItem;
                     miPrint = metroWindowTemplate.FindName("miPrint", this) as MenuItem;
                     miQuery = metroWindowTemplate.FindName("miQuery", this) as MenuItem;
 
-                    miUserManager = metroWindowTemplate.FindName("miUserManager", this) as MenuItem;
+                    //miUserManager = metroWindowTemplate.FindName("miUserManager", this) as MenuItem;
                     miBatch = metroWindowTemplate.FindName("miBatch", this) as MenuItem;
                     miDrug = metroWindowTemplate.FindName("miDrug", this) as MenuItem;
                     miOperatorParam = metroWindowTemplate.FindName("miOperatorParam", this) as MenuItem;
@@ -99,7 +99,7 @@ namespace PrinterManagerProject
 
                     if(IsAdmin()==false)
                     {
-                        miUserManager.IsEnabled = false;
+                        //miUserManager.IsEnabled = false;
                     }
 
                     if (UserCache.Printer.ID != 0)
@@ -112,14 +112,14 @@ namespace PrinterManagerProject
                     }
 
                     // 事件绑定
-                    miPrinterChangePassword.Click += miPrinterChangePassword_Click;
-                    miCheakerChangePassword.Click += miCheakerChangePassword_Click;
+                    //miPrinterChangePassword.Click += miPrinterChangePassword_Click;
+                    //miCheakerChangePassword.Click += miCheakerChangePassword_Click;
                     miPrinterLogout.Click += miPrinterLogout_Click;
                     miExit.Click += miExit_Click;
                     miPrint.Click += miPrint_Click;
                     miQuery.Click += miQuery_Click;
 
-                    miUserManager.Click += MiUserManager_Click; ;
+                    //miUserManager.Click += MiUserManager_Click; ;
                     miBatch.Click += MiBatch_Click; ;
                     miDrug.Click += MiDrug_Click; ;
                     miOperatorParam.Click += MiOperatorParam_Click; ;

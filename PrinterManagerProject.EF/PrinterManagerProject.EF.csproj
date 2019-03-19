@@ -60,6 +60,7 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="Bll\OrderBakManager.cs" />
+    <Compile Include="Bll\PivasUserManager.cs" />
     <Compile Include="Bll\WarningBakManager.cs" />
     <Compile Include="Bll\WarningManager.cs" />
     <Compile Include="Bll\BatchManager.cs" />
@@ -75,6 +76,7 @@
     <Compile Include="IDal\IDALL.cs" />
     <Compile Include="MapperConfig.cs" />
     <Compile Include="Models\OrderModel.cs" />
+    <Compile Include="Models\PivasUser.cs" />
     <Compile Include="Models\PrintDrugModel.cs" />
     <Compile Include="Models\PrintModel.cs" />
     <Compile Include="Models\PrintStatusEnum.cs" />
