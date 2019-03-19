@@ -66,7 +66,7 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand(order.sex, tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
             sb.Append(GetLabelCommand(order.patient_id, tempConfig.GroupNumFontSize, tempConfig.GroupNumFontX, tempConfig.GroupNumUnFontY));
             sb.Append(GetLabelCommand($"{order.use_frequency}({order.use_time})", tempConfig.UserFrequentFontSize, tempConfig.UserFrequentFontX, tempConfig.UserFrequentFontY));
-            sb.Append(GetLabelCommand($"no{order.is_print_snv}", tempConfig.is_print_snvFontSize, tempConfig.is_print_snvFontX, tempConfig.is_print_snvFontY));
+            sb.Append(GetLabelCommand($"no{order.is_print_snv}", tempConfig.is_print_snvFontSize, tempConfig.is_print_snvFontX-Convert.ToInt32((order.is_print_snv.Length - 1)* tempConfig.is_print_snvFontSize * 1.25), tempConfig.is_print_snvFontY));
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
 
             sb.Append(GetLabelCommand("备注:"+order.pass_remark, tempConfig.RemarkFontSize, tempConfig.RemarkFontX, tempConfig.RemarkFontY));

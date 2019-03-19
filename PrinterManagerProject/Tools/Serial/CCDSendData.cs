@@ -10,6 +10,14 @@ namespace PrinterManagerProject.Tools.Serial
     public class CCDSendData
     {
         /// <summary>
+        /// 是否正在发送
+        /// </summary>
+        public bool IsSending = false;
+        /// <summary>
+        /// 是否已经发送
+        /// </summary>
+        public bool HasSend = false;
+        /// <summary>
         /// 医嘱内容
         /// </summary>
         public tOrder order { get; set; }

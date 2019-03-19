@@ -400,7 +400,7 @@ namespace PrinterManagerProject
             myEventLog.LogInfo($"发送指令等待时间:{AppConfig.Ccd1SuccessSleepTime}");
             ccd1SuccessTime = DateTime.Now;
 
-            myEventLog.LogInfo($"发送CCD1继续命令");
+            myEventLog.LogInfo($"收到CCD1继续命令返回信号");
         }
 
         /// <summary>
@@ -429,7 +429,7 @@ namespace PrinterManagerProject
         private void SendCCD2Success_Callback(object sender, EventArgs e)
         {
             prevCCD2IsSuccess = true;
-            myEventLog.LogInfo($"发送CCD2继续命令");
+            myEventLog.LogInfo($"收到CCD2继续命令返回信号");
             SetCCD2IsNotBusy();
         }
 
@@ -450,7 +450,7 @@ namespace PrinterManagerProject
 
         private void SendCCD1Out_Callback(object sender, EventArgs e)
         {
-            myEventLog.LogInfo($"发送CCD1剔除命令");
+            myEventLog.LogInfo($"收到CCD1剔除命令返回信号");
             SetCCD1IsNotBusy();
         }
 
@@ -470,7 +470,7 @@ namespace PrinterManagerProject
         private void SendCCD2Out_Callback(object sender, EventArgs e)
         {
             prevCCD2IsSuccess = false;
-            myEventLog.LogInfo($"发送CCD2剔除命令");
+            myEventLog.LogInfo($"收到CCD2剔除命令返回信号");
             SetCCD2IsNotBusy();
         }
 
@@ -865,6 +865,7 @@ namespace PrinterManagerProject
         private void SendCCD1Command_Send(object sender, EventArgs e)
         {
             var model = sender as CCDSendData;
+            myEventLog.LogInfo($"收到CCD1继续命令返回信号");
             myEventLog.LogInfo($"距离上次发送时间间隔:{(DateTime.Now - ccd1SuccessTime).TotalMilliseconds}");
             ccd1SuccessTime = DateTime.Now;
             //var startTime = DateTime.Now;

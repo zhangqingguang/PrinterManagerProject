@@ -348,7 +348,7 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <SplashScreen Include="Images\splash.jpg" />
+    <None Include="Images\splash.jpg" />
   </ItemGroup>
   <ItemGroup>
     <Resource Include="Images\bg.jpg" />

@@ -111,13 +111,37 @@ namespace PrinterManagerProject.Tools
                     {
 
                         CCDSendData prevCommand;
-                        if (priorityQueue.TryDequeue(out prevCommand))
+                        // 尝试取出一个
+                        if (priorityQueue.TryPeek(out prevCommand))
                         {
-                            myEventLog.LogInfo($"正在发送CCD成功或失败：{prevCommand.Command}");
-                            PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(prevCommand.Command);
-                            prevCommand.OnSend();
+                            // 判断是否已经发送
+                            if(prevCommand.IsSending == true)
+                            {
+                                if(prevCommand.HasSend == false)
+                                {
+                                    // 出队
+                                    while (priorityQueue.TryDequeue(out prevCommand) == false)
+                                    {
 
-                            continue;
+                                    }
+                                    // 已经发送：调用回调函数
+                                    prevCommand.OnSend();
+                                    prevCommand.HasSend = true;
+                                    continue;
+                                }
+                            }
+                            else
+                            {
+                                lock (hasReadHelper)
+                                {
+                                    HasRead = false;
+                                }
+
+                                prevCommand.IsSending = true;
+                                myEventLog.LogInfo($"正在发送CCD成功或失败：{prevCommand.Command}");
+                                PLCSerialPortUtils.GetInstance(serialPortInterface).SendData(prevCommand.Command);
+                                continue;
+                            }
                         }
                     }
                     if (queue.IsEmpty)
