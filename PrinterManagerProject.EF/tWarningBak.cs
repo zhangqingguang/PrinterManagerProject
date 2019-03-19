@@ -78,9 +78,9 @@ namespace PrinterManagerProject.EF
         public string age { get; set; }
         public string is_db { get; set; }
         public string config_name { get; set; }
-        public Nullable<int> PrintUserId { get; set; }
+        public string PrintUserId { get; set; }
         public string PrintUserName { get; set; }
-        public Nullable<int> CheckUserId { get; set; }
+        public string CheckUserId { get; set; }
         public string CheckUserName { get; set; }
         public string is_print_snv { get; set; }
         public string WarningState { get; set; }

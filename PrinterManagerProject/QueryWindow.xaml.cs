@@ -190,7 +190,7 @@ namespace PrinterManagerProject
             }
             if (cb_Printer.SelectedIndex != 0 && cb_Printer.SelectedValue != null)
             {
-                query = query.Where(s => s.PrintUserId == Convert.ToUInt32(cb_Printer.SelectedValue));
+                query = query.Where(s => s.PrintUserId == cb_Printer.SelectedValue.ToString());
             }
             if (cb_PrintStatus.SelectedIndex != 0 && cb_PrintStatus.SelectedValue != null)
             {

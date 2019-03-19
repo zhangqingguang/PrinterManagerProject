@@ -97,7 +97,7 @@ namespace PrinterManagerProject.EF
         /// <param name="id"></param>
         /// <param name="printModel"></param>
         /// <param name="sbatches"></param>
-        public bool PrintSuccess(int id, PrintModelEnum printModel, string sbatches, int czrUserId, string czrUserName, int shrUserId, string shrUserName)
+        public bool PrintSuccess(int id, PrintModelEnum printModel, string sbatches, string czrUserAccount, string czrUserName, string shrUserAccount, string shrUserName)
         {
             using (var db = new PrintTagDbEntities())
             {
@@ -106,9 +106,9 @@ namespace PrinterManagerProject.EF
                 var statusParam = new SqlParameter("@status", PrintStatusEnum.Success);
                 var modelParam = new SqlParameter("@model", printModel);
                 var datetimeParam = new SqlParameter("@datetime", DateTime.Now);
-                var printerUserIdParam = new SqlParameter("@printerUserId", czrUserId);
+                var printerUserIdParam = new SqlParameter("@printerUserId", czrUserAccount);
                 var printerUserNameParam = new SqlParameter("@printerUserName", czrUserName);
-                var checkUserIdParam = new SqlParameter("@checkUserId", shrUserId);
+                var checkUserIdParam = new SqlParameter("@checkUserId", shrUserAccount);
                 var checkerUserNameParam = new SqlParameter("@checkerUserName", shrUserName);
 
                 var execCount = db.Database.ExecuteSqlCommand(@"update tOrder set 

@@ -799,13 +799,13 @@ namespace PrinterManagerProject
                                     if (string.IsNullOrEmpty(model.ScanData))
                                     {
                                         myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，未扫描到二维码{model.ScanData}");
-                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.TagUnRecognition, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.TagUnRecognition, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
                                     }
                                     else
                                     if (model.ScanData != model.QRData)
                                     {
                                         myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，扫描到的二维码和液体二维码不一致{model.QRData}，{model.ScanData}");
-                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.QRCodeMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.QRCodeMismatch, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
 
                                         ClearQueue();
                                     }
@@ -813,12 +813,12 @@ namespace PrinterManagerProject
                                     if (!model.Drug.drug_name.Contains(spec[0]))
                                     {
                                         myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒名称不匹配{model.Drug.drug_name}，{spec[0]}-{spec[1]}");
-                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
                                     }
                                     else if (!model.Drug.drug_spec.Contains(spec[1]))
                                     {
                                         myEventLog.LogInfo($"Index:{model?.Index},CCD2失败，溶媒规格不匹配{model.Drug.drug_spec}，{spec[1]}");
-                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                                        warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DrugMismatch, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
                                     }
                                     success = false;
                                 }
@@ -910,7 +910,7 @@ namespace PrinterManagerProject
                         //return false;
                     }
                     var ccd2startTime = DateTime.Now;
-                    orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                    orderManager.PrintSuccess(model.Drug.Id, PrintModelEnum.Auto, batchNumber, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
 
                     //myEventLog.LogInfo($"CCD2更新到数据库花费时间:{(DateTime.Now - ccd2startTime).TotalMilliseconds}");
 
@@ -959,7 +959,7 @@ namespace PrinterManagerProject
                     // --- 删除对比失败的信息 ---
                     //myEventLog.LogInfo($"Index:{model?.Index},数据回写失败：BarCode={model.Drug.barcode},DrugId={model.Drug.Id}");
                     myEventLog.LogInfo($"Index:{model?.Index},CCD2失败 数据回写失败");
-                    warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DataUpdateFailed, UserCache.Printer.ID, UserCache.Printer.true_name, UserCache.Checker.ID, UserCache.Checker.true_name);
+                    warningManager.AddWarning(model.Drug, spec[0], spec[1], WarningStateEnum.DataUpdateFailed, UserCache.Printer.user_name, UserCache.Printer.true_name, UserCache.Checker.user_name, UserCache.Checker.true_name);
                     success = false;
                 }
             }

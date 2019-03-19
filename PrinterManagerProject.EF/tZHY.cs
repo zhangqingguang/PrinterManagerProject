@@ -44,6 +44,7 @@ namespace PrinterManagerProject.EF
         public string doctor_name { get; set; }
         public string patient_name { get; set; }
         public string batch { get; set; }
+        public string batch_name { get; set; }
         public string departmengt_name { get; set; }
         public string department_code { get; set; }
         public Nullable<int> zone { get; set; }
@@ -72,7 +73,6 @@ namespace PrinterManagerProject.EF
         public string is_print_snv { get; set; }
         public string barcode { get; set; }
         public string sex { get; set; }
-        public string batch_name { get; set; }
         public string xsyxj { get; set; }
     }
 }

@@ -5,15 +5,15 @@
     <!-- Diagram content (shape and connector positions) -->
     <edmx:Diagrams>
       <Diagram DiagramId="110c5d714af04623bf2976cd2c526397" Name="Diagram1">
-        <EntityTypeShape EntityType="PrintTagDbModel.tUser" Width="1.5" PointX="0.75" PointY="0.75" IsExpanded="true" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tBatch" Width="1.5" PointX="3.375" PointY="3.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tDrug" Width="1.5" PointX="5.375" PointY="3.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tZHY" Width="1.5" PointX="7.375" PointY="0.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tDept" Width="1.5" PointX="3.375" PointY="0.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tOrder" Width="1.5" PointX="0.75" PointY="3.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tWarning" Width="1.5" PointX="3.375" PointY="7.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tOrderBak" Width="1.5" PointX="9.375" PointY="0.75" />
-        <EntityTypeShape EntityType="PrintTagDbModel.tWarningBak" Width="1.5" PointX="11.375" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tBatch" Width="1.5" PointX="0.75" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tDept" Width="1.5" PointX="2.75" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tDrug" Width="1.5" PointX="0.75" PointY="3.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tOrder" Width="1.5" PointX="2.75" PointY="3.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tOrderBak" Width="1.5" PointX="4.75" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tUser" Width="1.5" PointX="6.75" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tWarning" Width="1.5" PointX="6.75" PointY="3.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tWarningBak" Width="1.5" PointX="8.75" PointY="0.75" />
+        <EntityTypeShape EntityType="PrintTagDbModel.tZHY" Width="1.5" PointX="11.375" PointY="0.75" />
       </Diagram>
     </edmx:Diagrams>
   </edmx:Designer>

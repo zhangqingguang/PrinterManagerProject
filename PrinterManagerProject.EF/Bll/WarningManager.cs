@@ -72,7 +72,7 @@ namespace PrinterManagerProject.EF
         /// <param name="detectionDrugName">检测溶媒名称</param>
         /// <param name="detectionDrugSpec">检测溶媒规格</param>
         /// <param name="warningState">异常状态</param>
-        public void AddWarning(tOrder order,string detectionDrugName,string detectionDrugSpec,string warningState,int printerId,string printerName,int checkerId,string checkerName)
+        public void AddWarning(tOrder order,string detectionDrugName,string detectionDrugSpec,string warningState,string printerAccount,string printerName,string checkerAccount, string checkerName)
         {
             return;
             Task.Run(() =>
@@ -81,9 +81,9 @@ namespace PrinterManagerProject.EF
                 {
                     var warning = Mapper.Map<tWarning>(order);
 
-                    warning.PrintUserId = printerId;
+                    warning.PrintUserId = printerAccount;
                     warning.PrintUserName = printerName;
-                    warning.CheckUserId = checkerId;
+                    warning.CheckUserId = checkerAccount;
                     warning.CheckUserName = checkerName;
 
                     warning.detection_drug_name = detectionDrugName;

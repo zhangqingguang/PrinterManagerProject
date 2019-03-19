@@ -27,15 +27,15 @@ namespace PrinterManagerProject.EF
             throw new UnintentionalCodeFirstException();
         }
     
-        public virtual DbSet<tUser> tUsers { get; set; }
         public virtual DbSet<tBatch> tBatches { get; set; }
-        public virtual DbSet<tDrug> tDrugs { get; set; }
-        public virtual DbSet<tZHY> tZHies { get; set; }
         public virtual DbSet<tDept> tDepts { get; set; }
+        public virtual DbSet<tDrug> tDrugs { get; set; }
         public virtual DbSet<tOrder> tOrders { get; set; }
-        public virtual DbSet<tWarning> tWarnings { get; set; }
         public virtual DbSet<tOrderBak> tOrderBaks { get; set; }
+        public virtual DbSet<tUser> tUsers { get; set; }
+        public virtual DbSet<tWarning> tWarnings { get; set; }
         public virtual DbSet<tWarningBak> tWarningBaks { get; set; }
+        public virtual DbSet<tZHY> tZHies { get; set; }
     
         public virtual int P_BakHistoryData(string use_date)
         {
