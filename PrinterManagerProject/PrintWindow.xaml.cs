@@ -1866,16 +1866,15 @@ namespace PrinterManagerProject
             {
                 datasource = string.IsNullOrEmpty(batch) ? new ObservableCollection<tOrder>() : orderManager.GetAllOrderByDateTime(use_date.SelectedDate.Value, batch);
             }
-            autoPrintList = datasource;
 
             ddlBinding = true;
 
             // 绑定药品分类下拉框
-            BindDrugType(autoPrintList);
+            BindDrugType(datasource);
             // 绑定科室下拉框
-            BindDepartment(autoPrintList);
+            BindDepartment(datasource);
             // 绑定主药下拉框
-            BindMainDrug(autoPrintList);
+            BindMainDrug(datasource);
 
             ddlBinding = false;
 
@@ -1889,6 +1888,7 @@ namespace PrinterManagerProject
         {
             if (ddlBinding)
             {
+
                 return;
             }
             FilterOrder();
@@ -1928,6 +1928,7 @@ namespace PrinterManagerProject
                 query = query.Where(s => s.ydrug_class_name == cb_drug_category.SelectedValue.ToString());
                 hasCondition = true;
             }
+            myEventLog.LogInfo("绑定autoPrintList");
             if (hasCondition)
             {
                 autoPrintList = new ObservableCollection<tOrder>();
@@ -2192,7 +2193,7 @@ namespace PrinterManagerProject
 
             if (CCDConnected == false)
             {
-                MessageBox.Show("未检测到软件【药袋检测控制系统】，请先启动！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
+                MessageBox.Show("与视觉识别系统连接失败，请重试！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
                 return;
             }
             if (PCLConnected == false)
@@ -2260,6 +2261,7 @@ namespace PrinterManagerProject
                 PlcReaderTimer.Interval = new TimeSpan(0, 0, 0, 0, AppConfig.LightReaderIntervalTime);
                 PlcReaderTimer.Start();
 
+
                 Task.Run(() =>
                 {
                     // 连接打印机Loading，尝试打开打印机连接，判断打印机状态是否需要重置，重置后goto到打印机Loading，获取打印机状态5次仍失败的，提示获取打印机状态失败
@@ -2275,7 +2277,11 @@ namespace PrinterManagerProject
 
                             // 清空队列
                             //myEventLog.LogInfo($"队列数量： {queue.Count}！");
-                            queue = new ConcurrentQueue<OrderQueueModel>();
+                            OrderQueueModel queueItem;
+                            while (queue.TryDequeue(out queueItem))
+                            {
+
+                            }
                             myEventLog.LogInfo($"清空队列！");
 
                             // 清除打印机中的打印内容

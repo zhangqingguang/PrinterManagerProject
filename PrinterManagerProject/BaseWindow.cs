@@ -102,14 +102,8 @@ namespace PrinterManagerProject
                         //miUserManager.IsEnabled = false;
                     }
 
-                    if (UserCache.Printer.ID != 0)
-                    {
-                        printerHeader.Header = UserCache.Printer.true_name;
-                    }
-                    if (UserCache.Checker.ID != 0)
-                    {
-                        checkerHeader.Header = UserCache.Checker.true_name;
-                    }
+                    checkerHeader.Header = UserCache.Checker.true_name;
+                    printerHeader.Header = UserCache.Printer.true_name;
 
                     // 事件绑定
                     //miPrinterChangePassword.Click += miPrinterChangePassword_Click;

@@ -122,6 +122,15 @@ namespace PrinterManagerProject
                 new LogHelper().Log($"分拣人：{czrUser.true_name}，复核人：{fhrUser.true_name}登录！");
                 this.Hide();
 
+                foreach (Window win in Application.Current.Windows)
+                {
+                    if (win.ToString().Contains("LoginWindow") == false)
+                    {
+                        new LogHelper().Log($"删除Window：{win.ToString()}！");
+                        win.Close();
+                    }
+                }
+
                 MainWindow window = new MainWindow();
                 window.Show();
             }
