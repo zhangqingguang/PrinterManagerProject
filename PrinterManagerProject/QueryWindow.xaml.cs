@@ -24,23 +24,51 @@ namespace PrinterManagerProject
     /// </summary>
     public partial class QueryWindow : BaseWindow
     {
+        bool hasLoaded = false;
         ObservableCollection<tOrder> list = new ObservableCollection<tOrder>();
         public QueryWindow()
         {
             InitializeComponent();
 
             base.Loaded += QueryWindow_Loaded;
+
         }
 
         private void QueryWindow_Loaded(object sender, RoutedEventArgs e)
         {
+            this.dp_useDate.SelectedDate = DateTime.Now;
             BindBatch();
             BindDate();
+            hasLoaded = true;
             SearchData();
         }
 
 
         #region 初始化
+        private void BindPrinter()
+        {
+            var printers = list.Select(s => new
+            {
+                user_name = s.PrintUserId,
+                true_name = s.PrintUserName
+            }).ToList().Distinct().Select(s => new tUser()
+            {
+                user_name = s.user_name,
+                true_name = s.true_name
+            }).ToList();
+
+            printers.Insert(0, new tUser()
+            {
+                user_name = "",
+                true_name = "全部"
+            });
+
+            cb_Printer.ItemsSource = null;
+            cb_Printer.ItemsSource = printers;
+            cb_Printer.DisplayMemberPath = "true_name";
+            cb_Printer.SelectedValuePath = "user_name";
+            cb_Printer.SelectedIndex = 0;
+        }
         private void BindDate()
         {
             this.dp_useDate.SelectedDate = DateTime.Now;
@@ -60,6 +88,7 @@ namespace PrinterManagerProject
         public void GetData()
         {
             list = new OrderManager().GetAllOrderByDateTime(this.dp_useDate.SelectedDate.Value, this.cb_batch.SelectedValue?.ToString());
+            BindPrinter();
         }
 
         private void BindData()
@@ -77,6 +106,7 @@ namespace PrinterManagerProject
             if (dp_useDate.SelectedDate.HasValue == false)
             {
                 MessageBox.Show("请选择用药日期");
+                return;
             }
             GetData();
             BindData();
@@ -186,7 +216,7 @@ namespace PrinterManagerProject
             }
             if (cb_drug.SelectedIndex != 0 && cb_drug.SelectedValue != null)
             {
-                query = query.Where(s => s.ydrug_name == cb_drug.SelectedValue.ToString());
+                query = query.Where(s => s.ydrug_id == cb_drug.SelectedValue.ToString());
             }
             if (cb_Printer.SelectedIndex != 0 && cb_Printer.SelectedValue != null)
             {
@@ -208,7 +238,7 @@ namespace PrinterManagerProject
             }
             if (tb_groupNum!=null && string.IsNullOrEmpty(tb_groupNum.Text) == false)
             {
-                query = query.Where(s => s.group_num == tb_groupNum.Text);
+                query = query.Where(s => s.group_num.Contains( tb_groupNum.Text));
             }
             if (tb_key != null && string.IsNullOrEmpty(tb_key.Text) == false)
             {
@@ -223,16 +253,7 @@ namespace PrinterManagerProject
             this.dgv_list.ItemsSource = null;
             this.dgv_list.ItemsSource = datasource;
         }
-
-        private void Dp_useDate_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            SearchData();
-        }
-
-        private void Cb_batch_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
-        {
-            SearchData();
-        }
+        
 
         private void Tb_key_TextChanged(object sender, TextChangedEventArgs e)
         {
@@ -247,6 +268,16 @@ namespace PrinterManagerProject
         private void Button_Click(object sender, RoutedEventArgs e)
         {
             FilterData();
+        }
+
+        private void Cb_batch_SelectionChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SearchData();
+        }
+
+        private void Dp_useDate_SelectedDateChanged(object sender, SelectionChangedEventArgs e)
+        {
+            SearchData();
         }
     }
 }

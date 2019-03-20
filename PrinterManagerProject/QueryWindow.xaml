@@ -40,7 +40,7 @@
 
                 <DataGrid Grid.Row="0" x:Name="dgv_list">
                     <DataGrid.Columns>
-                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>
+                        <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>-->
                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>-->
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="医嘱编号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding departmengt_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
@@ -54,6 +54,8 @@
                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="生产企业" Binding="{Binding Company, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>-->
                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="溶媒批号" Binding="{Binding sbatches, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>-->
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签状态" Binding="{Binding printing_status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printStatusConverter}}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签人" Binding="{Binding PrintUserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
+                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="复核人" Binding="{Binding CheckUserName, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签模式" Binding="{Binding printing_model, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printModelConverter}}" Width="100"/>-->
                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签时间" Binding="{Binding printing_time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
                     </DataGrid.Columns>
@@ -87,11 +89,11 @@
 
                 <StackPanel Grid.Row="1" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
                     <Label Content="用药日期：" Width="100"/>
-                    <DatePicker x:Name="dp_useDate" DataContextChanged="Dp_useDate_DataContextChanged"  Style="{DynamicResource myDatePickerStyle}" CalendarStyle="{DynamicResource myCalendarStyle}"/>
+                    <DatePicker x:Name="dp_useDate" SelectedDateChanged="Dp_useDate_SelectedDateChanged" Style="{DynamicResource myDatePickerStyle}" CalendarStyle="{DynamicResource myCalendarStyle}"/>
                 </StackPanel>
                 <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
                     <Label Content="批次：" Width="100"/>
-                    <ComboBox x:Name="cb_batch" Width="120" SelectedIndex="0" DataContextChanged="Cb_batch_DataContextChanged">
+                    <ComboBox x:Name="cb_batch" Width="120" SelectedIndex="0" SelectionChanged="Cb_batch_SelectionChanged">
                     </ComboBox>
                 </StackPanel>
                 <StackPanel Grid.Row="3" Grid.Column="0" Orientation="Horizontal" Style="{StaticResource GridStackPanelSytle}">
@@ -136,7 +138,7 @@
                     </Grid.ColumnDefinitions>
                     
                     <RadioButton Grid.Row="0" Margin="15,0,0,0" Grid.Column="0" Content="自动贴签" IsChecked="True" />
-                    <RadioButton Grid.Row="0" Grid.Column="1" Content="溶媒异常" />
+                    <RadioButton Grid.Row="0" Grid.Column="1" Content="溶媒异常" IsEnabled="False" />
                     <RadioButton Grid.Row="1" Margin="15,0,0,0" Grid.Column="0" Content="手动贴签" IsEnabled="False" />
                     <RadioButton Grid.Row="1" Grid.Column="1" Content="补贴标签" IsEnabled="False" />
                 </Grid>
