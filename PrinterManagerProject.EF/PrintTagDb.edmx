@@ -114,6 +114,8 @@
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
           <Property Name="xsyxj" Type="varchar" MaxLength="20" />
+          <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
+          <Property Name="pyhfr" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -191,6 +193,8 @@
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
           <Property Name="xsyxj" Type="varchar" MaxLength="20" />
+          <Property Name="pyhfr" Type="varchar" MaxLength="30" />
+          <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -280,6 +284,8 @@
           <Property Name="detection_drug_spec" Type="varchar" MaxLength="50" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
+          <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
+          <Property Name="pyhfr" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -359,6 +365,8 @@
           <Property Name="detection_drug_spec" Type="varchar" MaxLength="50" />
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
+          <Property Name="pyhfr" Type="varchar" MaxLength="30" />
+          <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
         </EntityType>
         <EntityType Name="tZHY">
           <Key>
@@ -424,6 +432,8 @@
           <Property Name="barcode" Type="varchar" MaxLength="100" />
           <Property Name="sex" Type="varchar" MaxLength="4" />
           <Property Name="xsyxj" Type="varchar" MaxLength="20" />
+          <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
+          <Property Name="pyhfr" Type="varchar" MaxLength="30" />
         </EntityType>
         <Function Name="P_BakHistoryData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
@@ -584,6 +594,8 @@
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -661,6 +673,8 @@
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -750,6 +764,8 @@
           <Property Name="detection_drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -829,6 +845,8 @@
           <Property Name="detection_drug_spec" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
+          <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tZHY">
           <Key>
@@ -894,6 +912,8 @@
           <Property Name="barcode" Type="String" MaxLength="100" FixedLength="false" Unicode="false" />
           <Property Name="sex" Type="String" MaxLength="4" FixedLength="false" Unicode="false" />
           <Property Name="xsyxj" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
+          <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
+          <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -944,6 +964,8 @@
           <EntitySetMapping Name="tOrders">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrder">
               <MappingFragment StoreEntitySet="tOrder">
+                <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
+                <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
                 <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
@@ -1021,6 +1043,8 @@
           <EntitySetMapping Name="tOrderBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrderBak">
               <MappingFragment StoreEntitySet="tOrderBak">
+                <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
+                <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
                 <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
@@ -1111,6 +1135,8 @@
           <EntitySetMapping Name="tWarnings">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarning">
               <MappingFragment StoreEntitySet="tWarning">
+                <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
+                <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="detection_drug_spec" ColumnName="detection_drug_spec" />
@@ -1190,6 +1216,8 @@
           <EntitySetMapping Name="tWarningBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarningBak">
               <MappingFragment StoreEntitySet="tWarningBak">
+                <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
+                <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />
                 <ScalarProperty Name="detection_drug_spec" ColumnName="detection_drug_spec" />
@@ -1270,6 +1298,8 @@
           <EntitySetMapping Name="tZHies">
             <EntityTypeMapping TypeName="PrintTagDbModel.tZHY">
               <MappingFragment StoreEntitySet="tZHY">
+                <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
+                <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
                 <ScalarProperty Name="xsyxj" ColumnName="xsyxj" />
                 <ScalarProperty Name="sex" ColumnName="sex" />
                 <ScalarProperty Name="barcode" ColumnName="barcode" />

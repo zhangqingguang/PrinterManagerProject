@@ -86,5 +86,7 @@ namespace PrinterManagerProject.EF
         public string barcode { get; set; }
         public string sex { get; set; }
         public string xsyxj { get; set; }
+        public string pyhfr { get; set; }
+        public string is_cpfhr { get; set; }
     }
 }

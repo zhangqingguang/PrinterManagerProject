@@ -1925,7 +1925,7 @@ namespace PrinterManagerProject
             // 药品分类
             if (cb_drug_category.SelectedValue != null && string.IsNullOrEmpty(cb_drug_category.SelectedValue.ToString()) == false)
             {
-                query = query.Where(s => s.ydrug_class_name == cb_drug_category.SelectedValue.ToString());
+                query = query.Where(s => s.config_name == cb_drug_category.SelectedValue.ToString());
                 hasCondition = true;
             }
             myEventLog.LogInfo("绑定autoPrintList");
@@ -2050,18 +2050,17 @@ namespace PrinterManagerProject
         {
             // 绑定药品分类
             var drugCategoryList = dataSource
-                .GroupBy(m => new { m.ydrug_class_name })
-                .Select(a => new { class_name = a.Key.ydrug_class_name, ydrug_id= a.Key.ydrug_class_name })
-                .ToList()
-                .Select(a => new { class_name = a.class_name.Trim(), ydrug_id = a.ydrug_id.Trim() })
+                .Select(a => a.config_name)
                 .Distinct()
+                .ToList()
+                .Select(s=>new { config_name=s,config_code=s})
                 .ToList();
-            drugCategoryList.Insert(0, new { class_name = "全部", ydrug_id =""});
+            drugCategoryList.Insert(0, new { config_name = "全部", config_code = ""});
 
             Dispatcher.Invoke(() =>
             {
-                this.cb_drug_category.DisplayMemberPath = "class_name";
-                this.cb_drug_category.SelectedValuePath = "ydrug_id";
+                this.cb_drug_category.DisplayMemberPath = "config_name";
+                this.cb_drug_category.SelectedValuePath = "config_code";
                 this.cb_drug_category.ItemsSource = drugCategoryList;
                 this.cb_drug_category.SelectedIndex = 0;
             });

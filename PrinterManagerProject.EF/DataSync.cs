@@ -199,6 +199,8 @@ namespace PrinterManagerProject.EF
       ,[barcode]
       ,[sex]
       ,[xsyxj]
+      ,[is_cpfhr]
+      ,[pyhfr]
 from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam,batchParam);
 
             var dt = dataset.Tables[0];

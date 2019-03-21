@@ -73,10 +73,10 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand(order.usage_name, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY));
 
             sb.Append(GetLabelCommand($"审方:{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
-            sb.Append(GetLabelCommand($"摆药:", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
-            sb.Append(GetLabelCommand($"配药:", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
-            sb.Append(GetLabelCommand($"核对:", tempConfig.CheckFontSize, tempConfig.CheckFontX, tempConfig.CheckFontY));
-            sb.Append(GetLabelCommand($"复核:", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
+            sb.Append(GetLabelCommand($"摆药:{order.deliveryer}", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
+            sb.Append(GetLabelCommand($"配药:{order.config_person}", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
+            sb.Append(GetLabelCommand($"核对:{order.pyhfr}", tempConfig.CheckFontSize, tempConfig.CheckFontX, tempConfig.CheckFontY));
+            sb.Append(GetLabelCommand($"复核:{order.is_cpfhr}", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
             sb.Append(GetLabelCommand($"给药:", tempConfig.DoseFontSize, tempConfig.DoseFontX, tempConfig.DoseFontY));
 
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));
