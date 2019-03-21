@@ -2242,7 +2242,7 @@ namespace PrinterManagerProject
                 QueueIsEmptyTime = DateTime.Now;
                 QueueIsEmptyStopTimer = new DispatcherTimer();
                 QueueIsEmptyStopTimer.Tick += QueueIsEmptyStopTimer_Tick; ;
-                QueueIsEmptyStopTimer.Interval = new TimeSpan(0, 0, 0, 5);
+                QueueIsEmptyStopTimer.Interval = new TimeSpan(0, 0, 0, 10);
                 QueueIsEmptyStopTimer.Start();
 
                 if (AppConfig.IsEnabledCCD2ExpireDetectict || AppConfig.IsEnabledScannerLightExpireDetectict || AppConfig.IsEnabledPrinterLightExpireDetectict || AppConfig.BeforeCCD2BlockDetectictIsEnabled)
@@ -2412,6 +2412,16 @@ namespace PrinterManagerProject
 
                 MessageBox.Show("长时间未放药，自动停机！", "提示", MessageBoxButton.OK, MessageBoxImage.Warning);
 
+            }
+
+            try
+            {
+                // 定时提交数据
+                new DataSync().SubmitPrinter();
+            }
+            catch (Exception ex)
+            {
+                myEventLog.Log.Error("提交贴签结果出错:" + ex.Message, ex);
             }
         }
 
