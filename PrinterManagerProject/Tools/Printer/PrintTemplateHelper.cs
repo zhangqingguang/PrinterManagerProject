@@ -186,7 +186,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 患者名称文字X坐标
             /// </summary>
-            model.PatientFontX = 120;
+            model.PatientFontX = 140;
             /// <summary>
             /// 患者名称文字Y坐标
             /// </summary>

@@ -70,7 +70,17 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
 
             sb.Append(GetLabelCommand("备注:"+order.pass_remark, tempConfig.RemarkFontSize, tempConfig.RemarkFontX, tempConfig.RemarkFontY));
-            sb.Append(GetLabelCommand(order.usage_name, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY));
+
+            var showSpec = LimitTextWidth(order.usage_name, 125, tempConfig.UsageNameFontSize);
+            if(showSpec== order.usage_name)
+            {
+                sb.Append(GetLabelCommand(order.usage_name, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY));
+            }
+            else
+            {
+                sb.Append(GetLabelCommand(showSpec, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY-(tempConfig.UsageNameFontSize+drugLineMargin)/2));
+                sb.Append(GetLabelCommand(order.usage_name.Replace(showSpec,""), tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY+(tempConfig.UsageNameFontSize + drugLineMargin) / 2));
+            }
 
             sb.Append(GetLabelCommand($"审方:{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
             sb.Append(GetLabelCommand($"摆药:{order.deliveryer}", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));

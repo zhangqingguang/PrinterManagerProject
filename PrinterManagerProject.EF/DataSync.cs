@@ -20,7 +20,7 @@ namespace PrinterManagerProject.EF
         /// </summary>
         /// <param name="dateTime">用药日期</param>
         /// <param name="batch">批次编号</param>
-        public void SyncOrder(DateTime dateTime,string batch)
+        public void SyncOrder(DateTime dateTime, string batch)
         {
             DownloadOrder(dateTime, batch);
             CompareData(dateTime);
@@ -136,7 +136,7 @@ namespace PrinterManagerProject.EF
         /// </summary>
         /// <param name="dateTime">用药日期</param>
         /// <param name="batch">批次时间</param>
-        private void DownloadOrder(DateTime dateTime,string batch)
+        private void DownloadOrder(DateTime dateTime, string batch)
         {
             var useDateParam = new SqlParameter("@usedate", dateTime.ToString("yyyy-MM-dd"));
             var batchParam = new SqlParameter("@batch", batch);
@@ -201,7 +201,7 @@ namespace PrinterManagerProject.EF
       ,[xsyxj]
       ,[is_cpfhr]
       ,[pyhfr]
-from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam,batchParam);
+from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam, batchParam);
 
             var dt = dataset.Tables[0];
             //dt.Columns.Remove(dt.Columns["id"]);
@@ -216,13 +216,13 @@ from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam,batchPar
             // tOrder:待贴签医嘱表
 
             // 删除原有数据
-            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate and batch=@batch", useDateParam,batchParam);
+            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate and batch=@batch", useDateParam, batchParam);
 
             // 添加新数据
             DbHelperSQL.SqlBulkCopyByDataTable("tZHY", dataset.Tables[0]);
 
             // 对比医嘱数据，将需要增加的医嘱信息添加到tOrder表中
-            DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate,@batch", useDateParam,batchParam);
+            DbHelperSQL.ExecuteSql("exec P_InsertIntotOrderSelecttZHY @usedate,@batch", useDateParam, batchParam);
 
             var bakDateParam = new SqlParameter("@usedate", OrderConfig.GetBakDate());
 
@@ -231,6 +231,32 @@ from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam,batchPar
 
             // 备份历史数据
             DbHelperSQL.ExecuteSql("exec P_BakHistoryData @usedate", bakDateParam);
+        }
+        /// <summary>
+        /// 提交贴签状态
+        /// </summary>
+        public void SubmitPrinter()
+        {
+            using (var db = new PrintTagDbEntities())
+            {
+                var orders = db.Database.SqlQuery<tOrder>("select * from torder where hasSubmit is null or hasSubmit <>1").ToList();
+
+                SqlParameter id = null;
+                SqlParameter barcode = null;
+                SqlParameter printer = null;
+
+                foreach (var order in orders)
+                {
+                    id = new SqlParameter("@id", order.Id);
+                    barcode = new SqlParameter("@barcode", order.barcode);
+                    printer = new SqlParameter("@printer", order.PrintUserId);
+
+                    PivasDbHelperSQL.ExecuteSql("exec p_for_ydwl_update 1,@barcode,@printer", barcode, printer);
+                }
+
+                db.Database.ExecuteSqlCommand("update torder set hasSubmit=1 where (hasSubmit is null or hasSubmit <>1) and printing_status=1");
+
+            }
         }
     }
 }

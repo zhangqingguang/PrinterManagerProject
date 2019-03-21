@@ -2473,6 +2473,7 @@ namespace PrinterManagerProject
         private void StopPrint()
         {
             myEventLog.LogInfo($"队列数量： {queue.Count}！");
+            new DataSync().SubmitPrinter();
 
             StopUpdateControlState();
             if (IsConnectDevices)
