@@ -110,19 +110,19 @@ namespace PrinterManagerProject.Pages
             SolidColorBrush color = Brushes.Black;
             labelArea.Foreground = color;
             labelDate.Foreground = color;
-            labelPageNum.Foreground = color;
+            labelQRCode.Foreground = color;
             labelSplit.Foreground = color;
             labelBed.Foreground = color;
             labelPatient.Foreground = color;
             labelGender.Foreground = color;
-            labelBatchNumber.Foreground = color;
+            labelCheck.Foreground = color;
             labelSerialNumber.Foreground = color;
             labelSplit2.Foreground = color;
             labelDrugsTitle.Foreground = color;
             labelDrugsContent.Foreground = color;
             labelUseTitle.Foreground = color;
             labelUseValue.Foreground = color;
-            labelDoctor.Foreground = color;
+            labelDose.Foreground = color;
             labelRemark.Foreground = color;
             labelSpeed.Foreground = color;
             labelSplit3.Foreground = color;
@@ -130,7 +130,7 @@ namespace PrinterManagerProject.Pages
             labelReview.Foreground = color;
             labelSort.Foreground = color;
             labelDispensing.Foreground = color;
-            labelDispensingDate.Foreground = color;
+            labelUsageName.Foreground = color;
             labelBarCodeWidth.Foreground = color;
             labelBarCodeHeight.Foreground = color;
             labelBarCodeX.Foreground = color;
@@ -150,8 +150,8 @@ namespace PrinterManagerProject.Pages
                     case "labelDate":
                         border = borderDate;
                         break;
-                    case "labelPageNum":
-                        border = borderPageNum;
+                    case "labelQRCode":
+                        border = borderQRCode;
                         break;
                     case "labelSplit":
                         border = borderSplit;
@@ -168,8 +168,8 @@ namespace PrinterManagerProject.Pages
                     case "labelGender":
                         border = borderGender;
                         break;
-                    case "labelBatchNumber":
-                        border = borderBatchNumber;
+                    case "labelCheck":
+                        border = borderCheck;
                         break;
                     case "labelSerialNumber":
                         border = borderSerialNumber;
@@ -189,8 +189,8 @@ namespace PrinterManagerProject.Pages
                     case "labelUseValue":
                         border = borderUseValue;
                         break;
-                    case "labelDoctor":
-                        border = borderDoctor;
+                    case "labelDose":
+                        border = borderDose;
                         break;
                     case "labelRemark":
                         border = borderRemark;
@@ -213,8 +213,8 @@ namespace PrinterManagerProject.Pages
                     case "labelDispensing":
                         border = borderDispensing;
                         break;
-                    case "labelDispensingDate":
-                        border = borderDispensingDate;
+                    case "labelUsageName":
+                        border = borderUsageName;
                         break;
                     case "labelBarCodeWidth":
                     case "labelBarCodeHeight":
@@ -265,19 +265,19 @@ namespace PrinterManagerProject.Pages
             SolidColorBrush color = Brushes.Black;
             labelArea.Foreground = color;
             labelDate.Foreground = color;
-            labelPageNum.Foreground = color;
+            labelQRCode.Foreground = color;
             labelSplit.Foreground = color;
             labelBed.Foreground = color;
             labelPatient.Foreground = color;
             labelGender.Foreground = color;
-            labelBatchNumber.Foreground = color;
+            labelCheck.Foreground = color;
             labelSerialNumber.Foreground = color;
             labelSplit2.Foreground = color;
             labelDrugsTitle.Foreground = color;
             labelDrugsContent.Foreground = color;
             labelUseTitle.Foreground = color;
             labelUseValue.Foreground = color;
-            labelDoctor.Foreground = color;
+            labelDose.Foreground = color;
             labelRemark.Foreground = color;
             labelSpeed.Foreground = color;
             labelSplit3.Foreground = color;
@@ -285,7 +285,7 @@ namespace PrinterManagerProject.Pages
             labelReview.Foreground = color;
             labelSort.Foreground = color;
             labelDispensing.Foreground = color;
-            labelDispensingDate.Foreground = color;
+            labelUsageName.Foreground = color;
             labelBarCodeWidth.Foreground = color;
             labelBarCodeHeight.Foreground = color;
             labelBarCodeX.Foreground = color;
@@ -303,8 +303,8 @@ namespace PrinterManagerProject.Pages
                     case "borderDate":
                         labelDate.Foreground = color;
                         break;
-                    case "borderPageNum":
-                        labelPageNum.Foreground = color;
+                    case "borderQRCode":
+                        labelQRCode.Foreground = color;
                         break;
                     case "borderSplit":
                         labelSplit.Foreground = color;
@@ -321,8 +321,8 @@ namespace PrinterManagerProject.Pages
                     case "borderGender":
                         labelGender.Foreground = color;
                         break;
-                    case "borderBatchNumber":
-                        labelBatchNumber.Foreground = color;
+                    case "borderCheck":
+                        labelCheck.Foreground = color;
                         break;
                     case "borderSerialNumber":
                         labelSerialNumber.Foreground = color;
@@ -342,8 +342,8 @@ namespace PrinterManagerProject.Pages
                     case "borderUseValue":
                         labelUseValue.Foreground = color;
                         break;
-                    case "borderDoctor":
-                        labelDoctor.Foreground = color;
+                    case "borderDose":
+                        labelDose.Foreground = color;
                         break;
                     case "borderRemark":
                         labelRemark.Foreground = color;
@@ -366,8 +366,8 @@ namespace PrinterManagerProject.Pages
                     case "borderDispensing":
                         labelDispensing.Foreground = color;
                         break;
-                    case "borderDispensingDate":
-                        labelDispensingDate.Foreground = color;
+                    case "borderUsageName":
+                        labelUsageName.Foreground = color;
                         break;
                     case "borderBarCode":
                         labelBarCodeWidth.Foreground = color;
@@ -428,17 +428,17 @@ namespace PrinterManagerProject.Pages
             txtDateFontY.Text = model.DateFontY + "";
 
             /// <summary>
-            /// 页码文字
+            /// 二维码文字
             /// </summary>
-            sliderPageNumFontSize.Value = model.PageNumFontSize;
+            sliderQRCodeFontSize.Value = model.QRCodeHeight;
             /// <summary>
-            /// 页码文字X坐标
+            /// 二维码文字X坐标
             /// </summary>
-            txtPageNumFontX.Text = model.PageNumFontX + "";
+            txtQRCodeFontX.Text = model.QRCodeX + "";
             /// <summary>
-            /// 页码文字Y坐标
+            /// 二维码文字Y坐标
             /// </summary>
-            txtPageNumFontY.Text = model.PageNumFontY + "";
+            txtQRCodeFontY.Text = model.QRCodeY + "";
 
             /// <summary>
             /// 第一条分割线宽度
@@ -453,19 +453,22 @@ namespace PrinterManagerProject.Pages
             /// </summary>
             txtSplitY.Text = model.SplitY + "";
 
+            #region 病人编号
             /// <summary>
-            /// 医嘱号文字
+            /// 病人编号文字
             /// </summary>
-            sliderDoctorAdviceFontSize.Value = model.DoctorAdviceFontSize;
+            sliderDoctorAdviceFontSize.Value = model.GroupNumFontSize;
             /// <summary>
-            /// 医嘱号文字X坐标
+            /// 病人编号文字X坐标
             /// </summary>
-            txtDoctorAdviceFontX.Text = model.DoctorAdviceFontX + "";
+            txtDoctorAdviceFontX.Text = model.GroupNumFontX + "";
             /// <summary>
-            /// 医嘱号文字Y坐标
+            /// 病人编号文字Y坐标
             /// </summary>
-            txtDoctorAdviceFontY.Text = model.DoctorAdviceFontY + "";
+            txtDoctorAdviceFontY.Text = model.GroupNumUnFontY + ""; 
+            #endregion
 
+            #region 床位
             /// <summary>
             /// 床位文字
             /// </summary>
@@ -477,12 +480,13 @@ namespace PrinterManagerProject.Pages
             /// <summary>
             /// 床位文字Y坐标
             /// </summary>
-            txtBedFontY.Text = model.BedFontY + "";
+            txtBedFontY.Text = model.BedFontY + ""; 
+            #endregion
 
             /// <summary>
             /// 患者名称文字
             /// </summary>
-            sliderPageNumFontSize.Value = model.PatientFontSize;
+            sliderPatientFontSize.Value = model.PatientFontSize;
             /// <summary>
             /// 患者名称文字X坐标
             /// </summary>
@@ -506,30 +510,30 @@ namespace PrinterManagerProject.Pages
             txtGenderFontY.Text = model.GenderFontY + "";
 
             /// <summary>
-            /// 批号文字
+            /// 核对文字
             /// </summary>
-            sliderBatchNumberFontSize.Value = model.BatchNumberFontSize;
+            sliderCheckFontSize.Value = model.CheckFontSize;
             /// <summary>
-            /// 批号文字X坐标
+            /// 核对文字X坐标
             /// </summary>
-            txtBatchNumberFontX.Text = model.BatchNumberFontX + "";
+            txtCheckFontX.Text = model.CheckFontX + "";
             /// <summary>
-            /// 批号文字Y坐标
+            /// 核对文字Y坐标
             /// </summary>
-            txtBatchNumberFontY.Text = model.BatchNumberFontY + "";
+            txtCheckFontY.Text = model.CheckFontY + "";
 
             /// <summary>
             /// 编号文字
             /// </summary>
-            sliderSerialNumberFontSize.Value = model.SerialNumberFontSize;
+            sliderSerialNumberFontSize.Value = model.is_print_snvFontSize;
             /// <summary>
             /// 编号文字X坐标
             /// </summary>
-            txtSerialNumberFontX.Text = model.SerialNumberFontX + "";
+            txtSerialNumberFontX.Text = model.is_print_snvFontX + "";
             /// <summary>
             /// 编号文字Y坐标
             /// </summary>
-            txtSerialNumberFontY.Text = model.SerialNumberFontY + "";
+            txtSerialNumberFontY.Text = model.is_print_snvFontY + "";
 
             /// <summary>
             /// 第二条分割线宽度
@@ -730,17 +734,17 @@ namespace PrinterManagerProject.Pages
             #endregion
 
             /// <summary>
-            /// 处方医生文字
+            /// 给药文字
             /// </summary>
-            sliderDoctorAdviceFontSize.Value = model.DoctorFontSize;
+            sliderDoseFontSize.Value = model.DoseFontSize;
             /// <summary>
-            /// 处方医生文字
+            /// 给药文字
             /// </summary>X坐标
-            txtDoctorFontX.Text = model.DoctorFontX + "";
+            txtDoseFontX.Text = model.DoseFontX + "";
             /// <summary>
-            /// 处方医生文字Y坐标
+            /// 给药文字Y坐标
             /// </summary>
-            txtDoctorFontY.Text = model.DoctorFontY + "";
+            txtDoseFontY.Text = model.DoseFontY + "";
 
             /// <summary>
             /// 备注文字
@@ -756,17 +760,17 @@ namespace PrinterManagerProject.Pages
             txtRemarkFontY.Text = model.RemarkFontY + "";
 
             /// <summary>
-            /// 滴速文字
+            /// 用药频次文字
             /// </summary>
-            sliderSortFontSize.Value = model.SpeedFontSize;
+            sliderSortFontSize.Value = model.UserFrequentFontSize;
             /// <summary>
-            /// 滴速文字X坐标
+            /// 用药频次文字X坐标
             /// </summary>
-            txtSpeedFontX.Text = model.SpeedFontX + "";
+            txtSpeedFontX.Text = model.UserFrequentFontX + "";
             /// <summary>
-            /// 滴速文字Y坐标
+            /// 用药频次文字Y坐标
             /// </summary>
-            txtSpeedFontY.Text = model.SpeedFontY + "";
+            txtSpeedFontY.Text = model.UserFrequentFontY + "";
 
             /// <summary>
             /// 第三条分割线宽度
@@ -834,19 +838,19 @@ namespace PrinterManagerProject.Pages
             txtDispensingFontY.Text = model.DispensingFontY + "";
 
             /// <summary>
-            /// 配液时间文字
+            /// 用法文字
             /// </summary>
-            sliderDispensingDateFontSize.Value = model.DispensingDateFontSize;
+            sliderUsageNameFontSize.Value = model.UsageNameFontSize;
 
             /// <summary>
-            /// 配液时间文字X坐标
+            /// 用法文字X坐标
             /// </summary>
-            txtDispensingDateFontX.Text = model.DispensingDateFontX + "";
+            txtUsageNameFontX.Text = model.UsageNameFontX + "";
 
             /// <summary>
-            /// 配液时间文字Y坐标
+            /// 用法文字Y坐标
             /// </summary>
-            txtDispensingDateFontY.Text = model.DispensingDateFontY + "";
+            txtUsageNameFontY.Text = model.UsageNameFontY + "";
 
             /// <summary>
             /// 二维码条码宽度
@@ -912,17 +916,18 @@ namespace PrinterManagerProject.Pages
                 model.DateFontY = Convert.ToInt32(txtDateFontY.Text);
 
                 /// <summary>
-                /// 页码文字
+                /// 二维码文字
                 /// </summary>
-                model.PageNumFontSize = Convert.ToInt32(sliderPageNumFontSize.Value);
+                model.QRCodeHeight = Convert.ToInt32(sliderQRCodeFontSize.Value);
+                model.QRCodeWidth = Convert.ToInt32(sliderQRCodeFontSize.Value);
                 /// <summary>
-                /// 页码文字X坐标
+                /// 二维码文字X坐标
                 /// </summary>
-                model.PageNumFontX = Convert.ToInt32(txtPageNumFontX.Text);
+                model.QRCodeX = Convert.ToInt32(txtQRCodeFontX.Text);
                 /// <summary>
-                /// 页码文字Y坐标
+                /// 二维码文字Y坐标
                 /// </summary>
-                model.PageNumFontY = Convert.ToInt32(txtPageNumFontY.Text);
+                model.QRCodeY = Convert.ToInt32(txtQRCodeFontY.Text);
 
                 /// <summary>
                 /// 第一条分割线宽度
@@ -940,15 +945,15 @@ namespace PrinterManagerProject.Pages
                 /// <summary>
                 /// 医嘱号文字
                 /// </summary>
-                model.DoctorAdviceFontSize = Convert.ToInt32(sliderDoctorAdviceFontSize.Value);
+                model.GroupNumFontSize = Convert.ToInt32(sliderDoctorAdviceFontSize.Value);
                 /// <summary>
                 /// 医嘱号文字X坐标
                 /// </summary>
-                model.DoctorAdviceFontX = Convert.ToInt32(txtDoctorAdviceFontX.Text);
+                model.GroupNumFontX = Convert.ToInt32(txtDoctorAdviceFontX.Text);
                 /// <summary>
                 /// 医嘱号文字Y坐标
                 /// </summary>
-                model.DoctorAdviceFontY = Convert.ToInt32(txtDoctorAdviceFontY.Text);
+                model.GroupNumUnFontY = Convert.ToInt32(txtDoctorAdviceFontY.Text);
 
                 /// <summary>
                 /// 床位文字
@@ -966,7 +971,7 @@ namespace PrinterManagerProject.Pages
                 /// <summary>
                 /// 患者名称文字
                 /// </summary>
-                model.PatientFontSize = Convert.ToInt32(sliderPageNumFontSize.Value);
+                model.PatientFontSize = Convert.ToInt32(sliderPatientFontSize.Value);
                 /// <summary>
                 /// 患者名称文字X坐标
                 /// </summary>
@@ -990,30 +995,30 @@ namespace PrinterManagerProject.Pages
                 model.GenderFontY = Convert.ToInt32(txtGenderFontY.Text);
 
                 /// <summary>
-                /// 批号文字
+                /// 核对文字
                 /// </summary>
-                model.BatchNumberFontSize = Convert.ToInt32(sliderBatchNumberFontSize.Value);
+                model.CheckFontSize = Convert.ToInt32(sliderCheckFontSize.Value);
                 /// <summary>
-                /// 批号文字X坐标
+                /// 核对文字X坐标
                 /// </summary>
-                model.BatchNumberFontX = Convert.ToInt32(txtBatchNumberFontX.Text);
+                model.CheckFontX = Convert.ToInt32(txtCheckFontX.Text);
                 /// <summary>
-                /// 批号文字Y坐标
+                /// 核对文字Y坐标
                 /// </summary>
-                model.BatchNumberFontY = Convert.ToInt32(txtBatchNumberFontY.Text);
+                model.CheckFontY = Convert.ToInt32(txtCheckFontY.Text);
 
                 /// <summary>
                 /// 编号文字
                 /// </summary>
-                model.SerialNumberFontSize = Convert.ToInt32(sliderSerialNumberFontSize.Value);
+                model.is_print_snvFontSize = Convert.ToInt32(sliderSerialNumberFontSize.Value);
                 /// <summary>
                 /// 编号文字X坐标
                 /// </summary>
-                model.SerialNumberFontX = Convert.ToInt32(txtSerialNumberFontX.Text);
+                model.is_print_snvFontX = Convert.ToInt32(txtSerialNumberFontX.Text);
                 /// <summary>
                 /// 编号文字Y坐标
                 /// </summary>
-                model.SerialNumberFontY = Convert.ToInt32(txtSerialNumberFontY.Text);
+                model.is_print_snvFontY = Convert.ToInt32(txtSerialNumberFontY.Text);
 
                 /// <summary>
                 /// 第二条分割线宽度
@@ -1081,17 +1086,17 @@ namespace PrinterManagerProject.Pages
                 model.UseValueFontY = Convert.ToInt32(txtUseValueFontY.Text);
 
                 /// <summary>
-                /// 处方医生文字
+                /// 给药文字
                 /// </summary>
-                model.DoctorFontSize = Convert.ToInt32(sliderDoctorAdviceFontSize.Value);
+                model.DoseFontSize = Convert.ToInt32(sliderDoseFontSize.Value);
                 /// <summary>
-                /// 处方医生文字
+                /// 给药文字
                 /// </summary>X坐标
-                model.DoctorFontX = Convert.ToInt32(txtDoctorFontX.Text);
+                model.DoseFontX = Convert.ToInt32(txtDoseFontX.Text);
                 /// <summary>
-                /// 处方医生文字Y坐标
+                /// 给药文字Y坐标
                 /// </summary>
-                model.DoctorFontY = Convert.ToInt32(txtDoctorFontY.Text);
+                model.DoseFontY = Convert.ToInt32(txtDoseFontY.Text);
 
                 /// <summary>
                 /// 备注文字
@@ -1107,17 +1112,17 @@ namespace PrinterManagerProject.Pages
                 model.RemarkFontY = Convert.ToInt32(txtRemarkFontY.Text);
 
                 /// <summary>
-                /// 滴速文字
+                /// 用药频次文字
                 /// </summary>
-                model.SpeedFontSize = Convert.ToInt32(sliderSortFontSize.Value);
+                model.UserFrequentFontSize = Convert.ToInt32(sliderSortFontSize.Value);
                 /// <summary>
-                /// 滴速文字X坐标
+                /// 用药频次文字X坐标
                 /// </summary>
-                model.SpeedFontX = Convert.ToInt32(txtSpeedFontX.Text);
+                model.UserFrequentFontX = Convert.ToInt32(txtSpeedFontX.Text);
                 /// <summary>
-                /// 滴速文字Y坐标
+                /// 用药频次文字Y坐标
                 /// </summary>
-                model.SpeedFontY = Convert.ToInt32(txtSpeedFontY.Text);
+                model.UserFrequentFontY = Convert.ToInt32(txtSpeedFontY.Text);
 
                 /// <summary>
                 /// 第三条分割线宽度
@@ -1185,19 +1190,19 @@ namespace PrinterManagerProject.Pages
                 model.DispensingFontY = Convert.ToInt32(txtDispensingFontY.Text);
 
                 /// <summary>
-                /// 配液时间文字
+                /// 用法文字
                 /// </summary>
-                model.DispensingDateFontSize = Convert.ToInt32(sliderDispensingDateFontSize.Value);
+                model.UsageNameFontSize = Convert.ToInt32(sliderUsageNameFontSize.Value);
 
                 /// <summary>
-                /// 配液时间文字X坐标
+                /// 用法文字X坐标
                 /// </summary>
-                model.DispensingDateFontX = Convert.ToInt32(txtDispensingDateFontX.Text);
+                model.UsageNameFontX = Convert.ToInt32(txtUsageNameFontX.Text);
 
                 /// <summary>
-                /// 配液时间文字Y坐标
+                /// 用法文字Y坐标
                 /// </summary>
-                model.DispensingDateFontY = Convert.ToInt32(txtDispensingDateFontY.Text);
+                model.UsageNameFontY = Convert.ToInt32(txtUsageNameFontY.Text);
 
                 /// <summary>
                 /// 二维码条码宽度
@@ -1376,35 +1381,35 @@ namespace PrinterManagerProject.Pages
 
 
                 /// <summary>
-                /// 配液时间文字
+                /// 用法文字
                 /// </summary>
                 model.AgeFontSize = Convert.ToInt32(sliderAgeFontSize.Value);
 
                 /// <summary>
-                /// 配液时间文字X坐标
+                /// 用法文字X坐标
                 /// </summary>
                 model.AgeFontX = Convert.ToInt32(txtAgeFontX.Text);
 
                 /// <summary>
-                /// 配液时间文字Y坐标
+                /// 用法文字Y坐标
                 /// </summary>
                 model.AgeFontY = Convert.ToInt32(txtAgeFontY.Text);
 
 
-                /// <summary>
-                /// 配液时间文字
-                /// </summary>
-                model.DispensingDateFontSize = Convert.ToInt32(sliderDispensingDateFontSize.Value);
+                ///// <summary>
+                ///// 用法文字
+                ///// </summary>
+                //model.UsageNameFontSize = Convert.ToInt32(sliderUsageNameFontSize.Value);
 
-                /// <summary>
-                /// 配液时间文字X坐标
-                /// </summary>
-                model.DispensingDateFontX = Convert.ToInt32(txtDispensingDateFontX.Text);
+                ///// <summary>
+                ///// 用法文字X坐标
+                ///// </summary>
+                //model.UsageNameFontX = Convert.ToInt32(txtUsageNameFontX.Text);
 
-                /// <summary>
-                /// 配液时间文字Y坐标
-                /// </summary>
-                model.DispensingDateFontY = Convert.ToInt32(txtDispensingDateFontY.Text);
+                ///// <summary>
+                ///// 用法文字Y坐标
+                ///// </summary>
+                //model.UsageNameFontY = Convert.ToInt32(txtUsageNameFontY.Text);
 
 
 

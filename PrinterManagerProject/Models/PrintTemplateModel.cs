@@ -507,14 +507,32 @@ namespace PrinterManagerProject.Models
         public int GroupNumFontSize { get; internal set; }
         public int GroupNumFontX { get; internal set; }
         public int GroupNumUnFontY { get; internal set; }
+        /// <summary>
+        /// 用法名称文字字号
+        /// </summary>
         public int UsageNameFontSize { get; internal set; }
+        /// <summary>
+        /// 用法文字X坐标
+        /// </summary>
         public int UsageNameFontX { get; internal set; }
+        /// <summary>
+        /// 用法文字Y坐标
+        /// </summary>
         public int UsageNameFontY { get; internal set; }
         public int UserFrequentFontSize { get; internal set; }
         public int UserFrequentFontX { get; internal set; }
         public int UserFrequentFontY { get; internal set; }
+        /// <summary>
+        /// 核对文字字号
+        /// </summary>
         public int CheckFontSize { get; internal set; }
+        /// <summary>
+        /// 核对文字X坐标
+        /// </summary>
         public int CheckFontX { get; internal set; }
+        /// <summary>
+        /// 核对文字Y坐标
+        /// </summary>
         public int CheckFontY { get; internal set; }
         public int DoseFontSize { get; internal set; }
         public int DoseFontX { get; internal set; }

@@ -695,11 +695,11 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 二维码条码宽度
             /// </summary>
-            model.QRCodeWidth = 150;
+            model.QRCodeWidth = 90;
             /// <summary>
             /// 二维码条码高度
             /// </summary>
-            model.QRCodeHeight = 34;
+            model.QRCodeHeight = 90;
             /// <summary>
             /// 二维码条码X坐标
             /// </summary>
