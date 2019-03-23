@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.ComponentModel;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using System.Windows.Input;
@@ -41,10 +42,38 @@ namespace PrinterManagerProject
 
         private DispatcherTimer dispatcherTimer;
 
+        /// <summary>
+        /// 要全屏的窗口
+        /// </summary>
+        List<string> FullScreenWindowNames = new List<string>() {
+            "SettingsWindow","PrintWindow","QueryWindow"
+        };
 
         public BaseWindow()
         {
             this.Loaded += BaseWindow_Loaded;
+            this.Activated += Window_Activated;
+        }
+
+        /// <summary>
+        /// 保证重新打开时依然全屏
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Window_Activated(object sender, EventArgs e)
+        {
+            if (FullScreenWindowNames.Any(s => this.ToString().Contains(s)))
+            {
+                this.WindowState = System.Windows.WindowState.Normal;
+                this.WindowStyle = System.Windows.WindowStyle.None;
+                this.ResizeMode = System.Windows.ResizeMode.NoResize;
+                //this.Topmost = true;
+                this.Left = 0.0;
+                this.Top = 0.0;
+                this.Width = System.Windows.SystemParameters.PrimaryScreenWidth;
+                this.Height = System.Windows.SystemParameters.PrimaryScreenHeight;
+            }
+
         }
 
         private void BaseWindow_Loaded(object sender, RoutedEventArgs e)

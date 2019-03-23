@@ -343,7 +343,7 @@
                         </StackPanel>
                         <StackPanel Grid.Row="2" Grid.Column="0" Orientation="Horizontal">
                             <Label Content="主药分组" Margin="15,0,0,0" Style="{StaticResource controlLabel}"/>
-                            <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}" SelectionChanged="Cb_drug_OnSelectionChanged">
+                            <ComboBox x:Name="cb_drug" Width="Auto" MinWidth="100" SelectedIndex="0" Style="{StaticResource controlComboBox}" IsEditable="True" KeyUp="Cb_drug_KeyUp" SelectionChanged="Cb_drug_OnSelectionChanged">
                             </ComboBox>
                         </StackPanel>
                         <StackPanel Grid.Row="0" Grid.Column="2" Orientation="Horizontal">

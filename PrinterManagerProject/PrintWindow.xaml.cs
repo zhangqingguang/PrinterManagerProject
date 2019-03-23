@@ -131,6 +131,7 @@ namespace PrinterManagerProject
         private DispatcherTimer QueueIsEmptyStopTimer;
         private DispatcherTimer PlcReaderTimer;
 
+        List<tDrug> drugList = new List<tDrug>();
         /// <summary>
         /// 卡药检测Timer
         /// </summary>
@@ -158,6 +159,7 @@ namespace PrinterManagerProject
             //    }
             //}, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
         }
+        /// <summary>
 
         private void scanDeviceState()
         {
@@ -167,6 +169,8 @@ namespace PrinterManagerProject
                 {
                     spcViewPanel.SetCCD2State(CCDConnected);
                     spcViewPanel.SetCCD1State(CCDConnected);
+
+                    PrevCCDConnected = CCDConnected;
                 }
                 //if (PrevPCLConnected != PCLConnected)
                 //{
@@ -176,14 +180,17 @@ namespace PrinterManagerProject
                 if (PrevPCLConnected != PCLConnected)
                 {
                     spcViewPanel.SetPlcState(PCLConnected);
+                    PrevPCLConnected = PCLConnected;
                 }
                 if (PrevAutoScannerConnected != AutoScannerConnected)
                 {
                     spcViewPanel.SetAutoScannerState(AutoScannerConnected);
+                    PrevAutoScannerConnected = AutoScannerConnected;
                 }
                 if (PrevHanderScannerConnected != HanderScannerConnected)
                 {
                     spcViewPanel.SetHanderScannerState(HanderScannerConnected);
+                    PrevHanderScannerConnected = HanderScannerConnected;
                 }
                 Thread.Sleep(1000);
             }
@@ -2091,14 +2098,14 @@ namespace PrinterManagerProject
         {
             var batch = cb_batch.SelectedValue.ToString();
             // 绑定主药
-            var list = string.IsNullOrEmpty(batch) ? new List<tDrug>() : new DrugManager().GetMainDrugListForPrintWindow(use_date.SelectedDate.Value, batch);
-            list.Insert(0, new tDrug() { drug_code = "", drug_name = "全部" });
+            drugList = string.IsNullOrEmpty(batch) ? new List<tDrug>() : new DrugManager().GetMainDrugListForPrintWindow(use_date.SelectedDate.Value, batch);
+            drugList.Insert(0, new tDrug() { drug_code = "", drug_name = "全部",input_code="" });
 
             Dispatcher.Invoke(() =>
             {
                 this.cb_drug.DisplayMemberPath = "drug_name";
                 this.cb_drug.SelectedValuePath = "drug_code";
-                this.cb_drug.ItemsSource = list;
+                this.cb_drug.ItemsSource = drugList;
                 this.cb_drug.SelectedIndex = 0;
             });
         } 
@@ -2758,6 +2765,27 @@ namespace PrinterManagerProject
                 StartConveryorBelt();
                 myEventLog.LogInfo($"检测到标签错位，结束清空队列流程");
             });
+        }
+        /// <summary>
+        /// 搜索主药
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void Cb_drug_KeyUp(object sender, System.Windows.Input.KeyEventArgs e)
+        {
+            if(sender is ComboBox drugCombox)
+            {
+                var text = drugCombox.Text.Trim();
+
+                drugCombox.ItemsSource = drugList
+                    .Where(s =>string.IsNullOrEmpty(s.input_code)==false && (s.drug_name.Contains(text) || s.input_code.Contains(text)))
+                    .OrderBy(s => s.drug_name)
+                    .Skip(0)
+                    .Take(20)
+                    .OrderBy(s => s.drug_name).ToList();
+
+                drugCombox.IsDropDownOpen = true;
+            }
         }
     }
 

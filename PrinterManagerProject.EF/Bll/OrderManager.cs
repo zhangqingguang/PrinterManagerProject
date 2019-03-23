@@ -26,6 +26,7 @@ namespace PrinterManagerProject.EF
             ObservableCollection<tOrder> oList = new ObservableCollection<tOrder>();
             if (dateTime < DateTime.Now.AddDays(-1).Date)
             {
+                new DataSync().SyncOrder(dateTime, batch);
                 // 从备份中获取数据
                 list = new OrderBakManager().GetAllOrderByDateTime(dateTime, batch);
             }
