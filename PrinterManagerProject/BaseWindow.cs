@@ -345,6 +345,8 @@ namespace PrinterManagerProject
             //关闭窗口
             if (result == MessageBoxResult.Yes)
             {
+                this.Hide();
+                Application.Current.Shutdown();
                 Environment.Exit(0);
             }
         }
@@ -458,6 +460,8 @@ namespace PrinterManagerProject
                     //关闭窗口
                     if (result == MessageBoxResult.Yes)
                     {
+                        this.Hide();
+                        Application.Current.Shutdown();
                         Environment.Exit(0);
                     }
                     return;
