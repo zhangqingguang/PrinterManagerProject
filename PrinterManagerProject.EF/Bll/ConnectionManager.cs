@@ -23,9 +23,9 @@ namespace PrinterManagerProject.EF.Bll
                 PivasDbHelperSQL.Query("select top 1 * from v_for_ydwl_batch");
                 return true;
             }
-            catch
+            catch(Exception ex)
             {
-                return false;
+                throw ex;
             }
         }
         /// <summary>

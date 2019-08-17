@@ -32,7 +32,7 @@ namespace PrinterManagerProject.EF
             }
             else
             {
-                var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date);
+                var query = DBContext.tOrders.AsNoTracking().Where(s => s.use_date == date && s.order_status =="正常");
                 if (string.IsNullOrEmpty(batch) == false)
                 {
                     query = query.Where(s => s.batch == batch);
@@ -80,8 +80,8 @@ namespace PrinterManagerProject.EF
                     use_count = s.use_count,
                     id = s.drug_id
                 })
-                .OrderBy(s=>s.xsyxj)
                 .ToList()
+                .OrderBy(s=> string.IsNullOrEmpty(s.xsyxj)?0: Convert.ToInt32(s.xsyxj))
                 .Select(s => new PrintDrugModel()
                 {
                     drug_name = s.drug_name,

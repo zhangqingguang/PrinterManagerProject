@@ -89,5 +89,6 @@ namespace PrinterManagerProject.EF
         public string sex { get; set; }
         public string is_cpfhr { get; set; }
         public string pyhfr { get; set; }
+        public string freq_counter_sub { get; set; }
     }
 }

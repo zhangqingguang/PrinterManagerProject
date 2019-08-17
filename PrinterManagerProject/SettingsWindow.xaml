@@ -6,7 +6,7 @@
         xmlns:local="clr-namespace:PrinterManagerProject"
         Style="{StaticResource MetroWindowStyle}"
         mc:Ignorable="d"
-        Title="深圳壹达物联科技综合查询系统" Height="748.777" Width="1125.429" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
+        Title="深圳壹达物联科技有限公司 综合查询系统" Height="748.777" Width="1125.429" WindowState="Maximized" WindowStartupLocation="CenterScreen" Closing="BaseWindow_Closing">
     <Window.Resources>
         <Style x:Key="GridLabelSytle" TargetType="{x:Type Label}">
             <Setter Property="Margin" Value="0" />

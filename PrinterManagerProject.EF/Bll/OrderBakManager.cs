@@ -23,7 +23,7 @@ namespace PrinterManagerProject.EF
         {
             var date = dateTime.ToString("yyyy-MM-dd");
             List<tOrderBak> list = new List<tOrderBak>();
-            var query = DBContext.tOrderBaks.AsNoTracking().Where(s => s.use_date == date);
+            var query = DBContext.tOrderBaks.AsNoTracking().Where(s => s.use_date == date && s.order_status=="正常");
             if (string.IsNullOrEmpty(batch) == false)
             {
                 query = query.Where(s => s.batch == batch);

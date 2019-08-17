@@ -1917,6 +1917,7 @@ namespace PrinterManagerProject
         {
             var hasCondition = false;
             var query = datasource.AsQueryable();
+
             // 科室
             if (cb_dept.SelectedValue != null && string.IsNullOrEmpty(cb_dept.SelectedValue.ToString())==false)
             {

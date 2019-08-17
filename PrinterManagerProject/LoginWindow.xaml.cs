@@ -48,7 +48,7 @@ namespace PrinterManagerProject
             var crzName = txtCZR.Text.Trim();
             var crzPassword = txtCZRPWD.Password.Trim();
             var shrName = txtSHR.Text.Trim();
-            var shrPassword = txtCZRPWD.Password.Trim();
+            var shrPassword = txtSHRPWD.Password.Trim();
             if (string.IsNullOrEmpty(crzName))
             {
                 MessageBox.Show("请输入操作员！");

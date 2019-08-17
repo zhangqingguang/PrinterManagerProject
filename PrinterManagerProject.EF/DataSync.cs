@@ -201,6 +201,7 @@ namespace PrinterManagerProject.EF
       ,[xsyxj]
       ,[is_cpfhr]
       ,[pyhfr]
+      ,[freq_counter_sub]
 from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam, batchParam);
 
             var dt = dataset.Tables[0];
@@ -239,7 +240,7 @@ from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam, batchPa
         {
             using (var db = new PrintTagDbEntities())
             {
-                var orders = db.Database.SqlQuery<tOrder>("select * from torder where hasSubmit is null or hasSubmit <>1").ToList();
+                var orders = db.Database.SqlQuery<tOrder>("select * from torder where (hasSubmit is null or hasSubmit <>1)  and printing_status=1 ").ToList();
 
                 SqlParameter id = null;
                 SqlParameter barcode = null;

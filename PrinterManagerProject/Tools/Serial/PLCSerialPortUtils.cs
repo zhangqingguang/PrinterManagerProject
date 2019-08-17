@@ -341,11 +341,10 @@ namespace PrinterManagerProject
         {
             try
             {
-                if (sp.IsOpen)
+                if (sp.IsOpen ==  false)
                 {
-                    sp.Close();
+                    sp.Open();
                 }
-                sp.Open();
 
                 if (mSerialPortInterface != null)
                 {

@@ -205,7 +205,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 年龄文字Y坐标
             /// </summary>
-            model.AgeFontY = 155;
+            model.AgeFontY = 190;
             #endregion
 
             #region 性别
@@ -220,7 +220,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 性别文字Y坐标
             /// </summary>
-            model.GenderFontY = 155; 
+            model.GenderFontY = 190; 
             #endregion
 
             #region 医嘱编号
@@ -235,7 +235,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 医嘱编号文字Y坐标
             /// </summary>
-            model.GroupNumUnFontY = 155; 
+            model.GroupNumUnFontY = 190; 
             #endregion
 
             #region 日期
@@ -246,7 +246,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 日期文字X坐标
             /// </summary>
-            model.DateFontX = 350;
+            model.DateFontX = 520;
             /// <summary>
             /// 日期文字Y坐标
             /// </summary>
@@ -265,7 +265,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 使用频率文字Y坐标
             /// </summary>
-            model.UserFrequentFontY = 70;
+            model.UserFrequentFontY = 190;
             #endregion
 
             #region is_print_sn
@@ -277,7 +277,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// is_print_snv文字X坐标
             /// </summary>
-            model.is_print_snvFontX = 280;
+            model.is_print_snvFontX = 450;
             /// <summary>
             /// is_print_snv文字Y坐标
             /// </summary>
@@ -296,7 +296,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 第一条分割线Y坐标
             /// </summary>
-            model.SplitY = 180;
+            model.SplitY = 205;
             #endregion
 
             #region 第二条分割线
@@ -312,7 +312,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 第二条分割线Y坐标
             /// </summary>
-            model.Split2Y = 235;
+            model.Split2Y = 260;
             #endregion
 
             #region 第三条分割线
@@ -400,7 +400,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 药名标题文字Y坐标
             /// </summary>
-            model.DrugsTitleFontY = 200;
+            model.DrugsTitleFontY = 225;
             #endregion
 
             #region 药品名称内容
@@ -415,7 +415,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 药品名称文字Y坐标
             /// </summary>
-            model.DrugsContentFontY = 255;
+            model.DrugsContentFontY = 280;
             #endregion
 
             #region 规格
@@ -432,7 +432,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 规格标题文字Y坐标
             /// </summary>
-            model.SpecTitleFontY = 200; 
+            model.SpecTitleFontY = 225; 
             #endregion
 
             /// <summary>
@@ -446,7 +446,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 规格值文字Y坐标
             /// </summary>
-            model.SpecValueFontY = 255;
+            model.SpecValueFontY = 280;
             #endregion
 
             #region 用量
@@ -461,7 +461,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量标题文字Y坐标
             /// </summary>
-            model.UseSpTitleFontY = 200;
+            model.UseSpTitleFontY = 225;
 
             /// <summary>
             /// 用量值文字
@@ -474,7 +474,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 用量值文字Y坐标
             /// </summary>
-            model.UseSpValueFontY = 255;
+            model.UseSpValueFontY = 280;
             #endregion
 
             #region 数量
@@ -489,7 +489,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量标题文字Y坐标
             /// </summary>
-            model.UseTitleFontY = 200;
+            model.UseTitleFontY = 225;
 
             /// <summary>
             /// 数量值文字
@@ -502,7 +502,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 数量值文字Y坐标
             /// </summary>
-            model.UseValueFontY = 255;
+            model.UseValueFontY = 280;
             #endregion
 
 

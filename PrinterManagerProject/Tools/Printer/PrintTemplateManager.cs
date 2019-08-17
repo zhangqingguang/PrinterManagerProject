@@ -49,6 +49,7 @@ namespace PrinterManagerProject.Tools
             //^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS
             //^XZ";
             sb.Append("^XA");
+            sb.Append("^POI");
             // E:001.FNT 华文仿宋
             sb.Append("^CWJ,E:000.FNT^FS"); // E:000.FNT 微软雅黑
             //sb.Append("^A@N,60,60,E:000.FNT^F8^FD1一二三四五六七八九十This is a test.^FS");
@@ -65,7 +66,7 @@ namespace PrinterManagerProject.Tools
             sb.Append(GetLabelCommand($"{order.age}", tempConfig.AgeFontSize, tempConfig.AgeFontX, tempConfig.AgeFontY));
             sb.Append(GetLabelCommand(order.sex, tempConfig.GenderFontSize, tempConfig.GenderFontX, tempConfig.GenderFontY));
             sb.Append(GetLabelCommand(order.patient_id, tempConfig.GroupNumFontSize, tempConfig.GroupNumFontX, tempConfig.GroupNumUnFontY));
-            sb.Append(GetLabelCommand($"{order.use_frequency}({order.use_time})", tempConfig.UserFrequentFontSize, tempConfig.UserFrequentFontX, tempConfig.UserFrequentFontY));
+            sb.Append(GetLabelCommand($"{order.use_frequency}({order.freq_counter_sub})", tempConfig.UserFrequentFontSize, tempConfig.UserFrequentFontX, tempConfig.UserFrequentFontY));
             sb.Append(GetLabelCommand($"no{order.is_print_snv}", tempConfig.is_print_snvFontSize, tempConfig.is_print_snvFontX-Convert.ToInt32((order.is_print_snv.Length - 1)* tempConfig.is_print_snvFontSize * 1.25), tempConfig.is_print_snvFontY));
             sb.Append(GetLabelCommand(order.use_date, tempConfig.DateFontSize, tempConfig.DateFontX, tempConfig.DateFontY));
 
@@ -81,12 +82,12 @@ namespace PrinterManagerProject.Tools
                 sb.Append(GetLabelCommand(showSpec, tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY-(tempConfig.UsageNameFontSize+drugLineMargin)/2));
                 sb.Append(GetLabelCommand(order.usage_name.Replace(showSpec,""), tempConfig.UsageNameFontSize, tempConfig.UsageNameFontX, tempConfig.UsageNameFontY+(tempConfig.UsageNameFontSize + drugLineMargin) / 2));
             }
-
+            
             sb.Append(GetLabelCommand($"审方:{order.checker}", tempConfig.ExamineFontSize, tempConfig.ExamineFontX, tempConfig.ExamineFontY));
             sb.Append(GetLabelCommand($"摆药:{order.deliveryer}", tempConfig.SortFontSize, tempConfig.SortFontX, tempConfig.SortFontY));
             sb.Append(GetLabelCommand($"配药:{order.config_person}", tempConfig.DispensingFontSize, tempConfig.DispensingFontX, tempConfig.DispensingFontY));
-            sb.Append(GetLabelCommand($"核对:{order.pyhfr}", tempConfig.CheckFontSize, tempConfig.CheckFontX, tempConfig.CheckFontY));
-            sb.Append(GetLabelCommand($"复核:{order.is_cpfhr}", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
+            sb.Append(GetLabelCommand($"核对:{order.is_cpfhr}", tempConfig.CheckFontSize, tempConfig.CheckFontX, tempConfig.CheckFontY));
+            sb.Append(GetLabelCommand($"复核:{order.pyhfr}", tempConfig.ReviewFontSize, tempConfig.ReviewFontX, tempConfig.ReviewFontY));
             sb.Append(GetLabelCommand($"给药:", tempConfig.DoseFontSize, tempConfig.DoseFontX, tempConfig.DoseFontY));
 
             sb.Append(GetLabelCommand("——————————————————————————", tempConfig.DrugsTitleFontSize, 0, tempConfig.SplitY - 5));
@@ -340,7 +341,7 @@ namespace PrinterManagerProject.Tools
                     g.DrawString(order.age, new Font(fontName, ConvertFontInt(tempConfig.AgeFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.AgeFontX), ConvertInt(tempConfig.AgeFontY));
                     g.DrawString(order.sex, new Font(fontName, ConvertFontInt(tempConfig.GenderFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.GenderFontX), ConvertInt(tempConfig.GenderFontY));
                     g.DrawString(order.group_num, new Font(fontName, ConvertFontInt(tempConfig.GroupNumFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.GroupNumFontX), ConvertInt(tempConfig.GroupNumUnFontY));
-                    g.DrawString( $"{order.use_frequency}({order.use_time})", new Font(fontName, ConvertFontInt(tempConfig.UserFrequentFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UserFrequentFontX), ConvertInt(tempConfig.UserFrequentFontY));
+                    g.DrawString( $"{order.use_frequency}({order.freq_counter_sub})", new Font(fontName, ConvertFontInt(tempConfig.UserFrequentFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.UserFrequentFontX), ConvertInt(tempConfig.UserFrequentFontY));
                     g.DrawString(order.is_print_snv, new Font(fontName, ConvertFontInt(tempConfig.is_print_snvFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.is_print_snvFontX), ConvertInt(tempConfig.is_print_snvFontY));
                     g.DrawString(order.use_date, new Font(fontName, ConvertFontInt(tempConfig.DateFontSize), System.Drawing.FontStyle.Bold), bush, ConvertInt(tempConfig.DateFontX), ConvertInt(tempConfig.DateFontY));
 
