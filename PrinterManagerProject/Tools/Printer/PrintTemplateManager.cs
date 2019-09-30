@@ -260,7 +260,7 @@ namespace PrinterManagerProject.Tools
             x = Convert.ToInt32((x + paddingLeft) * printMultiple);
             y = Convert.ToInt32((y + paddingTop) * printMultiple);
 
-            return $@"^^FO{x},{y},^BQN,2,6^FDHM,N{content}^FS";
+            return $@"^^FO{x},{y},^BQN,2,{tempConfig.QRCodeWidth/10}^FDHM,N{content}^FS";
             //return $@"^^FO{x},{y},^BQN,3,6^FDMM,{content}^FS";
         }
 

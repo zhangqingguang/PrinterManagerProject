@@ -118,6 +118,7 @@
           <Property Name="pyhfr" Type="varchar" MaxLength="30" />
           <Property Name="hasSubmit" Type="bit" />
           <Property Name="freq_counter_sub" Type="varchar" MaxLength="50" />
+          <Property Name="original_batch" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -199,6 +200,7 @@
           <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
           <Property Name="hasSubmit" Type="bit" />
           <Property Name="freq_counter_sub" Type="varchar" MaxLength="50" />
+          <Property Name="original_batch" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -291,6 +293,7 @@
           <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
           <Property Name="pyhfr" Type="varchar" MaxLength="30" />
           <Property Name="freq_counter_sub" Type="varchar" MaxLength="50" />
+          <Property Name="original_batch" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -373,6 +376,7 @@
           <Property Name="pyhfr" Type="varchar" MaxLength="30" />
           <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
           <Property Name="freq_counter_sub" Type="varchar" MaxLength="50" />
+          <Property Name="original_batch" Type="varchar" MaxLength="20" />
         </EntityType>
         <EntityType Name="tZHY">
           <Key>
@@ -441,6 +445,7 @@
           <Property Name="is_cpfhr" Type="varchar" MaxLength="30" />
           <Property Name="pyhfr" Type="varchar" MaxLength="30" />
           <Property Name="freq_counter_sub" Type="varchar" MaxLength="50" />
+          <Property Name="xsyxjnew" Type="varchar" MaxLength="90" />
         </EntityType>
         <Function Name="P_BakHistoryData" Aggregate="false" BuiltIn="false" NiladicFunction="false" IsComposable="false" ParameterTypeSemantics="AllowImplicitConversion" Schema="dbo">
           <Parameter Name="use_date" Type="varchar" Mode="In" />
@@ -605,6 +610,7 @@
           <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="hasSubmit" Type="Boolean" />
           <Property Name="freq_counter_sub" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="original_batch" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tOrderBak">
           <Key>
@@ -686,6 +692,7 @@
           <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="hasSubmit" Type="Boolean" />
           <Property Name="freq_counter_sub" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="original_batch" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tUser">
           <Key>
@@ -778,6 +785,7 @@
           <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="freq_counter_sub" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="original_batch" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tWarningBak">
           <Key>
@@ -860,6 +868,7 @@
           <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="freq_counter_sub" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="original_batch" Type="String" MaxLength="20" FixedLength="false" Unicode="false" />
         </EntityType>
         <EntityType Name="tZHY">
           <Key>
@@ -928,6 +937,7 @@
           <Property Name="is_cpfhr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="pyhfr" Type="String" MaxLength="30" FixedLength="false" Unicode="false" />
           <Property Name="freq_counter_sub" Type="String" MaxLength="50" FixedLength="false" Unicode="false" />
+          <Property Name="xsyxjnew" Type="String" MaxLength="90" FixedLength="false" Unicode="false" />
         </EntityType>
         </Schema>
     </edmx:ConceptualModels>
@@ -978,6 +988,7 @@
           <EntitySetMapping Name="tOrders">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrder">
               <MappingFragment StoreEntitySet="tOrder">
+                <ScalarProperty Name="original_batch" ColumnName="original_batch" />
                 <ScalarProperty Name="freq_counter_sub" ColumnName="freq_counter_sub" />
                 <ScalarProperty Name="hasSubmit" ColumnName="hasSubmit" />
                 <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
@@ -1059,6 +1070,7 @@
           <EntitySetMapping Name="tOrderBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tOrderBak">
               <MappingFragment StoreEntitySet="tOrderBak">
+                <ScalarProperty Name="original_batch" ColumnName="original_batch" />
                 <ScalarProperty Name="freq_counter_sub" ColumnName="freq_counter_sub" />
                 <ScalarProperty Name="hasSubmit" ColumnName="hasSubmit" />
                 <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
@@ -1153,6 +1165,7 @@
           <EntitySetMapping Name="tWarnings">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarning">
               <MappingFragment StoreEntitySet="tWarning">
+                <ScalarProperty Name="original_batch" ColumnName="original_batch" />
                 <ScalarProperty Name="freq_counter_sub" ColumnName="freq_counter_sub" />
                 <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
                 <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
@@ -1235,6 +1248,7 @@
           <EntitySetMapping Name="tWarningBaks">
             <EntityTypeMapping TypeName="PrintTagDbModel.tWarningBak">
               <MappingFragment StoreEntitySet="tWarningBak">
+                <ScalarProperty Name="original_batch" ColumnName="original_batch" />
                 <ScalarProperty Name="freq_counter_sub" ColumnName="freq_counter_sub" />
                 <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />
                 <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
@@ -1318,6 +1332,7 @@
           <EntitySetMapping Name="tZHies">
             <EntityTypeMapping TypeName="PrintTagDbModel.tZHY">
               <MappingFragment StoreEntitySet="tZHY">
+                <ScalarProperty Name="xsyxjnew" ColumnName="xsyxjnew" />
                 <ScalarProperty Name="freq_counter_sub" ColumnName="freq_counter_sub" />
                 <ScalarProperty Name="pyhfr" ColumnName="pyhfr" />
                 <ScalarProperty Name="is_cpfhr" ColumnName="is_cpfhr" />

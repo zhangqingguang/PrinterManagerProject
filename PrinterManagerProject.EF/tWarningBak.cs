@@ -91,5 +91,6 @@ namespace PrinterManagerProject.EF
         public string pyhfr { get; set; }
         public string is_cpfhr { get; set; }
         public string freq_counter_sub { get; set; }
+        public string original_batch { get; set; }
     }
 }

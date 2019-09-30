@@ -70,7 +70,7 @@ namespace PrinterManagerProject.EF
                 return new List<PrintDrugModel>();
             }
             return DBContext.tZHies.AsNoTracking().Where(s =>
-                    s.use_date == order.use_date && s.use_time == order.use_time && s.group_num == order.group_num)
+                    s.barcode == order.barcode)
                 .Select(s => new
                 {
                     durg_use_sp=s.durg_use_sp+" "+s.drug_use_units,
@@ -78,10 +78,11 @@ namespace PrinterManagerProject.EF
                     s.xsyxj,
                     drug_name = s.drug_name,
                     use_count = s.use_count,
-                    id = s.drug_id
+                    id = s.drug_id,
+                    s.xsyxjnew
                 })
+                .OrderBy(s=> s.xsyxj).ThenBy(s=>s.xsyxjnew)
                 .ToList()
-                .OrderBy(s=> string.IsNullOrEmpty(s.xsyxj)?0: Convert.ToInt32(s.xsyxj))
                 .Select(s => new PrintDrugModel()
                 {
                     drug_name = s.drug_name,

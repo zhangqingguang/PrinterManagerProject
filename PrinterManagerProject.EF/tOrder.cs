@@ -89,5 +89,6 @@ namespace PrinterManagerProject.EF
         public string pyhfr { get; set; }
         public Nullable<bool> hasSubmit { get; set; }
         public string freq_counter_sub { get; set; }
+        public string original_batch { get; set; }
     }
 }

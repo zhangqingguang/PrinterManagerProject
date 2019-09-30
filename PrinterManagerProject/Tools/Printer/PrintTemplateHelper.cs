@@ -18,7 +18,6 @@ namespace PrinterManagerProject.Tools
         {
             PrintTemplateModel model;
             model = DefaultConfig();
-            return model;
             string path = configPath + fileName;
             try
             {
@@ -277,7 +276,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// is_print_snv文字X坐标
             /// </summary>
-            model.is_print_snvFontX = 450;
+            model.is_print_snvFontX = 360;
             /// <summary>
             /// is_print_snv文字Y坐标
             /// </summary>
@@ -327,7 +326,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 第三条分割线Y坐标
             /// </summary>
-            model.Split3Y = 685; 
+            model.Split3Y = 665; 
             #endregion
 
 
@@ -532,7 +531,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 备注文字Y坐标
             /// </summary>
-            model.RemarkFontY = 650;
+            model.RemarkFontY = 630;
             #endregion
 
             #region 用法
@@ -577,7 +576,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 审方文字Y坐标
             /// </summary>
-            model.ExamineFontY = 710;
+            model.ExamineFontY = 690;
             #endregion
 
             #region MyRegion
@@ -592,7 +591,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 摆文字Y坐标
             /// </summary>
-            model.SortFontY = 710;
+            model.SortFontY = 690;
             #endregion
 
             #region 配药
@@ -607,7 +606,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 配药文字Y坐标
             /// </summary>
-            model.DispensingFontY = 750;
+            model.DispensingFontY = 730;
             #endregion
 
 
@@ -623,7 +622,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 核对文字Y坐标
             /// </summary>
-            model.CheckFontY = 750;
+            model.CheckFontY = 730;
             #endregion
 
             #region 复核 
@@ -638,7 +637,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 复核文字Y坐标
             /// </summary>
-            model.ReviewFontY = 790;
+            model.ReviewFontY = 770;
             #endregion
 
             #region 给药 
@@ -653,7 +652,7 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 给药文字Y坐标
             /// </summary>
-            model.DoseFontY = 790;
+            model.DoseFontY = 770;
             #endregion
 
 
@@ -695,19 +694,19 @@ namespace PrinterManagerProject.Tools
             /// <summary>
             /// 二维码条码宽度
             /// </summary>
-            model.QRCodeWidth = 90;
+            model.QRCodeWidth = 70;
             /// <summary>
             /// 二维码条码高度
             /// </summary>
-            model.QRCodeHeight = 90;
+            model.QRCodeHeight = 70;
             /// <summary>
             /// 二维码条码X坐标
             /// </summary>
-            model.QRCodeX = 250;
+            model.QRCodeX = 230;
             /// <summary>
             /// 二维码条码Y坐标
             /// </summary>
-            model.QRCodeY =700;
+            model.QRCodeY =680;
             #endregion
 
 

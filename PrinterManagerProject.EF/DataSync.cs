@@ -198,11 +198,11 @@ namespace PrinterManagerProject.EF
       ,is_print_sn as [is_print_snv] 
       ,[barcode]
       ,[sex]
-      ,[xsyxj]
       ,[is_cpfhr]
       ,[pyhfr]
       ,[freq_counter_sub]
-from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam, batchParam);
+      ,[xsyxjnew]
+from v_for_ydwl where use_date=@usedate", useDateParam);
 
             var dt = dataset.Tables[0];
             //dt.Columns.Remove(dt.Columns["id"]);
@@ -217,7 +217,7 @@ from v_for_ydwl where use_date=@usedate and batch=@batch", useDateParam, batchPa
             // tOrder:待贴签医嘱表
 
             // 删除原有数据
-            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate and batch=@batch", useDateParam, batchParam);
+            DbHelperSQL.ExecuteSql("delete tZHY where use_date=@usedate", useDateParam);
 
             // 添加新数据
             DbHelperSQL.SqlBulkCopyByDataTable("tZHY", dataset.Tables[0]);
