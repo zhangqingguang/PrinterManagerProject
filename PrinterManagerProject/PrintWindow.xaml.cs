@@ -396,7 +396,7 @@ namespace PrinterManagerProject
             CCDSendData sendData = new CCDSendData();
             sendData.Command = $"%01#WDD0090100901{cmdData}**";
             sendData.Send += SendCCD1Success_Callback;
-            plcCommandSendQueueHelper.Enqueue(sendData);
+            plcCommandSendQueueHelper.Enqueue1(sendData);
             //int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{cmdData}**");
             return true;
         }
@@ -422,7 +422,7 @@ namespace PrinterManagerProject
                 CCDSendData sendData = new CCDSendData();
                 sendData.Command = "%01#WDD00900009003459**";
                 sendData.Send += SendCCD2Success_Callback; ;
-                plcCommandSendQueueHelper.Enqueue(sendData);
+                plcCommandSendQueueHelper.Enqueue2(sendData);
                 //plcCommandSendQueueHelper.Enqueue("%01#WDD00900009003459**");
                 return true;
             }
@@ -449,7 +449,7 @@ namespace PrinterManagerProject
             CCDSendData sendData = new CCDSendData();
             sendData.Command = $"%01#WDD0090100901324E**";
             sendData.Send += SendCCD1Out_Callback; ;
-            plcCommandSendQueueHelper.Enqueue(sendData);
+            plcCommandSendQueueHelper.Enqueue1(sendData);
 
             //plcCommandSendQueueHelper.Enqueue("%01#WDD0090100901324E**");  // 1N:CCD1剔除
             //plcCommandSendQueueHelper.Enqueue("%01#WDD0090100901324E**");  // 1N:CCD1剔除
@@ -470,7 +470,7 @@ namespace PrinterManagerProject
             CCDSendData sendData = new CCDSendData();
             sendData.Command = "%01#WDD0090000900344E**";
             sendData.Send += SendCCD2Out_Callback; 
-            plcCommandSendQueueHelper.Enqueue(sendData);
+            plcCommandSendQueueHelper.Enqueue2(sendData);
             //plcCommandSendQueueHelper.Enqueue("%01#WDD0090000900344E**"); //4N：CCD2剔除
         }
 
@@ -743,14 +743,38 @@ namespace PrinterManagerProject
                                     sendData.PrintCommand = printCommand;
                                     sendData.Send += SendCCD1Command_Send;
 
-                                    plcCommandSendQueueHelper.Enqueue(sendData);
+                                    // 队列中有未打印液体，暂停发送CCD1信号，停止传送带
+                                    if(queue.Any(s=>s.PrinterLightScan == false))
+                                    {
+                                        myEventLog.LogInfo($"有未打印液体，暂停传送带");
 
-                                        //int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{currentCmdData}**");
-                                        //myEventLog.LogInfo($"距离上次发送时间间隔:{(DateTime.Now - ccd1SuccessTime).TotalMilliseconds}");
-                                        //ccd1SuccessTime = DateTime.Now;
-                                        //startTime = DateTime.Now;
-                                        ////myEventLog.LogInfo($"发送CCD1继续命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
-                                        //startTime = DateTime.Now;
+                                        StopConveryorBelt();
+                                        int times = 0;
+                                        while((queue.Any(s => s.PrinterLightScan == false)))
+                                        {
+                                            Thread.Sleep(100);
+                                            times++;
+                                            if(times*100> AppConfig.PrinterLightExpireDetectictTimes)
+                                            {
+                                                myEventLog.LogInfo($"未打印液体超时，停止贴签");
+                                                StopPrint();
+                                                MessageBox.Show("打印机前可能卡药，请检查");
+                                                return;
+                                            }
+                                        }
+                                        myEventLog.LogInfo($"未打印液体未超时，启动传送带，继续贴签");
+                                        StartConveryorBelt();
+                                    }
+
+                                    myEventLog.LogInfo($"CCD1继续");
+                                    plcCommandSendQueueHelper.Enqueue1(sendData);
+
+                                    //int queueCount = plcCommandSendQueueHelper.Enqueue($"%01#WDD0090100901{currentCmdData}**");
+                                    //myEventLog.LogInfo($"距离上次发送时间间隔:{(DateTime.Now - ccd1SuccessTime).TotalMilliseconds}");
+                                    //ccd1SuccessTime = DateTime.Now;
+                                    //startTime = DateTime.Now;
+                                    ////myEventLog.LogInfo($"发送CCD1继续命令花费时间:{(DateTime.Now - startTime).TotalMilliseconds}");
+                                    //startTime = DateTime.Now;
 
                                     ////printer.SendCommand(printCommand);
                                     //printer.SendCommand(printCommand);
@@ -1085,6 +1109,9 @@ namespace PrinterManagerProject
                                             {
                                                 myEventLog.LogInfo($"Index：{item.Index}，84： PLC接收有效84信号，CCD2开始拍照");
                                                 item.CCD2Time = DateTime.Now;
+                                                TimeWatcher.ReceiveEffect84Time = DateTime.Now;
+                                                myEventLog.LogInfo($"识别出有效84信号");
+                                                myEventLog.LogInfo($"收到信号到识别出有效信号时间间隔："+ (TimeWatcher.ReceiveEffect84Time - TimeWatcher.Receive84Time).TotalMilliseconds);
                                                 //myEventLog.LogInfo($"Index：{item.Index}，记录CCD2时间：{item.CCD2Time.ToString("yyyy-MM-dd HH:mm:ss fff")}");
                                                 item.CCD2LightScan = true;
                                                 if (string.IsNullOrEmpty(item.ScanData) || item.ScanData != item.Drug.barcode)
@@ -1464,6 +1491,7 @@ namespace PrinterManagerProject
 
                 if (queue.IsEmpty)
                 {
+                    EmptyQueueUpdateControlState();
                     QueueIsEmptyTime = DateTime.Now;
                 }
 
@@ -1521,7 +1549,11 @@ namespace PrinterManagerProject
                 myEventLog.LogInfo($"Index:{qModel.Index},将空液体信息插入队列");
             }
             // 添加到队列
-                // 入队时添加到队尾
+            // 入队时添加到队尾
+            if (queue.IsEmpty)
+            {
+                EnQueueUpdateControlState();
+            }
                 queue.Enqueue(qModel);
                 QueueIsEmptyTime = DateTime.Now;
                 myEventLog.LogInfo($"队列数量： {queue.Count}！");
@@ -1563,6 +1595,8 @@ namespace PrinterManagerProject
                     OrderQueueModel qModel ;
                     if(queue.TryDequeue(out qModel))
                     {
+                    // 尝试获取医嘱信息，并修改医嘱贴签状态为贴签失败
+                        recordPrintFail(qModel);
                         PrintQueueTimes(qModel);
                         myEventLog.LogInfo($"Index:{qModel.Index},从队列中删除一项，Id={qModel.Drug.Id}，Code={qModel.QRData}，GroupNum={qModel.Drug?.group_num}，BarCode={qModel.Drug.barcode}");
                     }
@@ -1571,7 +1605,8 @@ namespace PrinterManagerProject
 
                     if (queue.IsEmpty)
                     {
-                        QueueIsEmptyTime = DateTime.Now;
+                    EmptyQueueUpdateControlState();
+                    QueueIsEmptyTime = DateTime.Now;
                     }
 
                     if (CanStartConveryorBelt())
@@ -1581,6 +1616,15 @@ namespace PrinterManagerProject
                     }
                 }
             SetCCD2IsNotBusy();
+        }
+
+        private void recordPrintFail(OrderQueueModel queueModel)
+        {
+            var order = autoPrintList.FirstOrDefault(s => s.Id == queueModel.Drug.Id);
+            if (order != null)
+            {
+                PrintFail(order, "");
+            }
         }
 
 
@@ -1796,7 +1840,7 @@ namespace PrinterManagerProject
             model.sbatches = sBatchs; ;
             model.printing_model = PrintModelEnum.Auto;
             model.printing_status = PrintStatusEnum.Success;
-            model.barcode = DateTime.Now.ToString("HH:mm:ss");
+            //model.barcode = DateTime.Now.ToString("HH:mm:ss");
             model.SetPropertyChanged("printing_time");
             model.SetPropertyChanged("sbatches");
             model.SetPropertyChanged("printing_model");
@@ -1808,6 +1852,73 @@ namespace PrinterManagerProject
             BindDurgSummary(autoPrintList);
             // 绑定统计数字
             GetSummaryLabels();
+        }
+        /// <summary>
+        /// 贴签失败，修改列表中内容和颜色
+        /// </summary>
+        /// <param name="model"></param>
+        /// <param name="sBatchs">药品批号</param>
+        private void PrintFail(tOrder model, string sBatchs)
+        {
+#warning 可能有线程出错Bug
+            myEventLog.LogInfo($"更新列表：ID={model.Id}");
+            model.printing_time = DateTime.Now;
+            model.sbatches = sBatchs; ;
+            model.printing_model = PrintModelEnum.Auto;
+            model.printing_status = PrintStatusEnum.Fail;
+            //model.barcode = DateTime.Now.ToString("HH:mm:ss");
+            model.SetPropertyChanged("RowButtonVisibility");
+            model.SetPropertyChanged("printing_time");
+            model.SetPropertyChanged("sbatches");
+            model.SetPropertyChanged("printing_model");
+            model.SetPropertyChanged("printing_status");
+
+            //myEventLog.LogInfo($"更新列表内容");
+
+            // 绑定药品汇总列表
+            BindDurgSummary(autoPrintList);
+            // 绑定统计数字
+            GetSummaryLabels();
+        }
+        private void PrintClear(tOrder model, string sBatchs)
+        {
+#warning 可能有线程出错Bug
+            myEventLog.LogInfo($"更新列表：ID={model.Id}");
+            model.printing_time = null;
+            model.sbatches = sBatchs;
+            model.printing_model = null;
+            model.printing_status = PrintStatusEnum.NotPrint;
+            //model.barcode = DateTime.Now.ToString("HH:mm:ss");
+            model.SetPropertyChanged("printing_time");
+            model.SetPropertyChanged("RowButtonVisibility");
+            model.SetPropertyChanged("sbatches");
+            model.SetPropertyChanged("printing_model");
+            model.SetPropertyChanged("printing_status");
+
+            //myEventLog.LogInfo($"更新列表内容");
+
+            // 绑定药品汇总列表
+            BindDurgSummary(autoPrintList);
+            // 绑定统计数字
+            GetSummaryLabels();
+        }
+        /// <summary>
+        /// 人工处理按钮点击事件
+        /// </summary>
+        /// <param name="sender"></param>
+        /// <param name="e"></param>
+        private void BtnAction_Click(object sender, RoutedEventArgs e)
+        {
+            var button = sender as Button;
+            if (button != null)
+            {
+                var id = Convert.ToInt32(button.Tag); // TempId 是 RowIndex
+                var order = autoPrintList.FirstOrDefault(s => s.Id == id);
+                if (order != null)
+                {
+                    PrintClear(order, "");
+                }
+            }
         }
         #endregion
 
@@ -1980,7 +2091,8 @@ namespace PrinterManagerProject
             //var autoPrintTotalCount = autoPrintList.Count();
             //var manualPrintTotalCount = autoPrintList.Count();
 
-            countModel.PrintedTotalCount = autoPrintList.Count(s => s.printing_status.HasValue);
+            countModel.PrintedTotalCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_status.Value == PrintStatusEnum.Success);
+            countModel.FailCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_status.Value == PrintStatusEnum.Fail);
             countModel.AutoCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Auto);
             countModel.ManualCount = autoPrintList.Count(s => s.printing_status.HasValue && s.printing_model.HasValue && s.printing_model.Value == PrintModelEnum.Manual);
 
@@ -2000,6 +2112,7 @@ namespace PrinterManagerProject
             Dispatcher.Invoke(() =>
             {
                 spcViewPanel.lblTotalNumber.Content = countModel.TotalCount;
+                spcViewPanel.lblFail.Content = countModel.FailCount;
                 //spcViewPanel.lbl_aotu1.Content = autoPrintTotalCount;
                 //spcViewPanel.lbl_manual1.Content = manualPrintTotalCount;
 
@@ -2284,11 +2397,7 @@ namespace PrinterManagerProject
 
                             // 清空队列
                             //myEventLog.LogInfo($"队列数量： {queue.Count}！");
-                            OrderQueueModel queueItem;
-                            while (queue.TryDequeue(out queueItem))
-                            {
-
-                            }
+                            clearQueue();
                             myEventLog.LogInfo($"清空队列！");
 
                             // 清除打印机中的打印内容
@@ -2297,9 +2406,8 @@ namespace PrinterManagerProject
                             // 先关再开
                             plcCommandSendQueueHelper.Enqueue("%01#WCSR00291**"); // 停止打印
                             // 命令间隔时间太短会导致无法启动
-                            Thread.Sleep(50);
+                            Thread.Sleep(100);
                             myEventLog.LogInfo($"发送停止命令");
-
                             plcCommandSendQueueHelper.Enqueue("%01#WCSR00201**"); // 开始打印
                             myEventLog.LogInfo($"发送开始命令");
 
@@ -2493,6 +2601,12 @@ namespace PrinterManagerProject
             myEventLog.LogInfo($"队列数量： {queue.Count}！");
             new DataSync().SubmitPrinter();
 
+            OrderQueueModel queueItem;
+            while (queue.TryDequeue(out queueItem))
+            {
+                recordPrintFail(queueItem);
+            }
+
             StopUpdateControlState();
             if (IsConnectDevices)
             {
@@ -2517,12 +2631,40 @@ namespace PrinterManagerProject
             {
                 btnPrint.IsEnabled = true;
                 btnStopPrint.IsEnabled = false;
-                cb_drug.IsEnabled = true;
-                cb_drug_category.IsEnabled = true;
-                cb_dept.IsEnabled = true;
+                //cb_drug.IsEnabled = true;
+                //cb_drug_category.IsEnabled = true;
+                //cb_dept.IsEnabled = true;
                 cb_batch.IsEnabled = true;
                 use_date.IsEnabled = true;
                 SetMenuEnabled();
+            });
+        }
+        /// <summary>
+        /// 队列不为空时改变控件状态
+        /// </summary>
+        private void EnQueueUpdateControlState()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                cb_drug.IsEnabled = false;
+                cb_drug_category.IsEnabled = false;
+                cb_dept.IsEnabled = false;
+                //cb_batch.IsEnabled = false;
+                //use_date.IsEnabled = false;
+            });
+        }
+        /// <summary>
+        /// 队列为空时，改变控件状态
+        /// </summary>
+        private void EmptyQueueUpdateControlState()
+        {
+            Dispatcher.Invoke(() =>
+            {
+                cb_drug.IsEnabled = true;
+                cb_drug_category.IsEnabled = true;
+                cb_dept.IsEnabled = true;
+                //cb_batch.IsEnabled = false;
+                //use_date.IsEnabled = false;
             });
         }
         private void StartUpdateControlState()
@@ -2533,9 +2675,9 @@ namespace PrinterManagerProject
             {
                 btnPrint.IsEnabled = false;
                 btnStopPrint.IsEnabled = true;
-                cb_drug.IsEnabled = false;
-                cb_drug_category.IsEnabled = false;
-                cb_dept.IsEnabled = false;
+                //cb_drug.IsEnabled = false;
+                //cb_drug_category.IsEnabled = false;
+                //cb_dept.IsEnabled = false;
                 cb_batch.IsEnabled = false;
                 use_date.IsEnabled = false;
                 SetMenuDisabled();
@@ -2673,10 +2815,13 @@ namespace PrinterManagerProject
             {
                 return;
             }
+            //myEventLog.LogInfo($"发送启动传送带命令");
+            if (IsConveryorBeltRunning == false)
+            {
+                plcCommandSendQueueHelper.Enqueue("%01#WCSR00050**");
+            }
             IsConveryorBeltRunning = true;
             // 启动传送带
-            //myEventLog.LogInfo($"发送启动传送带命令");
-            plcCommandSendQueueHelper.Enqueue("%01#WCSR00050**");
         }
         /// <summary>
         /// 停止传送带
@@ -2735,21 +2880,14 @@ namespace PrinterManagerProject
                 printerManager.ClearAll();
                 myEventLog.LogInfo($"检测到标签错位，停止传送带");
                 StopConveryorBelt();
-                OrderQueueModel item;
                 myEventLog.LogInfo($"检测到标签错位，第一次清空队列:{queue.Count()}个");
-                while (queue.TryDequeue(out item))
-                {
-
-                }
+                clearQueue();
                 Thread.Sleep(3000);
                 // 再清一次队列，把刚加进去的数据清除
                 myEventLog.LogInfo($"检测到标签错位，第二次清空打印机内容");
                 printerManager.ClearAll();
                 myEventLog.LogInfo($"检测到标签错位，第二次清空队列:{queue.Count()}个");
-                while (queue.TryDequeue(out item))
-                {
-
-                }
+                clearQueue();
                 // 保证所有液体都过了打印机，重置PLC的队列
                 myEventLog.LogInfo($"检测到标签错位，发送清空PLC队列命令");
                 plcCommandSendQueueHelper.Enqueue($"%01#WCSR00011**");
@@ -2766,6 +2904,15 @@ namespace PrinterManagerProject
                 StartConveryorBelt();
                 myEventLog.LogInfo($"检测到标签错位，结束清空队列流程");
             });
+        }
+        private void clearQueue()
+        {
+            OrderQueueModel item;
+            while (queue.TryDequeue(out item))
+            {
+                recordPrintFail(item);
+            }
+            EmptyQueueUpdateControlState();
         }
         /// <summary>
         /// 搜索主药

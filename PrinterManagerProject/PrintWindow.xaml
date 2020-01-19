@@ -22,6 +22,7 @@
             <src:PrintStatusConverter x:Key="printStatusConverter"/>
             <src:PrintModelConverter x:Key="printModelConverter"/>
             <src:RowBgColorConverter x:Key="rowBgColorConverter"/>
+            <src:RowColorConverter x:Key="rowColorConverter"/>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="styles/ControlStyle.xaml" />
                 <ResourceDictionary Source="styles/PrintWindowStyle.xaml" />
@@ -52,11 +53,14 @@
                                         <Style TargetType="DataGridRow">
                                             <Setter Property="Background" 
                                                 Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                            <Setter Property="Foreground" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowColorConverter}}"></Setter>
                                         </Style>
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>
                                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="序号"  Binding="{Binding RowNumber, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="60"/>-->
                                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="Id" Binding="{Binding Id, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>-->
+                                        <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="NO" Binding="{Binding is_print_snv, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="50"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="医嘱编号" Binding="{Binding group_num, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="病区名称" Binding="{Binding departmengt_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="100"/>
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="患者姓名" Binding="{Binding patient_name, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="80"/>
@@ -71,6 +75,19 @@
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签状态" Binding="{Binding printing_status, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printStatusConverter}}" Width="100"/>
                                         <!--<DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签模式" Binding="{Binding printing_model, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged, Converter={StaticResource printModelConverter}}" Width="100"/>-->
                                         <DataGridTextColumn ElementStyle="{StaticResource DataGridTextColumnCenterSytle}" Header="贴签时间" Binding="{Binding printing_time, Mode=TwoWay, UpdateSourceTrigger=PropertyChanged}" Width="150"/>
+                                        <DataGridTemplateColumn x:Name="UserAction" Header="操作" Width="100">
+                                            <DataGridTemplateColumn.CellTemplate>
+                                                <DataTemplate>
+                                                    <StackPanel Orientation="Horizontal">
+                                                        <Button x:Name="BtnAction" Content="人工复核" Height="34"
+                                                                Tag="{Binding Id}"
+                                    Width="100" Click="BtnAction_Click" Visibility="{Binding RowButtonVisibility}"
+                                    FontSize="20"  HorizontalContentAlignment="Center" VerticalContentAlignment="Center">
+                                                        </Button>
+                                                    </StackPanel>
+                                                </DataTemplate>
+                                            </DataGridTemplateColumn.CellTemplate>
+                                        </DataGridTemplateColumn>
                                     </DataGrid.Columns>
                                 </DataGrid>
 
@@ -113,6 +130,8 @@
                                         <Style TargetType="DataGridRow">
                                             <Setter Property="Background" 
                                                 Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                            <Setter Property="Foreground" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowColorConverter}}"></Setter>
                                         </Style>
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>
@@ -155,6 +174,8 @@
                                         <Style TargetType="DataGridRow">
                                             <Setter Property="Background" 
                                                 Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                            <Setter Property="Foreground" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowColorConverter}}"></Setter>
                                         </Style>
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>
@@ -246,6 +267,8 @@
                                         <Style TargetType="DataGridRow">
                                             <Setter Property="Background" 
                                                 Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowBgColorConverter}}"></Setter>
+                                            <Setter Property="Foreground" 
+                                                Value="{Binding Path=printing_status,Converter={StaticResource ResourceKey=rowColorConverter}}"></Setter>
                                         </Style>
                                     </DataGrid.RowStyle>
                                     <DataGrid.Columns>

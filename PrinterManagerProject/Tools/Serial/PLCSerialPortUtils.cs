@@ -293,6 +293,12 @@ namespace PrinterManagerProject
                 var result = Encoding.UTF8.GetString(ReDatas);
                 //myEventLog.LogInfo($"收到PLC信号：{result}。");
 
+                if(result.Contains("#RC") && result.ElementAt(13) == '1')
+                {
+                    TimeWatcher.Receive84Time = DateTime.Now;
+                    myEventLog.LogInfo($"收到84信号：{result}。");
+                }
+
                 buffer += Encoding.UTF8.GetString(ReDatas);
             }
         }

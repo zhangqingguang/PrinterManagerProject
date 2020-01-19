@@ -9,7 +9,13 @@ namespace PrinterManagerProject.EF
 {
     public partial class tOrder : INotifyPropertyChanged
     {
-
+        public string RowButtonVisibility
+        {
+            get
+            {
+                return printing_status == Models.PrintStatusEnum.Fail ? "Visible" : "Hidden"; ; 
+            }
+        }
         public event PropertyChangedEventHandler PropertyChanged;
 
         protected internal virtual void OnPropertyChanged(string propertyName)

@@ -33,6 +33,10 @@ namespace PrinterManagerProject.Tools
         /// 已人工贴签总数
         /// </summary>
         public int ManualCount { get; set; }
+        /// <summary>
+        /// 贴签失败总数
+        /// </summary>
+        public int FailCount { get; set; }
     }
 
     public class HistoryHelper

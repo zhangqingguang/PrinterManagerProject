@@ -103,6 +103,10 @@
                     <Label Content="未贴签数：" Margin="10,0,0,0" Style="{StaticResource controlLabel}"/>
                     <Label Name="lblUncomplate" Content="0"  Style="{StaticResource controlTextLabel}"/>
                 </StackPanel>
+                <StackPanel Grid.Column="2" Grid.Row="0" Orientation="Horizontal" Margin="10,10,10,5">
+                    <Label Content="贴失败数：" Margin="10,0,0,0" Foreground="Red" Style="{StaticResource controlLabel}"/>
+                    <Label Name="lblFail" Content="0" Foreground="Red"  Style="{StaticResource controlTextLabel}"/>
+                </StackPanel>
                 <StackPanel Grid.Column="0" Grid.Row="1" Orientation="Horizontal" Margin="10,5,10,5">
                     <Label Content="已贴签数：" Margin="10,0,0,0" Style="{StaticResource controlLabel}"/>
                     <Label Name="lblComplated" Content="0"  Style="{StaticResource controlTextLabel}"/>

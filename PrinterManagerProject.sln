@@ -15,6 +15,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.EF.Te
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "Loading", "Loading\Loading.csproj", "{4F01555F-F42B-4975-8CF1-E019DB1C91F9}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PrinterManagerProject.LoggerApp", "PrinterManagerProject.LoggerApp\PrinterManagerProject.LoggerApp.csproj", "{32CAFE8F-67A4-4F6E-9442-59771401F10E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -97,6 +99,18 @@ Global
 		{4F01555F-F42B-4975-8CF1-E019DB1C91F9}.Release|x64.Build.0 = Release|Any CPU
 		{4F01555F-F42B-4975-8CF1-E019DB1C91F9}.Release|x86.ActiveCfg = Release|Any CPU
 		{4F01555F-F42B-4975-8CF1-E019DB1C91F9}.Release|x86.Build.0 = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|x64.Build.0 = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Debug|x86.Build.0 = Debug|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|x64.ActiveCfg = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|x64.Build.0 = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|x86.ActiveCfg = Release|Any CPU
+		{32CAFE8F-67A4-4F6E-9442-59771401F10E}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

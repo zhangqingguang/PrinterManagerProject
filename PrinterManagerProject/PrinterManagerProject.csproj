@@ -182,6 +182,7 @@
     </Compile>
     <Compile Include="Converter\PrintModelConverter.cs" />
     <Compile Include="Converter\PrintStatusConverter.cs" />
+    <Compile Include="Converter\RowColorConverter.cs" />
     <Compile Include="Converter\RowBgColorConverter.cs" />
     <Compile Include="LoginWindow.xaml.cs">
       <DependentUpon>LoginWindow.xaml</DependentUpon>
@@ -246,6 +247,7 @@
       <DependentUpon>SignalPanelControl.xaml</DependentUpon>
     </Compile>
     <Compile Include="Tools\TimeConfig.cs" />
+    <Compile Include="Tools\TimeWatcher.cs" />
     <Compile Include="Tools\UserCache.cs" />
     <Compile Include="UserManage.xaml.cs">
       <DependentUpon>UserManage.xaml</DependentUpon>
