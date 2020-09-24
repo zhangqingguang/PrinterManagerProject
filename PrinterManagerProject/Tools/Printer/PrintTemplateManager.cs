@@ -251,7 +251,7 @@ namespace PrinterManagerProject.Tools
             x = Convert.ToInt32((x + paddingLeft) * printMultiple);
             y = Convert.ToInt32((y + paddingTop) * printMultiple);
 
-            return $@"^By3,3^FO{x},{y},^B7N,7,3,2,13,N^FD{content}^FS";
+            return $@"^By3,3^FO{x},{y},^B7N,7,4,2,13,N^FD{content}^FS";
             //return $@"^By3,3^FO{x},{y},^B7N,7,4,4,13,N^FD{content}^FS";
         }
 
@@ -260,7 +260,7 @@ namespace PrinterManagerProject.Tools
             x = Convert.ToInt32((x + paddingLeft) * printMultiple);
             y = Convert.ToInt32((y + paddingTop) * printMultiple);
 
-            return $@"^^FO{x},{y},^BQN,2,{tempConfig.QRCodeWidth/10}^FDHM,N{content}^FS";
+            return $@"^^FO{x},{y},^BQN,2,{tempConfig.QRCodeWidth/10},H^FDHM,N{content}^FS";
             //return $@"^^FO{x},{y},^BQN,3,6^FDMM,{content}^FS";
         }
 

@@ -52,6 +52,10 @@ namespace PrinterManagerProject.Models
         /// </summary>
         public bool PrinterLightScan { get; set; }
         /// <summary>
+        /// 抚标机状态
+        /// </summary>
+        public bool PressSerialState { get; set; }
+        /// <summary>
         /// 扫码枪光幕扫描
         /// </summary>
         public bool ScannerLightScan { get; set; }

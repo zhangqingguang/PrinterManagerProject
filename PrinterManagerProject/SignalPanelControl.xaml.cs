@@ -39,6 +39,10 @@ namespace PrinterManagerProject
             lblScan1.SetBinding(Label.ContentProperty, new Binding("AutoScannerText") { Source = StatusModel });
             lblScan2.SetBinding(Label.ContentProperty, new Binding("HanderScannerText") { Source = StatusModel });
             lblDb.SetBinding(Label.ContentProperty, new Binding("DBText") { Source = StatusModel });
+            lblDb.SetBinding(Label.ContentProperty, new Binding("DBText") { Source = StatusModel });
+            lblDb.SetBinding(Label.ContentProperty, new Binding("DBText") { Source = StatusModel });
+            lblControlSerialState.SetBinding(Label.ContentProperty, new Binding("ControlSerialStateText") { Source = StatusModel });
+            lblSerialState.SetBinding(Label.ContentProperty, new Binding("SerialStateText") { Source = StatusModel });
         }
 
 
@@ -93,6 +97,26 @@ namespace PrinterManagerProject
             {
                 elDb.Fill = (state? complate : errorColor);
                 StatusModel.DBText = (state? "数据库连接成功" : "数据库连接失败");
+
+            }, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
+        }
+
+        public void SetControlSerialState(bool state)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                elControlSerialState.Fill = (state ? complate : errorColor);
+                StatusModel.ControlSerialStateText = (state ? "控制串口连接成功" : "控制串口连接失败");
+
+            }, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
+        }
+
+        public void SetSerialState(bool state)
+        {
+            Task.Factory.StartNew(() =>
+            {
+                elSerialState.Fill = (state ? complate : errorColor);
+                StatusModel.SerialStateText = (state ? "传感器串口连接成功" : "传感器串口连接失败");
 
             }, new CancellationTokenSource().Token, TaskCreationOptions.None, _syncContextTaskScheduler);
         }

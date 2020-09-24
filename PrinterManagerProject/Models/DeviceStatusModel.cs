@@ -154,9 +154,61 @@ namespace PrinterManagerProject.Models
             set { SetValue(PlcStateProperty, value); }
         }
 
+
+
         // Using a DependencyProperty as the backing store for PlcState.  This enables animation, styling, binding, etc...
         public static readonly DependencyProperty PlcStateProperty =
             DependencyProperty.Register("PlcState", typeof(int), typeof(DeviceStatusModel), new PropertyMetadata(0));
+        public string ControlSerialStateText
+        {
+            get { return (string)GetValue(ControlSerialStateTextProperty); }
+            set { SetValue(ControlSerialStateTextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for ControlSerialStateText.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ControlSerialStateTextProperty =
+            DependencyProperty.Register("ControlSerialStateText", typeof(string), typeof(DeviceStatusModel), new PropertyMetadata("控制串口连接中..."));
+
+
+
+
+        public int ControlSerialState
+        {
+            get { return (int)GetValue(ControlSerialStateProperty); }
+            set { SetValue(ControlSerialStateProperty, value); }
+        }
+
+
+
+        // Using a DependencyProperty as the backing store for ControlSerialState.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty ControlSerialStateProperty =
+            DependencyProperty.Register("ControlSerialState", typeof(int), typeof(DeviceStatusModel), new PropertyMetadata(0));
+
+
+        public string SerialStateText
+        {
+            get { return (string)GetValue(SerialStateTextProperty); }
+            set { SetValue(SerialStateTextProperty, value); }
+        }
+
+        // Using a DependencyProperty as the backing store for SerialStateText.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SerialStateTextProperty =
+            DependencyProperty.Register("SerialStateText", typeof(string), typeof(DeviceStatusModel), new PropertyMetadata("传感器串口连接中..."));
+
+
+
+
+        public int SerialState
+        {
+            get { return (int)GetValue(SerialStateProperty); }
+            set { SetValue(SerialStateProperty, value); }
+        }
+
+
+
+        // Using a DependencyProperty as the backing store for SerialState.  This enables animation, styling, binding, etc...
+        public static readonly DependencyProperty SerialStateProperty =
+            DependencyProperty.Register("SerialState", typeof(int), typeof(DeviceStatusModel), new PropertyMetadata(0));
 
 
         public BindingExpressionBase SetBinding(DependencyProperty dp, BindingBase binding)

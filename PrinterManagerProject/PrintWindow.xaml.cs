@@ -27,7 +27,7 @@ namespace PrinterManagerProject
     /// <summary>
     /// PrintWindow.xaml 的交互逻辑
     /// </summary>
-    public partial class PrintWindow : BaseWindow, ScanerHandlerSerialPortInterface, ScannerSerialPortInterface, PLCSerialPortInterface, CCDSerialPortInterface
+    public partial class PrintWindow : BaseWindow, ScanerHandlerSerialPortInterface, ScannerSerialPortInterface, PLCSerialPortInterface, CCDSerialPortInterface, PressSerialPortInterface
     {
         /// <summary>
         /// 是否要连接设备
@@ -89,6 +89,15 @@ namespace PrinterManagerProject
         /// 上一次检测手动扫码枪连接状态
         /// </summary>
         private static bool PrevHanderScannerConnected = false;
+        /// <summary>
+        /// 上一次控制串口连接状态
+        /// </summary>
+        private static bool PrevControlSerialConnected = false;
+        /// <summary>
+        /// 上一次传感器串口连接状态
+        /// </summary>
+        private static bool PrevSerialConnected = false;
+
 
         /// <summary>
         /// CCD连接状态
@@ -105,7 +114,15 @@ namespace PrinterManagerProject
         /// <summary>
         /// 手动扫码枪连接状态
         /// </summary>
-        private static bool HanderScannerConnected = false; 
+        private static bool HanderScannerConnected = false;
+        /// <summary>
+        /// 控制串口连接状态
+        /// </summary>
+        private static bool ControlSerialConnected = false;
+        /// <summary>
+        /// 传感器串口连接状态
+        /// </summary>
+        private static bool SerialConnected = false;
         #endregion
 
 
@@ -192,6 +209,18 @@ namespace PrinterManagerProject
                     spcViewPanel.SetHanderScannerState(HanderScannerConnected);
                     PrevHanderScannerConnected = HanderScannerConnected;
                 }
+
+                if (PrevControlSerialConnected != ControlSerialConnected)
+                {
+                    spcViewPanel.SetControlSerialState(ControlSerialConnected);
+                    PrevControlSerialConnected = ControlSerialConnected;
+                }
+
+                if (PrevSerialConnected != SerialConnected)
+                {
+                    spcViewPanel.SetSerialState(SerialConnected);
+                    PrevSerialConnected = SerialConnected;
+                }
                 Thread.Sleep(1000);
             }
         }
@@ -245,6 +274,7 @@ namespace PrinterManagerProject
                 CCDSerialPortUtils.GetInstance(this).Open();
                 ScannerSerialPortUtils.GetInstance(this).Open();
                 ScanHandlerSerialPortUtils.GetInstance(this).Open();
+                PressSerialPortUtils.GetInstance(this).Open();
 
                 plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
                 plcCommandSendQueueHelper.Start();
@@ -1533,6 +1563,7 @@ namespace PrinterManagerProject
                 qModel.CCD1TakePhotoCount = ccd1ErrorCount+1;
                 qModel.QRData = drug.barcode;
                 qModel.PrinterLightScan = false;
+                qModel.PressSerialState = false;
                 qModel.ScannerLightScan = false;
                 qModel.CCD2LightScan = false;
                 qModel.Index = queueIndex++;
@@ -1697,6 +1728,9 @@ namespace PrinterManagerProject
                     //myEventLog.LogInfo($"Index：{model.Index}，GroupNum：{model.Drug.group_num}，BarCode={model.Drug.barcode}，记录打印机光幕时间：{model.PrintLightTime.ToString("yyyy-MM-dd HH:mm:ss fff")}");
                     model.PrinterLightScan = true;
                     //myEventLog.LogInfo($"过打印机光幕，记录过光幕状态");
+
+
+                    sendPressSerialData(model);
                     if (CanStartConveryorBelt())
                     {
                         // 打印过之后，判断是否可以可以启动
@@ -2307,6 +2341,7 @@ namespace PrinterManagerProject
             CCDSerialPortUtils.GetInstance(this).Open();
             ScannerSerialPortUtils.GetInstance(this).Open();
             ScanHandlerSerialPortUtils.GetInstance(this).Open();
+            PressSerialPortUtils.GetInstance(this).Open();
 
             plcCommandSendQueueHelper = PLCCommandQueue.GetInstance(this);
             plcCommandSendQueueHelper.Start();
@@ -2621,6 +2656,8 @@ namespace PrinterManagerProject
 
                 printerManager.ClearAll();
             }
+
+            PressSerialPortUtils.GetInstance(this).Close();
         }
 
         private void StopUpdateControlState()
@@ -2934,6 +2971,53 @@ namespace PrinterManagerProject
 
                 drugCombox.IsDropDownOpen = true;
             }
+        }
+
+        /// <summary>
+        /// 定时向抚标机发送数据
+        /// </summary>
+        /// <param name="spec">new string[]{"5％葡萄糖","500ml"}</param>
+        public void sendPressSerialData(OrderQueueModel model)
+        {
+            myEventLog.LogInfo($"等待向抚标机发送规格：{model.QRData},{model.ML}；{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}。");
+            int delay = 0;
+            switch (model.ML)
+            {
+                case "100ml":
+                    delay = PressSerialPortUtils.press100Interval;
+                    break;
+                case "250ml":
+                    delay = PressSerialPortUtils.press250Interval;
+                    break;
+                case "500ml":
+                    delay = PressSerialPortUtils.press500Interval;
+                    break;
+                default:
+                    return;
+            }
+            Task task = Task.Factory.StartNew(() =>
+            {
+                Task.Delay(delay);
+                myEventLog.LogInfo($"开始向抚标机发送规格：{model.QRData}，{model.ML}；{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}。");
+                PressSerialPortUtils.GetInstance(this).SendData(model.ML);
+                model.PressSerialState = true;
+            });
+        }
+
+        public void OnPressSerialReceived(string data)
+        {
+        }
+
+        public void OnPressSerialError(string msg)
+        {
+            SerialConnected = false;
+            ControlSerialConnected = false;
+        }
+
+        public void OnPressSerialComplated(int type)
+        {
+            SerialConnected = true;
+            ControlSerialConnected = true;
         }
     }
 
