@@ -46,7 +46,7 @@ namespace PrinterManagerProject.EF
                     }
                 }
                 // 列表按照打印状态、医嘱组号、用药时间排序
-                list = query.OrderBy(s=>s.printing_status).ThenBy(s => s.group_num).ThenBy(s => s.use_time).ToList();
+                list = query.OrderBy(s=> s.printing_status).ThenBy(s=>s.ydrug_id).ThenBy(s => s.group_num).ThenBy(s => s.use_time).ToList();
             }
 
             foreach (var order in list)

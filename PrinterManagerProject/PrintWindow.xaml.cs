@@ -2997,7 +2997,7 @@ namespace PrinterManagerProject
             }
             Task task = Task.Factory.StartNew(() =>
             {
-                Task.Delay(delay);
+                Task.Delay(delay).Wait();
                 myEventLog.LogInfo($"开始向抚标机发送规格：{model.QRData}，{model.ML}；{DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss")}。");
                 PressSerialPortUtils.GetInstance(this).SendData(model.ML);
                 model.PressSerialState = true;

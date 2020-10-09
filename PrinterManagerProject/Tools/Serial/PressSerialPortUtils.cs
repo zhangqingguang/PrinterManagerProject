@@ -107,13 +107,13 @@ namespace PrinterManagerProject.Tools
             switch (spec)
             {
                 case "100ml":
-                    Buffer[4] = 0xA0;
+                    Buffer[4] = 0xD0;
                     break;
                 case "250ml":
-                    Buffer[4] = 0x80;
+                    Buffer[4] = 0xC0;
                     break;
                 case "500ml":
-                    Buffer[4] = 0x80;
+                    Buffer[4] = 0xA0;
                     break;
                 default:
                     return;
